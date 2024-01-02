@@ -5,9 +5,5 @@
 <h1>Welcome to SvelteKit</h1>
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
 
-<ul>
-    {#each data.countries as country}
-        <li>{country.id} - {country.name}</li>
-    {/each}
 
-</ul>
+<textarea>{JSON.stringify(data, null, 2)}</textarea>
