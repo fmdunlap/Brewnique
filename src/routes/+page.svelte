@@ -1,8 +1,12 @@
 <script lang="ts">
-    export let data;
+	import { Button } from '$lib/components/ui/button';
 
-    console.log(JSON.stringify(data, null, 2));
+	export let data;
 </script>
 
 <h1 class="text-red-500">Welcome to SvelteKit</h1>
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+
+<textarea class="w-full">
+	{JSON.stringify(data, null, 2)}
+</textarea>
