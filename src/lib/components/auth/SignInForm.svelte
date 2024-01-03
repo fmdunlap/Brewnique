@@ -4,7 +4,7 @@
 
 	import type { SuperValidated } from 'sveltekit-superforms';
 
-	let data: SuperValidated<typeof LoginFormSchema>;
+	export let data: SuperValidated<typeof LoginFormSchema>;
 </script>
 
 <Form.Root
@@ -17,7 +17,7 @@
 >
 	<Form.Item>
 		<Form.Field {config} name="email">
-			<Form.Input placeholder="Email" class="placeholder:text-white" />
+			<Form.Input placeholder="Email" class="bg-white placeholder:text-orange-700" />
 			<Form.Validation />
 		</Form.Field>
 	</Form.Item>

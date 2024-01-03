@@ -5,7 +5,7 @@ import { LoginFormSchema } from '$lib/types/forms';
 
 export const load: PageServerLoad = async () => {
 	return {
-		form: superValidate(LoginFormSchema)
+		form: await superValidate(LoginFormSchema)
 	};
 };
 

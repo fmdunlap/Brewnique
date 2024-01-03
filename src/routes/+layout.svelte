@@ -23,6 +23,6 @@
 </script>
 
 <HeaderBar supabase={data.supabase} {session} />
-<div class="flex flex-col mx-auto min-h-screen bg-orange-100 p-10 md:w-2/3">
+<div class="mx-auto flex min-h-screen flex-col p-10 md:w-4/5">
 	<slot />
 </div>
