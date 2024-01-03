@@ -4,9 +4,8 @@
 	export let data;
 </script>
 
-<h1 class="text-red-500">Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-
-<textarea class="w-full">
-	{JSON.stringify(data, null, 2)}
-</textarea>
+<div>
+	<textarea class="w-full min-h-80 p-6 bg-red-200\">
+		{JSON.stringify(data, null, 2)}
+	</textarea>
+</div>

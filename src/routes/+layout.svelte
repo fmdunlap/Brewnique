@@ -22,7 +22,7 @@
 	});
 </script>
 
-<HeaderBar supabase={data.supabase} signedIn={session != null} />
-<div class="mx-auto min-h-screen bg-orange-100 p-10 md:w-2/3">
+<HeaderBar supabase={data.supabase} {session} />
+<div class="flex flex-col mx-auto min-h-screen bg-orange-100 p-10 md:w-2/3">
 	<slot />
 </div>

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import type { SupabaseClient } from '@supabase/supabase-js';
+	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import SignInDialog from './auth/SignInDialog.svelte';
+	import AvatarMenu from './AvatarMenu.svelte';
 
-	export let signedIn: boolean = false;
 	export let supabase: SupabaseClient;
+	export let session: Session | null;
 </script>
 
 <div class="sticky top-0 flex min-w-full flex-row justify-between bg-orange-500 px-4 py-4">
@@ -13,12 +14,8 @@
 		<a href="/about">About</a>
 	</div>
 	<div class="my-auto">
-		{#if signedIn}
-			<Button
-				on:click={async () => {
-					await supabase.auth.signOut();
-				}}>Logout</Button
-			>
+		{#if session != null}
+			<AvatarMenu {session} />
 		{:else}
 			<SignInDialog {supabase} />
 		{/if}
