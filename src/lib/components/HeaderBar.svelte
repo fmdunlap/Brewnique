@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Session, SupabaseClient } from '@supabase/supabase-js';
-	import SignInDialog from './auth/SignInDialog.svelte';
 	import AvatarMenu from './AvatarMenu.svelte';
 
 	export let supabase: SupabaseClient;
@@ -16,7 +15,7 @@
 		{#if session != null}
 			<AvatarMenu {supabase} {session} />
 		{:else}
-			<SignInDialog {supabase} />
+			<!-- <SignInDialog {supabase} /> -->
 		{/if}
 	</div>
 </div>
