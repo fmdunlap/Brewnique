@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import SignInDialog from './auth/SignInDialog.svelte';
 	import AvatarMenu from './AvatarMenu.svelte';
@@ -15,7 +14,7 @@
 	</div>
 	<div class="my-auto">
 		{#if session != null}
-			<AvatarMenu {session} />
+			<AvatarMenu {supabase} {session} />
 		{:else}
 			<SignInDialog {supabase} />
 		{/if}

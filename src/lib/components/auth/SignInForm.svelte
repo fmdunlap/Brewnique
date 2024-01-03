@@ -17,17 +17,9 @@
 >
 	<Form.Item>
 		<Form.Field {config} name="email">
-			<Form.Label>Email</Form.Label>
 			<Form.Input placeholder="Email" class="placeholder:text-white" />
 			<Form.Validation />
 		</Form.Field>
 	</Form.Item>
-	<Form.Item>
-		<Form.Field {config} name="password">
-			<Form.Label>Password</Form.Label>
-			<Form.Input type="password" placeholder="Password" class="placeholder:text-white" />
-			<Form.Validation />
-		</Form.Field>
-	</Form.Item>
-	<Form.Button>Sign In</Form.Button>
+	<Form.Button>Continue with Email</Form.Button>
 </Form.Root>

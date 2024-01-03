@@ -1,9 +1,16 @@
 <script lang="ts">
-	import type { Session } from "@supabase/supabase-js";
+	import type { Session, SupabaseClient } from "@supabase/supabase-js";
     import * as Dropdown from "$lib/components/ui/dropdown-menu";
 	import * as Avatar from "$lib/components/ui/avatar";
+	import { invalidateAll } from "$app/navigation";
 
     export let session: Session;
+    export let supabase: SupabaseClient;
+
+    const signOut = async () => {
+        await supabase.auth.signOut();
+        invalidateAll();
+    }
 </script>
 
 <div class="h-10 w-10 rounded-full">
@@ -20,6 +27,7 @@
                 <Dropdown.Item>Some Item</Dropdown.Item>
                 <Dropdown.Item>Another Item</Dropdown.Item>
                 <Dropdown.Item>Yet More Thing</Dropdown.Item>
+                <Dropdown.Item on:click={signOut}>Log Out</Dropdown.Item>
             </Dropdown.Group>
         </Dropdown.Content>
     </Dropdown.Root>
