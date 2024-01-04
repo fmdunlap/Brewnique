@@ -8,10 +8,12 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
+    - name: 'Create env file'
+      run: |
+        echo "${{ secrets.ENV_FILE }}" > .env
     - uses: actions/checkout@v3
     - name: Setup Bun
       uses: oven-sh/setup-bun@v1.1.1
