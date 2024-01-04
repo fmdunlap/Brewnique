@@ -3,10 +3,7 @@
 	import AvatarMenu from './AvatarMenu.svelte';
 	import { goto, preloadData, pushState } from '$app/navigation';
 	import LoginPage from '../../routes/login/+page.svelte';
-	import { page } from '$app/stores';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { superValidate } from 'sveltekit-superforms/server';
-	import { LoginFormSchema } from '$lib/types/forms';
 	import type { Database } from '$lib/types/supabaseDB';
 
 	export let supabase: SupabaseClient<Database>;
