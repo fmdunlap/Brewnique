@@ -1,0 +1,24 @@
+name: Bun.js CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v1.1.1
+      with:
+        # The version of Bun to install. (e.g. "latest", "canary", "1.0.0", "1.0.x", <sha>)
+        bun-version: latest
+    - run: bun i
+    - run: bun run check
+    - run: bun run lint
+    - run: bun run build
