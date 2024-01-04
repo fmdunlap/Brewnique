@@ -6,6 +6,10 @@ node_modules
 .env
 .env.*
 !.env.example
+/.github
+
+# shadcn defaults
+/src/lib/components/ui
 
 # Ignore files for PNPM, NPM and YARN
 pnpm-lock.yaml
