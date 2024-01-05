@@ -10,7 +10,7 @@
 <div>
 	<ul>
 		{#each links as link}
-			<li><a href={link.href}>{link.name}</a></li>
+			<li><a class="text-white" href={link.href}>{link.name}</a></li>
 		{/each}
 	</ul>
 </div>
