@@ -7,7 +7,6 @@
 	import type { Database } from '$lib/types/supabaseDB';
 	import DarkModeToggle from './DarkModeToggle.svelte';
 	import Button from './ui/button/button.svelte';
-	import Input from './ui/input/input.svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
 
