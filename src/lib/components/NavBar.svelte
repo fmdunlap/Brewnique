@@ -7,6 +7,9 @@
 	import type { Database } from '$lib/types/supabaseDB';
 	import DarkModeToggle from './DarkModeToggle.svelte';
 	import Button from './ui/button/button.svelte';
+	import Input from './ui/input/input.svelte';
+	import SearchBarButton from './SearchBarButton.svelte';
+	import SearchBar from './SearchBar.svelte';
 
 	export let supabase: SupabaseClient<Database>;
 	export let session: Session | null;
@@ -42,7 +45,13 @@
 		<Button variant="outline">LOGO</Button>
 		<a href="/"><Button variant="link">Home</Button></a>
 	</div>
-	<div class="my-auto flex flex-row gap-x-4">
+	<div class="hidden grow px-4 md:flex">
+		<SearchBar />
+	</div>
+	<div class="my-auto flex flex-row gap-x-2">
+		<div class="md:hidden">
+			<SearchBarButton />
+		</div>
 		<DarkModeToggle />
 		<div class="my-auto">
 			{#if session != null}
