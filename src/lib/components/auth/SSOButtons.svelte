@@ -2,6 +2,7 @@
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import ContinueWithGoogle from './ContinueWithGoogle.svelte';
 	import ContinueWithGithub from './ContinueWithGithub.svelte';
+	import ContinueWithEmail from './ContinueWithEmail.svelte';
 
 	export let supabase: SupabaseClient;
 </script>
@@ -17,4 +18,5 @@
 			await supabase.auth.signInWithOAuth({ provider: 'github' });
 		}}
 	/>
+	<ContinueWithEmail />
 </div>

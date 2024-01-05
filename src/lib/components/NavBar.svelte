@@ -2,7 +2,7 @@
 	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import AvatarMenu from './AvatarMenu.svelte';
 	import { goto, preloadData, pushState } from '$app/navigation';
-	import LoginPage from '../../routes/login/+page.svelte';
+	import LoginPage from '../../routes/auth/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Database } from '$lib/types/supabaseDB';
 	import DarkModeToggle from './DarkModeToggle.svelte';
@@ -56,7 +56,7 @@
 			{#if session != null}
 				<AvatarMenu {supabase} {session} />
 			{:else}
-				<a href="/login" on:click={onLoginPressed}>
+				<a href="/auth/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>
 				</a>
 			{/if}

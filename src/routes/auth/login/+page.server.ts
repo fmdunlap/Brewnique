@@ -1,11 +1,10 @@
 import { fail, type Actions } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms/server';
 import { LoginFormSchema } from '$lib/types/forms';
 
-export const load: PageServerLoad = async () => {
+export const load = async (event) => {
 	return {
-		form: await superValidate(LoginFormSchema)
+		form: await superValidate(event, LoginFormSchema)
 	};
 };
 
@@ -17,6 +16,13 @@ export const actions: Actions = {
 				form
 			});
 		}
+
+		// if user has not created an account...
+
+		// if user has created an account but is not verified...
+
+		// if user has created an account and is verified...
+
 		return {
 			form
 		};
