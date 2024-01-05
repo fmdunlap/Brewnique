@@ -33,16 +33,16 @@
 	}
 </script>
 
-<div class="sticky top-0 flex min-w-full flex-row justify-between bg-orange-500 px-4 py-4">
+<div class="sticky top-0 flex min-w-full flex-row justify-between px-4 py-4 border-b-2 border-white">
 	<div class="my-auto flex flex-row gap-x-4">
-		<a href="/">Home</a>
-		<a href="/about">About</a>
+		<a href="/" class="text-white">Home</a>
+		<a href="/about" class="text-white">About</a>
 	</div>
 	<div class="my-auto">
 		{#if session != null}
 			<AvatarMenu {supabase} {session} />
 		{:else}
-			<a href="/login" on:click={onLoginPressed}>Log In</a>
+			<a href="/login" class="text-white" on:click={onLoginPressed}>Log In</a>
 		{/if}
 	</div>
 </div>

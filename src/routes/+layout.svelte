@@ -22,7 +22,9 @@
 	});
 </script>
 
-<HeaderBar supabase={data.supabase} {session} />
-<div class="mx-auto flex min-h-screen flex-col p-10 md:w-4/5">
-	<slot />
+<div class="bg-black min-h-screen flex flex-col">
+	<HeaderBar supabase={data.supabase} {session} />
+	<div class="flex flex-col grow mx-auto p-10 md:w-4/5">
+		<slot />
+	</div>
 </div>
