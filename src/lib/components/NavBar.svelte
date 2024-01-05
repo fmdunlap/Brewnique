@@ -6,6 +6,7 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Database } from '$lib/types/supabaseDB';
 	import DarkModeToggle from './DarkModeToggle.svelte';
+	import Button from './ui/button/button.svelte';
 
 	export let supabase: SupabaseClient<Database>;
 	export let session: Session | null;
@@ -37,9 +38,9 @@
 <div
 	class="sticky top-0 flex min-w-full flex-row justify-between border-b-2 border-black px-4 py-4 dark:border-white"
 >
-	<div class="my-auto flex flex-row gap-x-4">
-		<a href="/">Home</a>
-		<a href="/about">About</a>
+	<div class="my-auto flex flex-row gap-x-2">
+		<Button variant="outline">LOGO</Button>
+		<a href="/"><Button variant="link">Home</Button></a>
 	</div>
 	<div class="my-auto flex flex-row gap-x-4">
 		<DarkModeToggle />
@@ -47,7 +48,9 @@
 			{#if session != null}
 				<AvatarMenu {supabase} {session} />
 			{:else}
-				<a href="/login" on:click={onLoginPressed}>Log In</a>
+				<a href="/login" on:click={onLoginPressed}>
+					<Button variant="secondary">Log In</Button>
+				</a>
 			{/if}
 		</div>
 	</div>
