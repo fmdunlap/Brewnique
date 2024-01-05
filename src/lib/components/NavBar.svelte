@@ -5,6 +5,7 @@
 	import LoginPage from '../../routes/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Database } from '$lib/types/supabaseDB';
+	import DarkModeToggle from './DarkModeToggle.svelte';
 
 	export let supabase: SupabaseClient<Database>;
 	export let session: Session | null;
@@ -33,17 +34,22 @@
 	}
 </script>
 
-<div class="sticky top-0 flex min-w-full flex-row justify-between px-4 py-4 border-b-2 border-white">
+<div
+	class="sticky top-0 flex min-w-full flex-row justify-between border-b-2 border-black px-4 py-4 dark:border-white"
+>
 	<div class="my-auto flex flex-row gap-x-4">
-		<a href="/" class="text-white">Home</a>
-		<a href="/about" class="text-white">About</a>
+		<a href="/">Home</a>
+		<a href="/about">About</a>
 	</div>
-	<div class="my-auto">
-		{#if session != null}
-			<AvatarMenu {supabase} {session} />
-		{:else}
-			<a href="/login" class="text-white" on:click={onLoginPressed}>Log In</a>
-		{/if}
+	<div class="my-auto flex flex-row gap-x-4">
+		<DarkModeToggle />
+		<div class="my-auto">
+			{#if session != null}
+				<AvatarMenu {supabase} {session} />
+			{:else}
+				<a href="/login" on:click={onLoginPressed}>Log In</a>
+			{/if}
+		</div>
 	</div>
 </div>
 
