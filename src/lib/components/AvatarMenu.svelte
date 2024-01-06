@@ -9,7 +9,7 @@
 
 	const signOut = async () => {
 		await data.supabase.auth.signOut();
-		invalidateAll();
+		await invalidateAll();
 	};
 </script>
 
@@ -20,11 +20,6 @@
 				<Avatar.Root>
 					<Avatar.Image src={data.user_profile?.data.avatar_url} alt="Avatar" />
 					<Avatar.Fallback>{data.session.user.email?.slice(0, 1)}</Avatar.Fallback>
-				</Avatar.Root>
-			{:else}
-				<Avatar.Root>
-					<Avatar.Image src="/assets/images/default-avatar.png" alt="Avatar" />
-					<Avatar.Fallback>?</Avatar.Fallback>
 				</Avatar.Root>
 			{/if}
 		</Dropdown.Trigger>

@@ -13,7 +13,7 @@
 
 	export let data: LayoutData;
 
-	const { supabase, session, user_profile } = data;
+	const { supabase, session } = data;
 
 	$: loginState = {
 		supabase: supabase,

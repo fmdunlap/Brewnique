@@ -1,3 +1,4 @@
+import { addDefaultAvatarToStorage, userHasAvatar } from '$lib/data/avatar.js';
 import { redirect } from '@sveltejs/kit';
 
 export const GET = async (event) => {
@@ -10,8 +11,17 @@ export const GET = async (event) => {
 	const next = url.searchParams.get('next') ?? '/';
 
 	if (code) {
-		const { error } = await supabase.auth.exchangeCodeForSession(code);
+		const {
+			error,
+			data: { user }
+		} = await supabase.auth.exchangeCodeForSession(code);
 		if (!error) {
+			if (!user?.id) {
+				throw redirect(303, '/auth/auth-code-error');
+			}
+			if (!(await userHasAvatar(user.id, supabase))) {
+				addDefaultAvatarToStorage(user.id, supabase);
+			}
 			throw redirect(303, `/${next.slice(1)}`);
 		}
 	}

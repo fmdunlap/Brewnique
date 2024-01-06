@@ -27,12 +27,5 @@ export const load: LayoutLoad = async ({ fetch, data, depends }) => {
 
 	const user_profile = session ? await getUserProfile(session, supabase) : null;
 
-	if (user_profile) {
-		user_profile.data.avatar_url =
-			'https://api.dicebear.com/7.x/lorelei-neutral/svg?' +
-			session?.user.user_metadata.name.split(' ')[0] +
-			'.svg';
-	}
-
 	return { supabase, session, user_profile };
 };
