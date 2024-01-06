@@ -2,6 +2,7 @@
 	import * as Dropdown from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { createEventDispatcher, onMount } from 'svelte';
+	import { dev } from '$app/environment';
 
 	const dispatch = createEventDispatcher();
 
@@ -18,12 +19,13 @@
 			</Avatar.Root>
 		</Dropdown.Trigger>
 		<Dropdown.Content class="w-72">
-			<Dropdown.Label>Profile</Dropdown.Label>
 			<Dropdown.Group>
-				<Dropdown.Item>Some Item</Dropdown.Item>
-				<Dropdown.Item>Another Item</Dropdown.Item>
-				<Dropdown.Item><a href="/dev">Dev Menu</a></Dropdown.Item>
+				<Dropdown.Item>Profile</Dropdown.Item>
 				<Dropdown.Item on:click={() => dispatch('signout')}>Log Out</Dropdown.Item>
+				{#if dev}
+					<Dropdown.Separator />
+					<a href="/dev"><Dropdown.Item>Dev Menu</Dropdown.Item></a>
+				{/if}
 			</Dropdown.Group>
 		</Dropdown.Content>
 	</Dropdown.Root>

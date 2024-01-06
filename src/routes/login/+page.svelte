@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Database } from '$lib/types/supabaseDB';
-	import type { Provider, Session, SupabaseClient } from '@supabase/supabase-js';
+	import type { Provider } from '@supabase/supabase-js';
 	import ContinueWithGoogle from '$lib/components/auth/ContinueWithGoogle.svelte';
 	import ContinueWithGithub from '$lib/components/auth/ContinueWithGithub.svelte';
 	import ContinueWithEmail from '$lib/components/auth/ContinueWithEmail.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { goto, invalidateAll, pushState } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
+	import { page } from '$app/stores';
 
 	const dispatch = createEventDispatcher();
 
@@ -18,7 +18,7 @@
 		supabase.auth.signInWithOAuth({
 			provider,
 			options: {
-				redirectTo: 'http://localhost:5173/auth/callback'
+				redirectTo: $page.url.origin + '/login/callback'
 			}
 		});
 	}

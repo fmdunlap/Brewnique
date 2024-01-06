@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AvatarMenu from './AvatarMenu.svelte';
 	import { goto, invalidateAll, preloadData, pushState } from '$app/navigation';
-	import LoginPage from '../../routes/auth/login/+page.svelte';
+	import LoginPage from '../../routes/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import DarkModeToggle from './DarkModeToggle.svelte';
 	import Button from './ui/button/button.svelte';
@@ -34,7 +34,7 @@
 
 		const result = await preloadData(href);
 		if (result.type === 'loaded' && result.status === 200) {
-			pushState('/auth/login', { loginOpen: true });
+			pushState('/login', { loginOpen: true });
 		} else {
 			goto(href);
 		}
@@ -64,7 +64,7 @@
 			{#if session}
 				<AvatarMenu {avatar_url} {fallback_text} on:signout={signOut} />
 			{:else}
-				<a href="/auth/login" on:click={onLoginPressed}>
+				<a href="/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>
 				</a>
 			{/if}

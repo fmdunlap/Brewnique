@@ -17,7 +17,7 @@ export const GET = async (event) => {
 		} = await supabase.auth.exchangeCodeForSession(code);
 		if (!error) {
 			if (!user?.id) {
-				throw redirect(303, '/auth/auth-code-error');
+				throw redirect(303, '/login/error');
 			}
 			if (!(await userHasAvatar(user.id, supabase))) {
 				addDefaultAvatarToStorage(user.id, supabase);
@@ -26,5 +26,5 @@ export const GET = async (event) => {
 		}
 	}
 
-	throw redirect(303, '/auth/auth-code-error');
+	throw redirect(303, '/login/error');
 };
