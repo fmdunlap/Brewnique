@@ -5,10 +5,7 @@
 	export let data;
 </script>
 
-<Card.Root>
-	<Card.Header>
-		<Card.Title>Login</Card.Title>
-	</Card.Header>
+<Card.Root class="mx-auto w-full pt-4 md:w-1/2">
 	<Card.Content>
 		<EmailLoginForm data={data.form} />
 	</Card.Content>

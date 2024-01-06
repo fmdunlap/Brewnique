@@ -1,14 +1,41 @@
-<script>
+<script lang="ts">
 	import NavBar from '$lib/components/NavBar.svelte';
 	import { onMount } from 'svelte';
 	import '../app.pcss';
-	import { invalidate } from '$app/navigation';
+	import { beforeNavigate, goto, invalidate } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
+	import type { LayoutData } from './$types';
+	import * as Dialog from '$lib/components/ui/dialog';
+	import { page } from '$app/stores';
+	import { getUserProfile } from '$lib/data/profile';
 
-	export let data;
+	export let data: LayoutData;
 
-	let { supabase, session } = data;
-	$: ({ supabase, session } = data);
+	const { supabase, session } = data;
+
+	async function shouldRedirectToOnboarding() {
+		if (!session) return false;
+
+		const user_profile = await getUserProfile(session, supabase);
+		if (!user_profile) return false;
+		if (user_profile.onboarding_state == 'completed') return false;
+		if ($page.url.pathname.startsWith('/onboarding')) return false;
+
+		return true;
+	}
+
+	beforeNavigate(async ({ cancel, to }) => {
+		if (to?.route.id != '/onboarding' && (await shouldRedirectToOnboarding())) {
+			cancel();
+			await goto('/onboarding');
+		}
+	});
+
+	onMount(async () => {
+		if (await shouldRedirectToOnboarding()) {
+			await goto('/onboarding');
+		}
+	});
 
 	onMount(() => {
 		const {
@@ -25,8 +52,10 @@
 
 <ModeWatcher />
 <div class="flex min-h-screen flex-col">
-	<NavBar supabase={data.supabase} {session} />
+	<NavBar {data} />
 	<div class="mx-auto flex grow flex-col p-10 md:w-4/5">
 		<slot />
 	</div>
 </div>
+
+<Dialog.Root></Dialog.Root>

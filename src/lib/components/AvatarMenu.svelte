@@ -1,33 +1,31 @@
 <script lang="ts">
-	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import * as Dropdown from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
-	import { invalidateAll } from '$app/navigation';
+	import { createEventDispatcher } from 'svelte';
+	import { dev } from '$app/environment';
 
-	export let session: Session;
-	export let supabase: SupabaseClient;
+	const dispatch = createEventDispatcher();
 
-	const signOut = async () => {
-		await supabase.auth.signOut();
-		invalidateAll();
-	};
+	export let avatar_url: string | null = null;
+	export let fallback_text: string | null = null;
 </script>
 
 <div class="h-10 w-10 rounded-full">
 	<Dropdown.Root>
 		<Dropdown.Trigger>
 			<Avatar.Root>
-				<Avatar.Image src={session.user?.user_metadata.avatar_url} alt="Avatar" />
-				<Avatar.Fallback>{session.user?.email?.slice(0, 1)}</Avatar.Fallback>
+				<Avatar.Image src={avatar_url} alt="Avatar" />
+				<Avatar.Fallback>{fallback_text}</Avatar.Fallback>
 			</Avatar.Root>
 		</Dropdown.Trigger>
 		<Dropdown.Content class="w-72">
-			<Dropdown.Label>Profile</Dropdown.Label>
 			<Dropdown.Group>
-				<Dropdown.Item>Some Item</Dropdown.Item>
-				<Dropdown.Item>Another Item</Dropdown.Item>
-				<Dropdown.Item>Yet More Thing</Dropdown.Item>
-				<Dropdown.Item on:click={signOut}>Log Out</Dropdown.Item>
+				<Dropdown.Item>Profile</Dropdown.Item>
+				<Dropdown.Item on:click={() => dispatch('signout')}>Log Out</Dropdown.Item>
+				{#if dev}
+					<Dropdown.Separator />
+					<a href="/dev"><Dropdown.Item>Dev Menu</Dropdown.Item></a>
+				{/if}
 			</Dropdown.Group>
 		</Dropdown.Content>
 	</Dropdown.Root>
