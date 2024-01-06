@@ -17,13 +17,16 @@
 
 	$: session = data.session;
 	$: loginDialogOpen = $page.state.loginOpen;
-	$: avatar_url = null;
-	let fallback_text = session?.user.email?.slice(0, 1);
+	let avatar_url: string | null;
+	$: avatar_url;
+	$: fallback_text = session?.user.email?.slice(0, 1);
 
 	onMount(async () => {
 		if (!session) return;
 		const user_profile = await getUserProfile(session, supabase);
-		avatar_url = user_profile?.data.avatar_url;
+		if (!user_profile) return;
+		avatar_url = user_profile.avatar_url;
+		console.log(avatar_url);
 	});
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {

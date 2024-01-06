@@ -9,7 +9,6 @@ export const GET = async (event) => {
 
 	const code = url.searchParams.get('code') as string;
 	const next = url.searchParams.get('next') ?? '/';
-
 	if (code) {
 		const {
 			error,
