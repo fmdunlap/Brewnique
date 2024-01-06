@@ -1,17 +1,18 @@
 <script lang="ts">
-	import type { SuperValidated } from 'sveltekit-superforms';
-	import type { LoginFormSchema } from '$lib/types/forms';
 	import type { Database } from '$lib/types/supabaseDB';
 	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import ContinueWithGoogle from '$lib/components/auth/ContinueWithGoogle.svelte';
 	import ContinueWithGithub from '$lib/components/auth/ContinueWithGithub.svelte';
 	import ContinueWithEmail from '$lib/components/auth/ContinueWithEmail.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { goto, invalidateAll, pushState } from '$app/navigation';
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 
 	export let data: {
 		session: Session | null;
 		supabase: SupabaseClient<Database>;
-		form: SuperValidated<typeof LoginFormSchema> | null;
 	};
 
 	const { supabase } = data;
@@ -35,11 +36,13 @@
 			}}
 		/>
 		<Separator />
-		<ContinueWithEmail />
-		<!-- {#if data.form != null}
-			<SignInForm data={data.form} />
-			<SuperDebug data={data.form} />
-		{/if} -->
+		<ContinueWithEmail
+			on:click={async () => {
+				await goto('/auth/email');
+				await invalidateAll();
+				dispatch('close');
+			}}
+		/>
 	</div>
 </div>
 

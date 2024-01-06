@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import AvatarMenu from './AvatarMenu.svelte';
-	import { goto, preloadData, pushState } from '$app/navigation';
+	import { goto, preloadData, pushState, replaceState } from '$app/navigation';
 	import LoginPage from '../../routes/auth/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Database } from '$lib/types/supabaseDB';
@@ -15,11 +15,10 @@
 
 	$: loginState = {
 		supabase: supabase,
-		session: session,
-		form: null
+		session: session
 	};
 
-	$: loginDialogOpen = loginState.form != null;
+	$: loginDialogOpen = false;
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
 		if (e.metaKey || e.ctrlKey) return;
@@ -29,11 +28,15 @@
 
 		const result = await preloadData(href);
 		if (result.type === 'loaded' && result.status === 200) {
-			loginState.form = result.data.form;
 			pushState('', { loginOpen: true });
+			loginDialogOpen = true;
 		} else {
 			goto(href);
 		}
+	}
+
+	function closeDialog() {
+		loginDialogOpen = false;
 	}
 </script>
 
@@ -68,12 +71,11 @@
 	open={loginDialogOpen}
 	onOpenChange={(open) => {
 		if (!open) {
-			loginState.form = null;
-			history.back();
+			loginDialogOpen = false;
 		}
 	}}
 >
 	<Dialog.Content class="md:w-2/3 md:max-w-full md:p-0">
-		<LoginPage data={loginState} />
+		<LoginPage on:close={closeDialog} data={loginState} />
 	</Dialog.Content>
 </Dialog.Root>
