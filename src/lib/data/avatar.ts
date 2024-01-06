@@ -10,7 +10,7 @@ export async function userHasAvatar(user_id: string, supabase: SupabaseClient<Da
 }
 
 async function downloadDicebearAvatar(user_id: string) {
-	const url = 'https://api.dicebear.com/7.x/pixel-art-neutral/svg?seed=' + user_id + '.svg';
+	const url = 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + user_id + '.svg';
 	const response = await fetch(url);
 	const svg = await response.blob();
 	return svg;
