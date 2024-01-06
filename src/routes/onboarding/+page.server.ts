@@ -1,5 +1,5 @@
 import { superValidate } from 'sveltekit-superforms/server';
-import { displayNameFormSchema } from '$lib/types/forms';
+import { bioFormSchema, displayNameFormSchema } from '$lib/types/forms';
 import { fail } from '@sveltejs/kit';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '$lib/types/supabaseDB.js';
@@ -12,12 +12,12 @@ const obscenity_matcher = new RegExpMatcher({
 
 export const load = async () => {
 	return {
-		form: await superValidate(displayNameFormSchema)
+		displayNameForm: await superValidate(displayNameFormSchema),
+		bioForm: await superValidate(bioFormSchema)
 	};
 };
 
 function displayNameTaken(supabase: SupabaseClient<Database>, display_name: string) {
-	// This is just an example. You should probably use a stored procedure.
 	return supabase
 		.from('profile')
 		.select('id')
@@ -41,6 +41,9 @@ async function advanceOnboardingState(supabase: SupabaseClient<Database>, user_i
 		await supabase.from('profile').select('onboarding_state').eq('id', user_id).single()
 	).data?.onboarding_state;
 
+	// The state machine is just a linear progression.
+	//
+	// email_unconfirmed -> display_name_pending -> bio_pending -> avatar_pending -> completed
 	let next_state: Database['public']['Enums']['onboarding_state'] | null = null;
 	switch (current_state) {
 		case 'email_unconfirmed':
@@ -49,9 +52,8 @@ async function advanceOnboardingState(supabase: SupabaseClient<Database>, user_i
 		case 'display_name_pending':
 			next_state = 'bio_pending';
 			break;
+		// For now we skip the avatar upload
 		case 'bio_pending':
-			next_state = 'avatar_pending';
-			break;
 		case 'avatar_pending':
 			next_state = 'completed';
 			break;
@@ -72,37 +74,52 @@ export const actions = {
 		if (!session) {
 			return fail(401, { message: 'Unauthorized' });
 		}
-		const form = await superValidate(request, displayNameFormSchema);
+		const displayNameForm = await superValidate(request, displayNameFormSchema);
 
-		// Convenient validation check:
-		if (!form.valid) {
-			// Again, return { form } and things will just work.
-			return fail(400, { form });
+		if (!displayNameForm.valid) {
+			return fail(400, { displayNameForm });
 		}
 
 		// Check for duplicate names
-		if (await displayNameTaken(locals.supabase, form.data.display_name)) {
-			form.errors.display_name = ['Display name is already taken.'];
-			return fail(400, { form });
+		if (await displayNameTaken(locals.supabase, displayNameForm.data.display_name)) {
+			displayNameForm.errors.display_name = ['Display name is already taken.'];
+			return fail(400, { displayNameForm });
 		}
 
 		// Check for profanity in the display name
-		if (obscenity_matcher.hasMatch(form.data.display_name)) {
-			form.errors.display_name = ['Display name contains profanity.'];
-			return fail(400, { form });
+		if (obscenity_matcher.hasMatch(displayNameForm.data.display_name)) {
+			displayNameForm.errors.display_name = ['Display name contains profanity.'];
+			return fail(400, { displayNameForm });
 		}
 
-		const { error: dn_error } = await setDisplayName(
-			locals.supabase,
-			session.user.id,
-			form.data.display_name
-		);
-		if (dn_error) {
-			console.log(dn_error);
-		}
+		await setDisplayName(locals.supabase, session.user.id, displayNameForm.data.display_name);
 		await advanceOnboardingState(locals.supabase, session.user.id);
 
-		// Yep, return { form } here too
-		return { form };
+		return { displayNameForm };
+	},
+	bio: async ({ request, locals }) => {
+		const session = await locals.getSession();
+		if (!session) {
+			return fail(401, { message: 'Unauthorized' });
+		}
+		const bioForm = await superValidate(request, bioFormSchema);
+		console.log(JSON.stringify(bioForm));
+		if (!bioForm.valid) {
+			return fail(400, { bioForm });
+		}
+
+		// Skip the bio if the user wants to
+		if (bioForm.data.skip) {
+			await advanceOnboardingState(locals.supabase, session.user.id);
+			return { bioForm };
+		}
+
+		// Check for profanity in the bio
+		if (obscenity_matcher.hasMatch(bioForm.data.bio)) {
+			bioForm.errors.bio = ['Bio contains profanity.'];
+			return fail(400, { bioForm });
+		}
+
+		return { bioForm };
 	}
 };

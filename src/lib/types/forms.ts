@@ -19,3 +19,9 @@ export const displayNameFormSchema = z.object({
 		.max(20)
 });
 export type DisplayNameFormSchema = typeof displayNameFormSchema;
+
+export const bioFormSchema = z.object({
+	bio: z.string().max(160),
+	skip: z.boolean()
+});
+export type BioFormSchema = typeof bioFormSchema;
