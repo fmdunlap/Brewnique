@@ -1,26 +1,30 @@
 <script lang="ts">
-	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import AvatarMenu from './AvatarMenu.svelte';
-	import { goto, preloadData, pushState } from '$app/navigation';
+	import { goto, invalidateAll, preloadData, pushState } from '$app/navigation';
 	import LoginPage from '../../routes/auth/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import type { Database } from '$lib/types/supabaseDB';
 	import DarkModeToggle from './DarkModeToggle.svelte';
 	import Button from './ui/button/button.svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
 	import type { LayoutData } from '../../routes/$types';
+	import { page } from '$app/stores';
+	import { getUserProfile } from '$lib/data/profile';
+	import { onMount } from 'svelte';
 
 	export let data: LayoutData;
+	const { supabase } = data;
 
-	const { supabase, session } = data;
+	$: session = data.session;
+	$: loginDialogOpen = $page.state.loginOpen;
+	$: avatar_url = null;
+	let fallback_text = session?.user.email?.slice(0, 1);
 
-	$: loginState = {
-		supabase: supabase,
-		session: session
-	};
-
-	$: loginDialogOpen = false;
+	onMount(async () => {
+		if (!session) return;
+		const user_profile = await getUserProfile(session, supabase);
+		avatar_url = user_profile?.data.avatar_url;
+	});
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
 		if (e.metaKey || e.ctrlKey) return;
@@ -30,21 +34,20 @@
 
 		const result = await preloadData(href);
 		if (result.type === 'loaded' && result.status === 200) {
-			pushState('', { loginOpen: true });
-			loginDialogOpen = true;
+			pushState('/auth/login', { loginOpen: true });
 		} else {
 			goto(href);
 		}
 	}
 
-	function closeDialog() {
-		loginDialogOpen = false;
+	async function signOut() {
+		await data.supabase.auth.signOut();
+		await invalidateAll();
+		await goto('/');
 	}
 </script>
 
-<div
-	class="sticky top-0 flex min-w-full flex-row justify-between border-b-2 border-black px-4 py-4 dark:border-white"
->
+<div class="sticky top-0 flex min-w-full flex-row justify-between border-b-2 px-4 py-4">
 	<div class="my-auto flex flex-row gap-x-2">
 		<Button variant="outline">LOGO</Button>
 		<a href="/"><Button variant="link">Home</Button></a>
@@ -58,8 +61,8 @@
 		</div>
 		<DarkModeToggle />
 		<div class="my-auto">
-			{#if session != null}
-				<AvatarMenu {data} />
+			{#if session}
+				<AvatarMenu {avatar_url} {fallback_text} on:signout={signOut} />
 			{:else}
 				<a href="/auth/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>
@@ -72,12 +75,10 @@
 <Dialog.Root
 	open={loginDialogOpen}
 	onOpenChange={(open) => {
-		if (!open) {
-			loginDialogOpen = false;
-		}
+		if (!open) history.back();
 	}}
 >
 	<Dialog.Content class="md:w-2/3 md:max-w-full md:p-0">
-		<LoginPage on:close={closeDialog} data={loginState} />
+		<LoginPage on:close={() => (loginDialogOpen = false)} {data} />
 	</Dialog.Content>
 </Dialog.Root>

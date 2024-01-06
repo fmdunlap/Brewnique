@@ -2,28 +2,14 @@
 	import NavBar from '$lib/components/NavBar.svelte';
 	import { onMount } from 'svelte';
 	import '../app.pcss';
-	import { beforeNavigate, goto, invalidate, onNavigate } from '$app/navigation';
+	import { invalidate } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
 	import type { LayoutData } from './$types';
-	import { page } from '$app/stores';
+	import * as Dialog from '$lib/components/ui/dialog';
 
 	export let data: LayoutData;
 
-	const { supabase, session, user_profile } = data;
-
-	beforeNavigate((navigation) => {
-		if (
-			!session ||
-			navigation.to?.route.id?.includes('auth/onboarding') ||
-			user_profile?.data.onboarding_state == 'complete'
-		)
-			return;
-
-		if (session && user_profile?.data.onboarding_state != 'complete') {
-			navigation.cancel();
-			goto('/auth/onboarding');
-		}
-	});
+	const { supabase, session } = data;
 
 	onMount(() => {
 		const {
@@ -45,3 +31,5 @@
 		<slot />
 	</div>
 </div>
+
+<Dialog.Root></Dialog.Root>

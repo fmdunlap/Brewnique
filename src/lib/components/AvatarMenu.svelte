@@ -1,27 +1,21 @@
 <script lang="ts">
-	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import * as Dropdown from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
-	import { invalidateAll } from '$app/navigation';
-	import type { LayoutData } from '../../routes/$types';
+	import { createEventDispatcher, onMount } from 'svelte';
 
-	export let data: LayoutData;
+	const dispatch = createEventDispatcher();
 
-	const signOut = async () => {
-		await data.supabase.auth.signOut();
-		await invalidateAll();
-	};
+	export let avatar_url: string | null = null;
+	export let fallback_text: string | null = null;
 </script>
 
 <div class="h-10 w-10 rounded-full">
 	<Dropdown.Root>
 		<Dropdown.Trigger>
-			{#if data.session != null}
-				<Avatar.Root>
-					<Avatar.Image src={data.user_profile?.data.avatar_url} alt="Avatar" />
-					<Avatar.Fallback>{data.session.user.email?.slice(0, 1)}</Avatar.Fallback>
-				</Avatar.Root>
-			{/if}
+			<Avatar.Root>
+				<Avatar.Image src={avatar_url} alt="Avatar" />
+				<Avatar.Fallback>{fallback_text}</Avatar.Fallback>
+			</Avatar.Root>
 		</Dropdown.Trigger>
 		<Dropdown.Content class="w-72">
 			<Dropdown.Label>Profile</Dropdown.Label>
@@ -29,7 +23,7 @@
 				<Dropdown.Item>Some Item</Dropdown.Item>
 				<Dropdown.Item>Another Item</Dropdown.Item>
 				<Dropdown.Item><a href="/dev">Dev Menu</a></Dropdown.Item>
-				<Dropdown.Item on:click={signOut}>Log Out</Dropdown.Item>
+				<Dropdown.Item on:click={() => dispatch('signout')}>Log Out</Dropdown.Item>
 			</Dropdown.Group>
 		</Dropdown.Content>
 	</Dropdown.Root>
