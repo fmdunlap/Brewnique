@@ -26,7 +26,6 @@
 		const user_profile = await getUserProfile(session, supabase);
 		if (!user_profile) return;
 		avatar_url = user_profile.avatar_url;
-		console.log(avatar_url);
 	});
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
