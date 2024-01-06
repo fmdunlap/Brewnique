@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Dropdown from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { dev } from '$app/environment';
 
 	const dispatch = createEventDispatcher();
