@@ -18,9 +18,7 @@
 	const { supabase } = data;
 </script>
 
-<div
-	class="my-auto flex flex-col rounded-xl border-2 border-orange-900 bg-orange-700 shadow-xl md:flex-row"
->
+<div class="my-auto flex flex-col rounded-xl border-2 shadow-xl md:flex-row">
 	<div
 		class="im-div m-auto flex w-full flex-grow rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
 	/>
@@ -35,7 +33,7 @@
 				await supabase.auth.signInWithOAuth({ provider: 'github' });
 			}}
 		/>
-		<Separator />
+		<Separator class="dark:bg-white" />
 		<ContinueWithEmail
 			on:click={async () => {
 				await goto('/auth/email');

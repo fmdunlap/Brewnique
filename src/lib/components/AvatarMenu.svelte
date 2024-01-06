@@ -3,12 +3,12 @@
 	import * as Dropdown from '$lib/components/ui/dropdown-menu';
 	import * as Avatar from '$lib/components/ui/avatar';
 	import { invalidateAll } from '$app/navigation';
+	import type { LayoutData } from '../../routes/$types';
 
-	export let session: Session;
-	export let supabase: SupabaseClient;
+	export let data: LayoutData;
 
 	const signOut = async () => {
-		await supabase.auth.signOut();
+		await data.supabase.auth.signOut();
 		invalidateAll();
 	};
 </script>
@@ -16,17 +16,24 @@
 <div class="h-10 w-10 rounded-full">
 	<Dropdown.Root>
 		<Dropdown.Trigger>
-			<Avatar.Root>
-				<Avatar.Image src={session.user?.user_metadata.avatar_url} alt="Avatar" />
-				<Avatar.Fallback>{session.user?.email?.slice(0, 1)}</Avatar.Fallback>
-			</Avatar.Root>
+			{#if data.session != null}
+				<Avatar.Root>
+					<Avatar.Image src={data.user_profile?.data.avatar_url} alt="Avatar" />
+					<Avatar.Fallback>{data.session.user.email?.slice(0, 1)}</Avatar.Fallback>
+				</Avatar.Root>
+			{:else}
+				<Avatar.Root>
+					<Avatar.Image src="/assets/images/default-avatar.png" alt="Avatar" />
+					<Avatar.Fallback>?</Avatar.Fallback>
+				</Avatar.Root>
+			{/if}
 		</Dropdown.Trigger>
 		<Dropdown.Content class="w-72">
 			<Dropdown.Label>Profile</Dropdown.Label>
 			<Dropdown.Group>
 				<Dropdown.Item>Some Item</Dropdown.Item>
 				<Dropdown.Item>Another Item</Dropdown.Item>
-				<Dropdown.Item>Yet More Thing</Dropdown.Item>
+				<Dropdown.Item><a href="/dev">Dev Menu</a></Dropdown.Item>
 				<Dropdown.Item on:click={signOut}>Log Out</Dropdown.Item>
 			</Dropdown.Group>
 		</Dropdown.Content>

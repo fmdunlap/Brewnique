@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 	import AvatarMenu from './AvatarMenu.svelte';
-	import { goto, preloadData, pushState, replaceState } from '$app/navigation';
+	import { goto, preloadData, pushState } from '$app/navigation';
 	import LoginPage from '../../routes/auth/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Database } from '$lib/types/supabaseDB';
@@ -9,9 +9,11 @@
 	import Button from './ui/button/button.svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
+	import type { LayoutData } from '../../routes/$types';
 
-	export let supabase: SupabaseClient<Database>;
-	export let session: Session | null;
+	export let data: LayoutData;
+
+	const { supabase, session, user_profile } = data;
 
 	$: loginState = {
 		supabase: supabase,
@@ -57,7 +59,7 @@
 		<DarkModeToggle />
 		<div class="my-auto">
 			{#if session != null}
-				<AvatarMenu {supabase} {session} />
+				<AvatarMenu {data} />
 			{:else}
 				<a href="/auth/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>

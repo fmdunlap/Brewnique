@@ -2,7 +2,6 @@
 	import { type SuperValidated } from 'sveltekit-superforms';
 	import type { EmailLoginFormSchema } from '$lib/types/forms';
 	import { superForm } from 'sveltekit-superforms/client';
-	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 	import { Label } from '$lib/components/ui/label';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
@@ -12,9 +11,7 @@
 	const { form, errors, constraints } = superForm(data);
 </script>
 
-{JSON.stringify(errors, null, 2)}
-
-<form>
+<form method="POST" class="flex flex-col gap-y-4">
 	<Label for="email">Email</Label>
 	<Input
 		type="email"
@@ -35,7 +32,7 @@
 		{...$constraints.password}
 	/>
 	{#if $errors.password}<span class="invalid">{$errors.password}</span>{/if}
-	<Button type="submit">Submit</Button>
-
-	<SuperDebug data={$form} />
+	<Button type="submit">Sign In</Button>
+	<Button variant="secondary">Sign Up</Button>
+	<Button variant="link">Forgot Password</Button>
 </form>
