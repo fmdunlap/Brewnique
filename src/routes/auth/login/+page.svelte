@@ -10,10 +10,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	export let data: {
-		session: Session | null;
-		supabase: SupabaseClient<Database>;
-	};
+	export let data;
 
 	const { supabase } = data;
 
