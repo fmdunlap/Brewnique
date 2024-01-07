@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Search } from 'lucide-svelte';
-	import * as Popover from './ui/popover';
+	import * as Popover from '$lib/components/ui/popover';
 	import SearchBar from './SearchBar.svelte';
 
 	let popoverOpen = false;
