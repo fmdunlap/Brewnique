@@ -9,27 +9,6 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      ingredient: {
-        Row: {
-          description: string | null
-          id: number
-          name: string
-          type: Database["public"]["Enums"]["ingredient_type"]
-        }
-        Insert: {
-          description?: string | null
-          id?: number
-          name: string
-          type: Database["public"]["Enums"]["ingredient_type"]
-        }
-        Update: {
-          description?: string | null
-          id?: number
-          name?: string
-          type?: Database["public"]["Enums"]["ingredient_type"]
-        }
-        Relationships: []
-      }
       profile: {
         Row: {
           avatar_url: string | null
@@ -130,33 +109,29 @@ export interface Database {
       recipe_ingredient: {
         Row: {
           id: number
-          ingredient_id: number | null
-          quantity: number | null
+          name: string
+          quantity: number
           recipe_id: number
-          unit: Database["public"]["Enums"]["unit_of_measurement"] | null
+          type: Database["public"]["Enums"]["ingredient_type"]
+          unit: Database["public"]["Enums"]["unit_of_measurement"]
         }
         Insert: {
           id?: number
-          ingredient_id?: number | null
-          quantity?: number | null
+          name: string
+          quantity: number
           recipe_id: number
-          unit?: Database["public"]["Enums"]["unit_of_measurement"] | null
+          type: Database["public"]["Enums"]["ingredient_type"]
+          unit: Database["public"]["Enums"]["unit_of_measurement"]
         }
         Update: {
           id?: number
-          ingredient_id?: number | null
-          quantity?: number | null
+          name?: string
+          quantity?: number
           recipe_id?: number
-          unit?: Database["public"]["Enums"]["unit_of_measurement"] | null
+          type?: Database["public"]["Enums"]["ingredient_type"]
+          unit?: Database["public"]["Enums"]["unit_of_measurement"]
         }
         Relationships: [
-          {
-            foreignKeyName: "recipe_ingredient_ingredient_id_fkey"
-            columns: ["ingredient_id"]
-            isOneToOne: false
-            referencedRelation: "ingredient"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "recipe_ingredient_recipe_id_fkey"
             columns: ["recipe_id"]
