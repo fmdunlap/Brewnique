@@ -9,6 +9,27 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      ingredient: {
+        Row: {
+          description: string | null
+          id: number
+          name: string
+          type: Database["public"]["Enums"]["ingredient_type"]
+        }
+        Insert: {
+          description?: string | null
+          id?: number
+          name: string
+          type: Database["public"]["Enums"]["ingredient_type"]
+        }
+        Update: {
+          description?: string | null
+          id?: number
+          name?: string
+          type?: Database["public"]["Enums"]["ingredient_type"]
+        }
+        Relationships: []
+      }
       profile: {
         Row: {
           avatar_url: string | null
@@ -50,6 +71,101 @@ export interface Database {
           }
         ]
       }
+      recipe: {
+        Row: {
+          brew_type: Database["public"]["Enums"]["brew_type"] | null
+          created_at: string
+          description: string | null
+          difficulty: Database["public"]["Enums"]["difficulty"] | null
+          final_gravity: number | null
+          id: number
+          name: string | null
+          original_gravity: number | null
+          process_steps: string[] | null
+          published: boolean
+          sweetened_gravity: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          brew_type?: Database["public"]["Enums"]["brew_type"] | null
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["difficulty"] | null
+          final_gravity?: number | null
+          id?: number
+          name?: string | null
+          original_gravity?: number | null
+          process_steps?: string[] | null
+          published?: boolean
+          sweetened_gravity?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          brew_type?: Database["public"]["Enums"]["brew_type"] | null
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["difficulty"] | null
+          final_gravity?: number | null
+          id?: number
+          name?: string | null
+          original_gravity?: number | null
+          process_steps?: string[] | null
+          published?: boolean
+          sweetened_gravity?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      recipe_ingredient: {
+        Row: {
+          id: number
+          ingredient_id: number | null
+          quantity: number | null
+          recipe_id: number
+          unit: Database["public"]["Enums"]["unit_of_measurement"] | null
+        }
+        Insert: {
+          id?: number
+          ingredient_id?: number | null
+          quantity?: number | null
+          recipe_id: number
+          unit?: Database["public"]["Enums"]["unit_of_measurement"] | null
+        }
+        Update: {
+          id?: number
+          ingredient_id?: number | null
+          quantity?: number | null
+          recipe_id?: number
+          unit?: Database["public"]["Enums"]["unit_of_measurement"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredient_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredient"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_ingredient_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipe"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -58,12 +174,50 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      brew_type:
+        | "Ale"
+        | "Lager"
+        | "Stout"
+        | "IPA"
+        | "Mead"
+        | "Melomel"
+        | "Cyser"
+        | "Hydromel"
+        | "Metheglin"
+        | "Cider"
+        | "Fruit Wine"
+        | "Other"
+      difficulty: "Easy" | "Intermediate" | "Hard"
+      ingredient_type:
+        | "Grain"
+        | "Hops"
+        | "Yeast"
+        | "Fruit"
+        | "Spice"
+        | "Honey"
+        | "Sugar"
+        | "Nutrient"
+        | "Additives"
+        | "Other"
       onboarding_state:
         | "email_unconfirmed"
         | "display_name_pending"
         | "bio_pending"
         | "avatar_pending"
         | "completed"
+      unit_of_measurement:
+        | "g"
+        | "kg"
+        | "oz"
+        | "lb"
+        | "ml"
+        | "l"
+        | "tsp"
+        | "tbsp"
+        | "cup"
+        | "pint"
+        | "quart"
+        | "gal"
     }
     CompositeTypes: {
       [_ in never]: never
