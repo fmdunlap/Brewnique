@@ -1,13 +1,13 @@
 <script lang="ts">
 	import AvatarMenu from './AvatarMenu.svelte';
 	import { goto, invalidateAll, preloadData, pushState } from '$app/navigation';
-	import LoginPage from '../../routes/login/+page.svelte';
+	import LoginPage from '../../../routes/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import Button from './ui/button/button.svelte';
+	import Button from '../ui/button/button.svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
-	import type { LayoutData } from '../../routes/$types';
+	import type { LayoutData } from '../../../routes/$types';
 	import { page } from '$app/stores';
 	import { getUserProfile } from '$lib/data/profile';
 	import { onMount } from 'svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import NavBar from '$lib/components/NavBar.svelte';
+	import NavBar from '$lib/components/nav/NavBar.svelte';
 	import { onMount } from 'svelte';
 	import '../app.pcss';
 	import { beforeNavigate, goto, invalidate } from '$app/navigation';
