@@ -39,8 +39,8 @@
 						</button>
 					</div>
 				</div>
-				<AspectRatio ratio={16/9}>
-					<img class="object-cover rounded-md h-full w-full" src={image} alt="Recipe" />
+				<AspectRatio ratio={16 / 9}>
+					<img class="h-full w-full rounded-md object-cover" src={image} alt="Recipe" />
 				</AspectRatio>
 				<BrewQuickFacts {batch_size} {batch_unit} {og} {fg} />
 			</div>
