@@ -8,6 +8,8 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { page } from '$app/stores';
 	import { getUserProfile } from '$lib/data/profile';
+	import { Switch } from '$lib/components/ui/switch';
+	import DataDebug from '$lib/components/dev/DataDebug.svelte';
 
 	export let data: LayoutData;
 
@@ -48,13 +50,18 @@
 
 		return () => subscription.unsubscribe();
 	});
+
+	$: showData = false;
 </script>
 
 <ModeWatcher />
 <div class="flex min-h-screen flex-col">
 	<NavBar {data} />
-	<div class="mx-auto flex grow flex-col p-6 md:p-0 md:w-5-6">
+	<div class="mx-auto flex grow flex-col p-6 md:p-0 md:pb-2 md:w-5/6">
 		<slot />
+	</div>
+	<div class="w-full bg-secondary">
+		<p class="m-auto py-12 text-center">This is the footer</p>
 	</div>
 </div>
 

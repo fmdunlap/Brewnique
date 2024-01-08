@@ -3,6 +3,7 @@
 	import { Bookmark, Star, BookmarkCheck } from 'lucide-svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import { AspectRatio } from './ui/aspect-ratio';
+	import BrewQuickFacts from './BrewQuickFacts.svelte';
 
 	export let id: string;
 	export let title: string;
@@ -11,7 +12,6 @@
 	export let image: string;
 	export let batch_size: number;
 	export let batch_unit: string;
-	export let abv: number;
 	export let og: number;
 	export let fg: number;
 </script>
@@ -42,24 +42,7 @@
 				<AspectRatio ratio={16/9}>
 					<img class="object-cover rounded-md h-full w-full" src={image} alt="Recipe" />
 				</AspectRatio>
-				<div class="flex flex-row justify-around md:h-20">
-					<div class="my-auto flex flex-col">
-						<p class="mx-auto text-center text-sm">Batch Size</p>
-						<p class="mx-auto">{batch_size} {batch_unit}</p>
-					</div>
-					<Separator orientation="vertical" />
-					<div class="my-auto flex flex-col">
-						<p class="mx-auto text-sm">ABV</p>
-						<p>{abv.toFixed(1)}%</p>
-					</div>
-					<Separator orientation="vertical" />
-					<div class="my-auto grid grid-flow-dense grid-cols-2">
-						<p class=" w-min">OG</p>
-						<p class="font-bold w-min">{og.toFixed(3)}</p>
-						<p class="w-min">FG</p>
-						<p class="font-bold w-min">{fg.toFixed(3)}</p>
-					</div>
-				</div>
+				<BrewQuickFacts {batch_size} {batch_unit} {og} {fg} />
 			</div>
 		</Card.Content>
 	</Card.Root>
