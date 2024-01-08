@@ -1,10 +1,11 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { parseParamAsNumber } from '../util';
 
-export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
+export const GET: RequestHandler = async ({ url, locals: { supabase }, fetch }) => {
 	const includeIngredients = url.searchParams.get('ingredients') === 'true';
 	const limit = parseParamAsNumber(url.searchParams.get('limit'), 10);
 	const offset = parseParamAsNumber(url.searchParams.get('offset'), 0);
+	const unpublished = url.searchParams.get('unpublished') === 'true';
 
 	const fromUser = url.searchParams.get('user_name');
 
@@ -19,16 +20,16 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 		.select(selectString)
 		.range(offset, offset + limit - 1);
 
+	if (!unpublished) {
+		query = query.eq('published', true);
+	}
+
 	if (fromUser) {
-		const { data: profile, error } = await supabase
-			.from('profile')
-			.select('id')
-			.eq('display_name', fromUser)
-			.single();
-		if (error) {
-			return json({ message: error.message }, { status: 500 });
+		const response = await fetch(`/api/v1/user?name=${fromUser}`);
+		if (response.status !== 200) {
+			return json({ message: 'No such user' }, { status: 500 });
 		}
-		query = query.eq('user_id', profile.id);
+		query = query.eq('user_id', (await response.json()).id);
 	}
 
 	const { data: recipe, error } = await query;
