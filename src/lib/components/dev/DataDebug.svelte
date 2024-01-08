@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { readable, get, type Readable } from 'svelte/store';
-
 	export let data: unknown;
 	export let label: string | null = null;
 	export let ref = undefined;
@@ -42,7 +40,7 @@
 			.replace(/>/g, '&gt;');
 
 		return encodedString.replace(
-			/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+			/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
 			function (match) {
 				let cls = 'number';
 				if (/^"/.test(match)) {
@@ -90,7 +88,7 @@
 	{/if}
 	<pre class="super-debug--pre" bind:this={ref}>
     <code class="super-debug--code">
-      {@html syntaxHighlight(debugData)}
+	    {@html syntaxHighlight(debugData)}
     </code>
   </pre>
 </div>

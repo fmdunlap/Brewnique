@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { Bookmark, Star, BookmarkCheck } from 'lucide-svelte';
-	import { Separator } from '$lib/components/ui/separator';
 	import { AspectRatio } from './ui/aspect-ratio';
 	import BrewQuickFacts from './BrewQuickFacts.svelte';
 

@@ -8,8 +8,6 @@
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { page } from '$app/stores';
 	import { getUserProfile } from '$lib/data/profile';
-	import { Switch } from '$lib/components/ui/switch';
-	import DataDebug from '$lib/components/dev/DataDebug.svelte';
 
 	export let data: LayoutData;
 
@@ -50,8 +48,6 @@
 
 		return () => subscription.unsubscribe();
 	});
-
-	$: showData = false;
 </script>
 
 <ModeWatcher />

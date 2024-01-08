@@ -1,13 +1,9 @@
 <script lang="ts">
 	import RecipeCard from '$lib/components/RecipeCard.svelte';
-	import DataDebug from '$lib/components/dev/DataDebug.svelte';
-	import { Switch } from '$lib/components/ui/switch';
 
 	export let data;
 
 	const { recipes } = data;
-
-	$: showData = false;
 </script>
 
 <div class="container grid grid-cols-1 md:grid-cols-3">
