@@ -2,6 +2,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Bookmark, Star, BookmarkCheck } from 'lucide-svelte';
 	import { Separator } from '$lib/components/ui/separator';
+	import { AspectRatio } from './ui/aspect-ratio';
 
 	export let id: string;
 	export let title: string;
@@ -38,10 +39,12 @@
 						</button>
 					</div>
 				</div>
-				<img src={image} alt="Recipe" class="mx-auto h-[200px] w-[300px]" />
-				<div class="flex h-24 flex-row justify-around md:h-20">
+				<AspectRatio ratio={16/9}>
+					<img class="object-cover rounded-md h-full w-full" src={image} alt="Recipe" />
+				</AspectRatio>
+				<div class="flex flex-row justify-around md:h-20">
 					<div class="my-auto flex flex-col">
-						<p class="mx-auto text-center">Batch Size</p>
+						<p class="mx-auto text-center text-sm">Batch Size</p>
 						<p class="mx-auto">{batch_size} {batch_unit}</p>
 					</div>
 					<Separator orientation="vertical" />
@@ -50,11 +53,11 @@
 						<p>{abv.toFixed(1)}%</p>
 					</div>
 					<Separator orientation="vertical" />
-					<div class="my-auto grid grid-cols-2">
-						<p>OG</p>
-						<p class="text-lg font-bold">{og.toFixed(3)}</p>
-						<p>FG</p>
-						<p class="text-lg font-bold">{fg.toFixed(3)}</p>
+					<div class="my-auto grid grid-flow-dense grid-cols-2">
+						<p class=" w-min">OG</p>
+						<p class="font-bold w-min">{og.toFixed(3)}</p>
+						<p class="w-min">FG</p>
+						<p class="font-bold w-min">{fg.toFixed(3)}</p>
 					</div>
 				</div>
 			</div>
