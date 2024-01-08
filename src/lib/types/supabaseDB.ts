@@ -50,6 +50,97 @@ export interface Database {
           }
         ]
       }
+      recipe: {
+        Row: {
+          brew_type: Database["public"]["Enums"]["brew_type"] | null
+          created_at: string
+          description: string | null
+          difficulty: Database["public"]["Enums"]["difficulty"] | null
+          final_gravity: number | null
+          id: number
+          name: string | null
+          original_gravity: number | null
+          process_steps: string[] | null
+          published: boolean
+          sweetened_gravity: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          brew_type?: Database["public"]["Enums"]["brew_type"] | null
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["difficulty"] | null
+          final_gravity?: number | null
+          id?: number
+          name?: string | null
+          original_gravity?: number | null
+          process_steps?: string[] | null
+          published?: boolean
+          sweetened_gravity?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          brew_type?: Database["public"]["Enums"]["brew_type"] | null
+          created_at?: string
+          description?: string | null
+          difficulty?: Database["public"]["Enums"]["difficulty"] | null
+          final_gravity?: number | null
+          id?: number
+          name?: string | null
+          original_gravity?: number | null
+          process_steps?: string[] | null
+          published?: boolean
+          sweetened_gravity?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      recipe_ingredient: {
+        Row: {
+          id: number
+          name: string
+          quantity: number
+          recipe_id: number
+          type: Database["public"]["Enums"]["ingredient_type"]
+          unit: Database["public"]["Enums"]["unit_of_measurement"]
+        }
+        Insert: {
+          id?: number
+          name: string
+          quantity: number
+          recipe_id: number
+          type: Database["public"]["Enums"]["ingredient_type"]
+          unit: Database["public"]["Enums"]["unit_of_measurement"]
+        }
+        Update: {
+          id?: number
+          name?: string
+          quantity?: number
+          recipe_id?: number
+          type?: Database["public"]["Enums"]["ingredient_type"]
+          unit?: Database["public"]["Enums"]["unit_of_measurement"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredient_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipe"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -58,12 +149,50 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      brew_type:
+        | "Ale"
+        | "Lager"
+        | "Stout"
+        | "IPA"
+        | "Mead"
+        | "Melomel"
+        | "Cyser"
+        | "Hydromel"
+        | "Metheglin"
+        | "Cider"
+        | "Fruit Wine"
+        | "Other"
+      difficulty: "Easy" | "Intermediate" | "Hard"
+      ingredient_type:
+        | "Grain"
+        | "Hops"
+        | "Yeast"
+        | "Fruit"
+        | "Spice"
+        | "Honey"
+        | "Sugar"
+        | "Nutrient"
+        | "Additives"
+        | "Other"
       onboarding_state:
         | "email_unconfirmed"
         | "display_name_pending"
         | "bio_pending"
         | "avatar_pending"
         | "completed"
+      unit_of_measurement:
+        | "g"
+        | "kg"
+        | "oz"
+        | "lb"
+        | "ml"
+        | "l"
+        | "tsp"
+        | "tbsp"
+        | "cup"
+        | "pint"
+        | "quart"
+        | "gal"
     }
     CompositeTypes: {
       [_ in never]: never

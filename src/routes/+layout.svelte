@@ -53,8 +53,11 @@
 <ModeWatcher />
 <div class="flex min-h-screen flex-col">
 	<NavBar {data} />
-	<div class="mx-auto flex grow flex-col p-10 md:w-4/5">
+	<div class="mx-auto flex grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
 		<slot />
+	</div>
+	<div class="w-full bg-secondary">
+		<p class="m-auto py-12 text-center">This is the footer</p>
 	</div>
 </div>
 
