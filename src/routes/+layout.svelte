@@ -11,7 +11,7 @@
 
 	export let data: LayoutData;
 
-	const { supabase, session } = data;
+	const { session } = data;
 
 	function shouldRedirectToOnboarding() {
 		if (!session) return false;

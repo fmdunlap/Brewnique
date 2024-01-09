@@ -1,0 +1,18 @@
+version: '3'
+services:
+  postgres:
+    container_name: dev_db
+    image: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_PASSWORD: localpostgres
+    command:
+      - '-c'
+      - 'ssl=on'
+      - '-c'
+      - 'ssl_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem'
+      - '-c'
+      - 'ssl_key_file=/etc/ssl/private/ssl-cert-snakeoil.key'
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
