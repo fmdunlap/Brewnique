@@ -1,12 +1,17 @@
-import type { Session, SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/supabaseDB';
-
-export async function getUserProfile(session: Session, supabase: SupabaseClient<Database>) {
-	return (
-		await supabase
-			.from('profile')
-			.select('*')
-			.eq('id', session?.user.id)
-			.single()
-	).data;
+export function getUserProfile() {
+	return {
+		avatar_url: 'https://authjs.dev/img/logo/logo-xs.webp',
+		bio: null,
+		created_at: null,
+		display_name: 'Guest',
+		id: 'guest',
+		onboarding_state: 'completed'
+	};
+	// return (
+	// 	await supabase
+	// 		.from('profile')
+	// 		.select('*')
+	// 		.eq('id', session?.user.id)
+	// 		.single()
+	// ).data;
 }

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Provider } from '@supabase/supabase-js';
 	import ContinueWithGoogle from '$lib/components/auth/ContinueWithGoogle.svelte';
 	import ContinueWithGithub from '$lib/components/auth/ContinueWithGithub.svelte';
 	import ContinueWithEmail from '$lib/components/auth/ContinueWithEmail.svelte';
@@ -7,21 +6,9 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
 	import { page } from '$app/stores';
+	import { signIn, signOut } from '@auth/sveltekit/client';
 
 	const dispatch = createEventDispatcher();
-
-	export let data;
-
-	const { supabase } = data;
-
-	function signInWithOAuth(provider: Provider) {
-		supabase.auth.signInWithOAuth({
-			provider,
-			options: {
-				redirectTo: $page.url.origin + '/login/callback'
-			}
-		});
-	}
 </script>
 
 <div class="my-auto flex flex-col rounded-xl border-2 shadow-xl md:flex-row">
@@ -31,12 +18,12 @@
 	<div class="m-auto flex w-2/3 flex-col gap-y-4 py-8 md:px-8">
 		<ContinueWithGoogle
 			on:click={async () => {
-				await signInWithOAuth('google');
+				await signIn('google');
 			}}
 		/>
 		<ContinueWithGithub
 			on:click={async () => {
-				await signInWithOAuth('github');
+				await signIn('github');
 			}}
 		/>
 		<Separator class="dark:bg-white" />

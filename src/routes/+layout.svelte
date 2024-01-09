@@ -2,7 +2,7 @@
 	import NavBar from '$lib/components/nav/NavBar.svelte';
 	import { onMount } from 'svelte';
 	import '../app.pcss';
-	import { beforeNavigate, goto, invalidate } from '$app/navigation';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
 	import type { LayoutData } from './$types';
 	import * as Dialog from '$lib/components/ui/dialog';
@@ -13,10 +13,10 @@
 
 	const { supabase, session } = data;
 
-	async function shouldRedirectToOnboarding() {
+	function shouldRedirectToOnboarding() {
 		if (!session) return false;
 
-		const user_profile = await getUserProfile(session, supabase);
+		const user_profile = getUserProfile();
 		if (!user_profile) return false;
 		if (user_profile.onboarding_state == 'completed') return false;
 		if ($page.url.pathname.startsWith('/onboarding')) return false;
@@ -35,18 +35,6 @@
 		if (await shouldRedirectToOnboarding()) {
 			await goto('/onboarding');
 		}
-	});
-
-	onMount(() => {
-		const {
-			data: { subscription }
-		} = supabase.auth.onAuthStateChange((event, _session) => {
-			if (_session?.expires_at !== session?.expires_at) {
-				invalidate('supabase:auth');
-			}
-		});
-
-		return () => subscription.unsubscribe();
 	});
 </script>
 

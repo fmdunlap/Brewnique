@@ -11,21 +11,19 @@
 	import { page } from '$app/stores';
 	import { getUserProfile } from '$lib/data/profile';
 	import { onMount } from 'svelte';
+	import { signOut } from '@auth/sveltekit/client';
 
 	export let data: LayoutData;
-	const { supabase } = data;
 
 	$: session = data.session;
 	$: loginDialogOpen = $page.state.loginOpen;
-	let avatar_url: string | null;
+	let avatar_url: string | undefined | null;
 	$: avatar_url;
-	$: fallback_text = session?.user.email?.slice(0, 1);
+	$: fallback_text = session?.user?.email?.slice(0, 1);
 
 	onMount(async () => {
 		if (!session) return;
-		const user_profile = await getUserProfile(session, supabase);
-		if (!user_profile) return;
-		avatar_url = user_profile.avatar_url;
+		avatar_url = session?.user?.image;
 	});
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
@@ -40,12 +38,6 @@
 		} else {
 			goto(href);
 		}
-	}
-
-	async function signOut() {
-		await data.supabase.auth.signOut();
-		await invalidateAll();
-		await goto('/');
 	}
 </script>
 
@@ -66,7 +58,7 @@
 		<DarkModeToggle />
 		<div class="my-auto">
 			{#if session}
-				<AvatarMenu {avatar_url} {fallback_text} on:signout={signOut} />
+				<AvatarMenu {avatar_url} {fallback_text} on:signout={() => signOut()} />
 			{:else}
 				<a href="/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>
@@ -83,6 +75,6 @@
 	}}
 >
 	<Dialog.Content class="md:w-2/3 md:max-w-full md:p-0">
-		<LoginPage on:close={() => (loginDialogOpen = false)} {data} />
+		<LoginPage on:close={() => (loginDialogOpen = false)} />
 	</Dialog.Content>
 </Dialog.Root>
