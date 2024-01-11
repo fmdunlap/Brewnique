@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 
-export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const recipeId = url.searchParams.get('id');
 	const includeIngredients = url.searchParams.get('ingredients') === 'true';
 

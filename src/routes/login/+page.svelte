@@ -6,7 +6,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
 	import { page } from '$app/stores';
-	import { signIn, signOut } from '@auth/sveltekit/client';
+	import ContinueWithFacebook from '$lib/components/auth/ContinueWithFacebook.svelte';
 
 	const dispatch = createEventDispatcher();
 </script>
@@ -18,12 +18,17 @@
 	<div class="m-auto flex w-2/3 flex-col gap-y-4 py-8 md:px-8">
 		<ContinueWithGoogle
 			on:click={async () => {
-				await signIn('google');
+				await goto('/login/google');
 			}}
 		/>
 		<ContinueWithGithub
 			on:click={async () => {
-				await signIn('github');
+				await goto('/login/github');
+			}}
+		/>
+		<ContinueWithFacebook
+			on:click={async () => {
+				await goto('/login/facebook');
 			}}
 		/>
 		<Separator class="dark:bg-white" />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import AvatarMenu from './AvatarMenu.svelte';
-	import { goto, invalidateAll, preloadData, pushState } from '$app/navigation';
+	import { goto, preloadData, pushState } from '$app/navigation';
 	import LoginPage from '../../../routes/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import DarkModeToggle from './DarkModeToggle.svelte';
@@ -9,9 +9,7 @@
 	import SearchBar from './SearchBar.svelte';
 	import type { LayoutData } from '../../../routes/$types';
 	import { page } from '$app/stores';
-	import { getUserProfile } from '$lib/data/profile';
 	import { onMount } from 'svelte';
-	import { signOut } from '@auth/sveltekit/client';
 
 	export let data: LayoutData;
 
@@ -58,7 +56,11 @@
 		<DarkModeToggle />
 		<div class="my-auto">
 			{#if session}
-				<AvatarMenu {avatar_url} {fallback_text} on:signout={() => signOut()} />
+				<AvatarMenu
+					{avatar_url}
+					{fallback_text}
+					on:signout={async () => await goto('/login/logout')}
+				/>
 			{:else}
 				<a href="/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>

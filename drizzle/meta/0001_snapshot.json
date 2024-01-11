@@ -1,6 +1,6 @@
 {
-  "id": "913f832e-6dca-453d-a55a-ec87d45a9959",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "47a093c9-540f-481a-8a32-2a933b5118e7",
+  "prevId": "913f832e-6dca-453d-a55a-ec87d45a9959",
   "version": "5",
   "dialect": "pg",
   "tables": {
@@ -110,6 +110,12 @@
           "name": "username",
           "type": "text",
           "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         }
       },
@@ -122,6 +128,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "username"
+          ]
+        },
+        "auth_user_email_unique": {
+          "name": "auth_user_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
           ]
         }
       }

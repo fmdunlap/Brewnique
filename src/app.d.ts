@@ -1,23 +1,21 @@
-// See https://kit.svelte.dev/docs/types#app
-// for information about these interfaces
-
-type TypedSupabase = SupabaseClient<Database>;
+/* eslint-disable @typescript-eslint/ban-types */
 
 declare global {
+	namespace Lucia {
+		type Auth = import('$lib/server/lucia').Auth;
+		type DatabaseUserAttributes = { username: string | null; email: string };
+		type DatabaseSessionAttributes = {};
+	}
+
 	namespace App {
-		// interface Error {}
-		// interface Locals {
-		// 	supabase: TypedSupabase;
-		// 	getSession: () => Promise<Session | null>;
-		// }
-		// interface PageData {
-		// 	session: Session | null;
-		// }
+		interface Locals {
+			auth: import('lucia').AuthRequest;
+		}
 		interface PageState {
 			loginOpen: boolean;
 		}
-		// interface Platform {}
 	}
 }
 
+// THIS IS IMPORTANT!!!
 export {};
