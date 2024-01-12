@@ -8,6 +8,8 @@ node_modules
 !.env.example
 /.github
 /src/lib/components/dev/*
+/drizzle
+/postgres-data
 
 # shadcn defaults
 /src/lib/components/ui

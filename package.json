@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "prettier --check . && eslint .",
+    "gen-types": "bunx supabase gen types typescript --project-id \"jefjlzwehchcvsqsdgit\" --schema public > ./src/lib/types/supabaseDB.ts",
+    "lint": "prettier . --check '!./postgres-data' && eslint .",
     "format": "prettier --write ."
   },
   "devDependencies": {

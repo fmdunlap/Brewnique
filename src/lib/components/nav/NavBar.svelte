@@ -8,7 +8,6 @@
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
 
 	export let avatarUrl: string | undefined | null = undefined;
 	export let fallbackText: string | undefined | null = undefined;
