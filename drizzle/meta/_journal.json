@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1704951310142,
-      "tag": "0000_nebulous_the_initiative",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1705000867388,
-      "tag": "0001_safe_mandrill",
+      "when": 1705072455096,
+      "tag": "0000_lethal_clea",
       "breakpoints": true
     }
   ]

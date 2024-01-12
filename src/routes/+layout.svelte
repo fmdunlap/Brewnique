@@ -7,25 +7,23 @@
 	import type { LayoutData } from './$types';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { page } from '$app/stores';
-	import { getUserProfile } from '$lib/data/profile';
 
 	export let data: LayoutData;
 
 	const { session } = data;
 
 	function shouldRedirectToOnboarding() {
-		if (!session) return false;
-
-		const user_profile = getUserProfile();
-		if (!user_profile) return false;
-		if (user_profile.onboarding_state == 'completed') return false;
-		if ($page.url.pathname.startsWith('/onboarding')) return false;
-
-		return true;
+		return (
+			session &&
+			session.user &&
+			session.user.onboardingStatus != 'COMPLETE' &&
+			!$page.url.pathname.startsWith('/onboarding')
+		);
 	}
 
 	beforeNavigate(async ({ cancel, to }) => {
 		if (to?.route.id != '/onboarding' && (await shouldRedirectToOnboarding())) {
+			console.log('redirecting to onboarding');
 			cancel();
 			await goto('/onboarding');
 		}
@@ -33,6 +31,8 @@
 
 	onMount(async () => {
 		if (await shouldRedirectToOnboarding()) {
+			console.log('redirecting to onboardingm2');
+
 			await goto('/onboarding');
 		}
 	});
@@ -40,7 +40,13 @@
 
 <ModeWatcher />
 <div class="flex min-h-screen flex-col">
-	<NavBar {data} />
+	<NavBar
+		loggedIn={session != null}
+		avatarUrl={session == null
+			? null
+			: `https://cdn.brewnique.io/avatars/${session.user.userId}.svg`}
+		fallbackText={session == null ? null : session.user.email.slice(0, 1)}
+	/>
 	<div class="mx-auto flex grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
 		<slot />
 	</div>

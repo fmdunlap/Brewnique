@@ -7,10 +7,12 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import type { PageData } from './$types';
 
-	export let data;
+	export let data: PageData;
 
-	const { user_profile } = data;
+	const { session } = data;
+	$: user = session ? session.user : null;
 
 	const { form: displayNameForm, errors: displayNameErrors } = superForm(data.displayNameForm);
 	const { form: bioForm, errors: bioFormErrors } = superForm(data.bioForm);
@@ -20,19 +22,19 @@
 	let skip = false;
 
 	onMount(() => {
-		if (user_profile?.onboarding_state === 'completed') goto('/');
+		if (!user || user.onboardingStatus === 'COMPLETE') goto('/');
 	});
 </script>
 
 <p class="mx-auto w-full py-10 text-center text-4xl">Welcome!</p>
 
-{#if user_profile?.onboarding_state === 'email_unconfirmed'}
+{#if user && user.onboardingStatus === 'email_unconfirmed'}
 	<p>Check your email</p>
 {/if}
 
 <Card.Root>
 	<Card.Content class="pt-4">
-		{#if user_profile?.onboarding_state === 'display_name_pending'}
+		{#if user && user.onboardingStatus === 'PENDING_USERNAME'}
 			<form class="flex flex-col gap-y-4" action="?/display_name" method="POST">
 				<Label for="display_name">Display Name</Label>
 				<Input
@@ -49,7 +51,7 @@
 			</form>
 		{/if}
 
-		{#if user_profile?.onboarding_state === 'bio_pending'}
+		{#if user && user.onboardingStatus === 'PENDING_BIO'}
 			<form method="POST" action="?/bio" bind:this={bioFormEl} class="flex flex-col gap-y-4">
 				<Label for="bio">Bio</Label>
 				<Textarea

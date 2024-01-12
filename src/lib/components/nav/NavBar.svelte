@@ -7,22 +7,14 @@
 	import Button from '../ui/button/button.svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
-	import type { LayoutData } from '../../../routes/$types';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 
-	export let data: LayoutData;
+	export let avatarUrl: string | undefined | null = undefined;
+	export let fallbackText: string | undefined | null = undefined;
+	export let loggedIn: boolean;
 
-	$: session = data.session;
 	$: loginDialogOpen = $page.state.loginOpen;
-	let avatar_url: string | undefined | null;
-	$: avatar_url;
-	$: fallback_text = session?.user?.email?.slice(0, 1);
-
-	onMount(async () => {
-		if (!session) return;
-		avatar_url = session?.user?.image;
-	});
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
 		if (e.metaKey || e.ctrlKey) return;
@@ -55,10 +47,10 @@
 		</div>
 		<DarkModeToggle />
 		<div class="my-auto">
-			{#if session}
+			{#if loggedIn}
 				<AvatarMenu
-					{avatar_url}
-					{fallback_text}
+					avatar_url={avatarUrl}
+					fallback_text={fallbackText}
 					on:signout={async () => await goto('/login/logout')}
 				/>
 			{:else}

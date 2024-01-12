@@ -7,11 +7,4 @@ export function getUserProfile() {
 		id: 'guest',
 		onboarding_state: 'completed'
 	};
-	// return (
-	// 	await supabase
-	// 		.from('profile')
-	// 		.select('*')
-	// 		.eq('id', session?.user.id)
-	// 		.single()
-	// ).data;
 }

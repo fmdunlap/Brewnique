@@ -1,27 +1,20 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
 import { parseParamAsNumber } from '../util';
+import { db } from '$lib/data/db';
+import { recipe, recipeIngredient } from '$src/schema';
+import { and, eq, inArray } from 'drizzle-orm';
 
-export const GET: RequestHandler = async ({ url, locals: { supabase }, fetch }) => {
+export const GET: RequestHandler = async ({ url, fetch }) => {
 	const includeIngredients = url.searchParams.get('ingredients') === 'true';
 	const limit = parseParamAsNumber(url.searchParams.get('limit'), 10);
 	const offset = parseParamAsNumber(url.searchParams.get('offset'), 0);
 	const unpublished = url.searchParams.get('unpublished') === 'true';
-
 	const fromUser = url.searchParams.get('user_name');
 
-	let selectString = '*';
-
-	if (includeIngredients) {
-		selectString += ', ingredients: recipe_ingredient(name, quantity, unit, type)';
-	}
-
-	let query = supabase
-		.from('recipe')
-		.select(selectString)
-		.range(offset, offset + limit - 1);
+	const andPredicates = [];
 
 	if (!unpublished) {
-		query = query.eq('published', true);
+		andPredicates.push(eq(recipe.published, true));
 	}
 
 	if (fromUser) {
@@ -29,13 +22,29 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, fetch }) 
 		if (response.status !== 200) {
 			return json({ message: 'No such user' }, { status: 500 });
 		}
-		query = query.eq('user_id', (await response.json()).id);
+		const fromUserId = (await response.json()).id;
+		andPredicates.push(eq(recipe.ownerId, fromUserId));
 	}
 
-	const { data: recipe, error } = await query;
+	let resultRecipes = await db
+		.select()
+		.from(recipe)
+		.limit(limit)
+		.offset(offset)
+		.where(and(...andPredicates));
 
-	if (error) {
-		return json({ message: error.message }, { status: 500 });
+	if (includeIngredients) {
+		const recipeIds = resultRecipes.map((recipe) => recipe.id);
+		const recipeIngredients = await db
+			.select()
+			.from(recipeIngredient)
+			.where(inArray(recipeIngredient.recipeId, recipeIds));
+		resultRecipes = resultRecipes.map((recipe) => {
+			return {
+				...recipe,
+				ingredients: recipeIngredients.filter((ingredient) => ingredient.recipeId === recipe.id)
+			};
+		});
 	}
 
 	if (!recipe) {

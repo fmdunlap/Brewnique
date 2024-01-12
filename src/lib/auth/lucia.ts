@@ -15,6 +15,8 @@ import {
 } from '$env/static/private';
 import { key, user } from '$src/schema';
 import { and, eq } from 'drizzle-orm';
+import { generateRandomString } from 'lucia/utils';
+import { addDefaultAvatarToStorage, userAvatarUrl } from '$lib/data/avatar';
 
 // AUTH
 
@@ -29,7 +31,10 @@ export const auth = lucia({
 	getUserAttributes: (data) => {
 		return {
 			username: data.username,
-			email: data.email
+			email: data.email,
+			avatarUrl: data.avatar_url,
+			bio: data.bio,
+			onboardingStatus: data.onboarding_status
 		};
 	}
 });
@@ -42,17 +47,33 @@ const getUserByEmail = async (email: string) => {
 	return user_query_result[0];
 };
 
-const createOAuthUser = async (userId: string, providerId: string, providerUserId: string) => {};
+const createOAuthKey = async (userId: string, providerKey: string) => {
+	await db.insert(key).values({
+		id: providerKey,
+		userId: userId
+	});
+};
 
-const userHasLoggedInWithProviderBefore = async (
-	luciaUser: typeof user.$inferSelect,
-	providerKey: string
-) => {
-	const key_query_result = await db
+const createOAuthUser = async (email: string) => {
+	const newUserId = generateRandomString(15);
+	await db.insert(user).values({
+		id: newUserId,
+		email: email,
+		username: null,
+		avatarUrl: userAvatarUrl(newUserId),
+		bio: null,
+		onboardingStatus: 'PENDING_USERNAME'
+	});
+	await addDefaultAvatarToStorage(newUserId);
+	return newUserId;
+};
+
+const userHasProviderKey = async (luciaUser: typeof user.$inferSelect, providerKey: string) => {
+	const keyQueryResult = await db
 		.select()
 		.from(key)
 		.where(and(eq(key.id, providerKey), eq(key.userId, luciaUser.id)));
-	return key_query_result.length > 0;
+	return keyQueryResult.length > 0;
 };
 
 export const getOrCreateOAuthUser = async (
@@ -64,14 +85,21 @@ export const getOrCreateOAuthUser = async (
 	const providerKey = createKeyId(providerId, providerUserId);
 	if (!existingUser) {
 		// Create & return a new oauth user.
-		// createOAuthUser()
-		return;
+		const newUserId = await createOAuthUser(email);
+		await createOAuthKey(newUserId, providerKey);
+		return {
+			id: newUserId,
+			email: email,
+			username: null
+		};
 	}
 	// Check if the user has an oauth account with the provider.
-	if (await userHasLoggedInWithProviderBefore(existingUser, providerKey)) {
-		// Return the user.
-		return existingUser;
+	if (!(await userHasProviderKey(existingUser, providerKey))) {
+		// Create a new oauth key for the user for the given provider.
+		createOAuthKey(existingUser.id, providerKey);
 	}
+	// Return the user.
+	return existingUser;
 };
 
 // PROVIDERS
@@ -85,7 +113,8 @@ export const githubAuth = github(auth, {
 export const googleAuth = google(auth, {
 	clientId: GOOGLE_CLIENT_ID,
 	clientSecret: GOOGLE_CLIENT_SECRET,
-	redirectUri: 'http://localhost:5173/login/google/callback'
+	redirectUri: 'http://localhost:5173/login/google/callback',
+	scope: ['email']
 });
 
 export const facebookAuth = facebook(auth, {

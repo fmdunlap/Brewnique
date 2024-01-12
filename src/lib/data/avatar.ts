@@ -1,40 +1,41 @@
-import type { Database } from '$lib/types/supabaseDB.js';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { db } from './db';
+import { user } from '$src/schema';
+import { eq } from 'drizzle-orm';
+import { S3 } from './s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 
-export async function userHasAvatar(user_id: string, supabase: SupabaseClient<Database>) {
-	const avatar_url = (
-		await supabase.from('profile').select('avatar_url').eq('id', user_id).single()
-	).data?.avatar_url;
-
-	return avatar_url != null;
+export function userAvatarUrl(userId: string) {
+	return 'https://cdn.brewnique.io/avatars/' + userId + '.svg';
 }
 
-async function downloadDicebearAvatar(user_id: string) {
-	const url = 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + user_id + '.svg';
+export async function userHasAvatar(userId: string) {
+	const avatarSelect = await db
+		.select({ avatarUrl: user.avatarUrl })
+		.from(user)
+		.where(eq(user.id, userId));
+	return avatarSelect.length > 0;
+}
+
+export async function downloadDicebearAvatar(userId: string) {
+	const url = 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + userId + '.svg';
 	const response = await fetch(url);
 	const svg = await response.blob();
 	return svg;
 }
 
-async function uploadAvatarToStorage(
-	user_id: string,
-	avatar_blob: Blob,
-	supabase: SupabaseClient<Database>
-) {
-	await supabase.storage.from('avatars').upload(user_id + '.svg', avatar_blob);
+export async function uploadAvatarToStorage(userId: string, avatarBlob: Blob) {
+	S3.send(
+		new PutObjectCommand({
+			Bucket: 'brewnique',
+			Key: 'avatars/' + userId + '.svg',
+			Body: Buffer.from(await avatarBlob.arrayBuffer()),
+			ContentType: 'image/svg+xml',
+			ContentLength: avatarBlob.size
+		})
+	);
 }
 
-export async function addDefaultAvatarToStorage(
-	user_id: string,
-	supabase: SupabaseClient<Database>
-) {
+export async function addDefaultAvatarToStorage(user_id: string) {
 	const avatar_blob = await downloadDicebearAvatar(user_id);
-	uploadAvatarToStorage(user_id, avatar_blob, supabase);
-	await supabase
-		.from('profile')
-		.update({
-			avatar_url: await supabase.storage.from('avatars').getPublicUrl(user_id + '.svg').data
-				.publicUrl
-		})
-		.eq('id', user_id);
+	await uploadAvatarToStorage(user_id, avatar_blob);
 }

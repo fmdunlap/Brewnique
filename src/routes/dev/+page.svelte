@@ -2,8 +2,7 @@
 	let links = [
 		{ name: 'Components', href: '/dev/components' },
 		{ name: 'Layout', href: '/dev/layout' },
-		{ name: 'Page', href: '/dev/page' },
-		{ name: 'Supabase', href: '/dev/supabase' }
+		{ name: 'Page', href: '/dev/page' }
 	];
 </script>
 

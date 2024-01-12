@@ -11,7 +11,6 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "gen-types": "bunx supabase gen types typescript --project-id \"jefjlzwehchcvsqsdgit\" --schema public > ./src/lib/types/supabaseDB.ts",
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write ."
   },
@@ -41,6 +40,8 @@
   },
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.490.0",
+    "@aws-sdk/s3-request-presigner": "^3.490.0",
     "@lucia-auth/adapter-postgresql": "^2.0.2",
     "@lucia-auth/oauth": "^3.5.1",
     "@neondatabase/serverless": "^0.7.0",

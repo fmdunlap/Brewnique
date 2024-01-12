@@ -5,7 +5,6 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
-	import { page } from '$app/stores';
 	import ContinueWithFacebook from '$lib/components/auth/ContinueWithFacebook.svelte';
 
 	const dispatch = createEventDispatcher();

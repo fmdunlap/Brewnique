@@ -1,11 +1,14 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { bioFormSchema, displayNameFormSchema } from '$lib/types/forms';
 import { fail } from '@sveltejs/kit';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/supabaseDB.js';
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
+import { db } from '$lib/data/db.js';
+import { user } from '$src/schema.js';
+import { eq } from 'drizzle-orm';
+import { auth } from '$lib/auth/lucia.js';
+import { goto } from '$app/navigation';
 
-const obscenity_matcher = new RegExpMatcher({
+const obscenityMatcher = new RegExpMatcher({
 	...englishDataset.build(),
 	...englishRecommendedTransformers
 });
@@ -17,60 +20,49 @@ export const load = async () => {
 	};
 };
 
-function displayNameTaken(supabase: SupabaseClient<Database>, display_name: string) {
-	return supabase
-		.from('profile')
-		.select('id')
-		.eq('display_name', display_name)
-		.then(({ data }) => {
-			console.log(JSON.stringify(data));
-			return data != null && data.length > 0;
-		});
+async function usernameTaken(username: string) {
+	return (await db.select().from(user).where(eq(user.username, username))).length > 0;
 }
 
-async function setDisplayName(
-	supabase: SupabaseClient<Database>,
-	user_id: string,
-	display_name: string
-) {
-	return await supabase.from('profile').update({ display_name }).eq('id', user_id);
+async function setUsername(userId: string, username: string) {
+	return await db.update(user).set({ username: username }).where(eq(user.id, userId));
 }
 
-async function advanceOnboardingState(supabase: SupabaseClient<Database>, user_id: string) {
-	const current_state = (
-		await supabase.from('profile').select('onboarding_state').eq('id', user_id).single()
-	).data?.onboarding_state;
+async function setBio(userId: string, bio: string) {
+	return await db.update(user).set({ bio: bio }).where(eq(user.id, userId));
+}
+
+async function advanceOnboardingState(userId: string) {
+	const currentState = (await db.select().from(user).where(eq(user.id, userId)))[0]
+		.onboardingStatus;
 
 	// The state machine is just a linear progression.
 	//
-	// email_unconfirmed -> display_name_pending -> bio_pending -> avatar_pending -> completed
-	let next_state: Database['public']['Enums']['onboarding_state'] | null = null;
-	switch (current_state) {
-		case 'email_unconfirmed':
-			next_state = 'display_name_pending';
-			break;
-		case 'display_name_pending':
-			next_state = 'bio_pending';
+	// display_name_pending -> bio_pending -> avatar_pending -> completed
+	let nextState: typeof currentState | null = null;
+	switch (currentState) {
+		case 'PENDING_USERNAME':
+			nextState = 'PENDING_BIO';
 			break;
 		// For now we skip the avatar upload
-		case 'bio_pending':
-		case 'avatar_pending':
-			next_state = 'completed';
+		case 'PENDING_BIO':
+		case 'PENDING_AVATAR':
+			nextState = 'COMPLETE';
 			break;
-		case 'completed':
+		case 'COMPLETE':
 		default:
-			next_state = null;
+			nextState = null;
 	}
-	if (!next_state) {
+	if (!nextState) {
 		return;
 	}
 
-	return await supabase.from('profile').update({ onboarding_state: next_state }).eq('id', user_id);
+	return await db.update(user).set({ onboardingStatus: nextState }).where(eq(user.id, userId));
 }
 
 export const actions = {
 	display_name: async ({ request, locals }) => {
-		const session = await locals.getSession();
+		const session = await locals.auth.validate();
 		if (!session) {
 			return fail(401, { message: 'Unauthorized' });
 		}
@@ -81,27 +73,29 @@ export const actions = {
 		}
 
 		// Check for duplicate names
-		if (await displayNameTaken(locals.supabase, displayNameForm.data.display_name)) {
+		if (await usernameTaken(displayNameForm.data.display_name)) {
 			displayNameForm.errors.display_name = ['Display name is already taken.'];
 			return fail(400, { displayNameForm });
 		}
 
 		// Check for profanity in the display name
-		if (obscenity_matcher.hasMatch(displayNameForm.data.display_name)) {
+		if (obscenityMatcher.hasMatch(displayNameForm.data.display_name)) {
 			displayNameForm.errors.display_name = ['Display name contains profanity.'];
 			return fail(400, { displayNameForm });
 		}
 
-		await setDisplayName(locals.supabase, session.user.id, displayNameForm.data.display_name);
-		await advanceOnboardingState(locals.supabase, session.user.id);
+		await setUsername(session.user.userId, displayNameForm.data.display_name);
+		await advanceOnboardingState(session.user.userId);
+		auth.invalidateSession(session.id);
 
 		return { displayNameForm };
 	},
 	bio: async ({ request, locals }) => {
-		const session = await locals.getSession();
+		const session = await locals.auth.validate();
 		if (!session) {
 			return fail(401, { message: 'Unauthorized' });
 		}
+
 		const bioForm = await superValidate(request, bioFormSchema);
 		console.log(JSON.stringify(bioForm));
 		if (!bioForm.valid) {
@@ -110,15 +104,22 @@ export const actions = {
 
 		// Skip the bio if the user wants to
 		if (bioForm.data.skip) {
-			await advanceOnboardingState(locals.supabase, session.user.id);
+			console.log('skipping bio form');
+
+			await advanceOnboardingState(session.user.userId);
 			return { bioForm };
 		}
 
 		// Check for profanity in the bio
-		if (obscenity_matcher.hasMatch(bioForm.data.bio)) {
+		if (obscenityMatcher.hasMatch(bioForm.data.bio)) {
+			console.log('bio contains profanity');
 			bioForm.errors.bio = ['Bio contains profanity.'];
 			return fail(400, { bioForm });
 		}
+
+		await setBio(session.user.userId, bioForm.data.bio);
+		await advanceOnboardingState(session.user.userId);
+		goto('/');
 
 		return { bioForm };
 	}
