@@ -8,6 +8,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
+	import { enhance } from '$app/forms';
 
 	export let data: PageData;
 
@@ -35,7 +36,7 @@
 <Card.Root>
 	<Card.Content class="pt-4">
 		{#if user && user.onboardingStatus === 'PENDING_USERNAME'}
-			<form class="flex flex-col gap-y-4" action="?/display_name" method="POST">
+			<form class="flex flex-col gap-y-4" action="?/display_name" use:enhance method="POST">
 				<Label for="display_name">Display Name</Label>
 				<Input
 					type="text"
@@ -52,7 +53,13 @@
 		{/if}
 
 		{#if user && user.onboardingStatus === 'PENDING_BIO'}
-			<form method="POST" action="?/bio" bind:this={bioFormEl} class="flex flex-col gap-y-4">
+			<form
+				method="POST"
+				action="?/bio"
+				bind:this={bioFormEl}
+				use:enhance
+				class="flex flex-col gap-y-4"
+			>
 				<Label for="bio">Bio</Label>
 				<Textarea
 					id="bio"

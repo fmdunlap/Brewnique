@@ -1,12 +1,11 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { bioFormSchema, displayNameFormSchema } from '$lib/types/forms';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { db } from '$lib/data/db.js';
 import { user } from '$src/schema.js';
 import { eq } from 'drizzle-orm';
 import { auth } from '$lib/auth/lucia.js';
-import { goto } from '$app/navigation';
 
 const obscenityMatcher = new RegExpMatcher({
 	...englishDataset.build(),
@@ -86,7 +85,9 @@ export const actions = {
 
 		await setUsername(session.user.userId, displayNameForm.data.display_name);
 		await advanceOnboardingState(session.user.userId);
-		auth.invalidateSession(session.id);
+		auth.updateSessionAttributes(session.user.userId, {
+			username: displayNameForm.data.display_name
+		});
 
 		return { displayNameForm };
 	},
@@ -119,8 +120,7 @@ export const actions = {
 
 		await setBio(session.user.userId, bioForm.data.bio);
 		await advanceOnboardingState(session.user.userId);
-		goto('/');
 
-		return { bioForm };
+		throw redirect(302, '/');
 	}
 };
