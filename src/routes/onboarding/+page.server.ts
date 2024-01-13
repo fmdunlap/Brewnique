@@ -1,11 +1,12 @@
 import { superValidate } from 'sveltekit-superforms/server';
-import { bioFormSchema, displayNameFormSchema } from '$lib/types/forms';
 import { fail, redirect } from '@sveltejs/kit';
 import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { db } from '$lib/data/db.js';
 import { user } from '$src/schema.js';
 import { eq } from 'drizzle-orm';
 import { auth } from '$lib/auth/lucia.js';
+import { bioFormSchema } from './BioForm.js';
+import { displayNameFormSchema } from './DisplayNameForm.js';
 
 const obscenityMatcher = new RegExpMatcher({
 	...englishDataset.build(),
