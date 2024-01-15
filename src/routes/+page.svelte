@@ -1,9 +1,28 @@
 <script lang="ts">
+	import DataDebug from '$lib/components/dev/DataDebug.svelte';
+
 	export let data;
+
+	// id: "",
+	// ownerId: "",
+	// createdAt: undefined,
+	// updatedAt: undefined,
+	// name: "",
+	// description: null,
+	// published: undefined,
+	// difficulty: undefined,
+	// brewType: null,
+	// originalGravity: null,
+	// finalGravity: null,
+	// sweetenedGravity: null,
+	// process: null,
+	// rating: undefined,
+	// batchSize: null,
+	// batchUnit: null,
+	// pictures: null,
+	// notes: null
 </script>
 
 <div>
-	<textarea class="min-h-80 w-full border-none bg-background p-6">
-		{JSON.stringify(data, null, 2)}
-	</textarea>
+	<DataDebug {data} />
 </div>

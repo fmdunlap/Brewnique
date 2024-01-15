@@ -1,7 +1,13 @@
 <script lang="ts">
+	import { Switch } from '../ui/switch';
+
 	export let data: unknown;
 	export let label: string | null = null;
 	export let ref = undefined;
+
+	export let toggleable = true;
+
+	let open = !toggleable;
 
 	function syntaxHighlight(json: unknown) {
 		switch (typeof json) {
@@ -82,16 +88,22 @@
 	$: debugData = data;
 </script>
 
-<div class="super-debug">
-	{#if label}
-		<div class="super-debug--label px-4 py-1 text-xl">{label}</div>
-	{/if}
-	<pre class="super-debug--pre" bind:this={ref}>
+{#if toggleable}
+	<Switch bind:checked={open} />
+{/if}
+
+{#if open}
+	<div class={'super-debug'}>
+		{#if label}
+			<div class="super-debug--label px-4 py-1 text-xl">{label}</div>
+		{/if}
+		<pre class="super-debug--pre" bind:this={ref}>
     <code class="super-debug--code">
 	    {@html syntaxHighlight(debugData)}
     </code>
   </pre>
-</div>
+	</div>
+{/if}
 
 <style>
 	.super-debug {
