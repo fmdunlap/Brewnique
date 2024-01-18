@@ -9,6 +9,7 @@
 	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { X } from 'lucide-svelte';
+	import { recipe, recipeIngredient } from '$src/schema';
 
 	export let data: PageData;
 	const { form, enhance } = superForm(data.form, {
@@ -121,6 +122,45 @@
 
 			<!-- Ingredients -->
 
+			<div class="flex flex-col gap-y-4">
+				<label class="text-lg" for="ingredients">Ingredients</label>
+				{#each $form.ingredients as ingredient, i}
+					<div class="flex flex-row gap-x-4">
+						<p class="mx-2 my-auto text-lg">{i + 1}.</p>
+						<Input
+							class="w-min"
+							type="number"
+							step="0.1"
+							bind:value={$form.ingredients[i].quantity}
+						/>
+						<Select
+							class="w-min"
+							items={recipeIngredient.unit.enumValues.map((unit) => {
+								return { value: unit, name: unit };
+							})}
+							bind:value={$form.ingredients[i].unit}
+						/>
+						<Input placeholder="Ingredient Name" bind:value={$form.ingredients[i].name} />
+						<Button
+							variant="destructive"
+							on:click={() => {
+								$form.ingredients = $form.ingredients.filter((_, index) => index !== i);
+							}}
+						>
+							<X />
+						</Button>
+					</div>
+				{/each}
+				<Button
+					on:click={() => {
+						$form.ingredients = [...$form.ingredients, { name: '', quantity: 0, unit: 'lb' }];
+					}}
+					class="mr-auto text-2xl font-bold"
+				>
+					+
+				</Button>
+			</div>
+
 			<!-- Process Steps -->
 
 			<div class="flex flex-col gap-y-4">
@@ -148,6 +188,11 @@
 			</div>
 
 			<!-- Notes -->
+
+			<div class="flex flex-col gap-y-4">
+				<label class="text-lg" for="notes">Notes</label>
+				<Textarea bind:value={$form.notes} />
+			</div>
 
 			<Button type="submit">Save</Button>
 		</form>

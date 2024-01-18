@@ -23,8 +23,8 @@
 	$: description = recipe.description ? recipe.description.split('\n') : '';
 	$: notes = recipe.notes ? recipe.notes.split('\n') : '';
 
-	$: pictures = recipe.pictures
-		? recipe.pictures.map((picture: string) => {
+	$: images = recipe.images
+		? recipe.images.map((picture: string) => {
 				return {
 					src: picture,
 					alt: 'Brew Picture'
@@ -47,7 +47,7 @@
 		<SaveCount count={203} />
 	</div>
 	<div class="flex w-full flex-col gap-y-3">
-		<BrewImagesCarousel images={pictures} />
+		<BrewImagesCarousel {images} />
 		<h1 class="text-2xl font-bold">{data.recipe.name}</h1>
 		<div class="flex w-full flex-row gap-x-1">
 			<p>by</p>
@@ -64,10 +64,10 @@
 		</div>
 		<div class="mx-auto w-4/5 py-4 md:w-2/3">
 			<BrewQuickFacts
-				og={recipe.original_gravity}
-				fg={recipe.final_gravity}
-				batch_size={recipe.batch_size}
-				batch_unit={recipe.batch_unit}
+				og={recipe.originalGravity}
+				fg={recipe.finalGravity}
+				batch_size={recipe.batchSize}
+				batch_unit={recipe.batchUnit}
 			/>
 		</div>
 		<RecipeIngredients ingredients={recipe.ingredients} />

@@ -4,8 +4,9 @@ import { error, fail } from '@sveltejs/kit';
 import { db } from '$lib/data/db';
 import { convertBase64ToFile } from '$lib/data/util';
 import { uploadRecipePhoto } from '$lib/data/recipe';
-import { recipe } from '$src/schema';
+import { recipe, recipeIngredient } from '$src/schema';
 import { eq } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
 
 async function getRecipe(recipeId: string): Promise<typeof recipe.$inferSelect> {
 	const recipeEntry = (await db.select().from(recipe).where(eq(recipe.id, recipeId)))[0];
@@ -15,6 +16,15 @@ async function getRecipe(recipeId: string): Promise<typeof recipe.$inferSelect> 
 	}
 
 	return recipeEntry;
+}
+
+async function getRecipeIngredients(recipeId: string) {
+	const recipeIngredients = await db
+		.select()
+		.from(recipeIngredient)
+		.where(eq(recipeIngredient.recipeId, recipeId));
+
+	return recipeIngredients;
 }
 
 export const load = async ({ params, locals }) => {
@@ -42,6 +52,15 @@ export const load = async ({ params, locals }) => {
 	form.data.originalGravity = recipeEntry.originalGravity ?? 1.0;
 	form.data.finalGravity = recipeEntry.finalGravity ?? 1.0;
 	form.data.process = recipeEntry.process ?? [];
+	form.data.notes = recipeEntry.notes ?? '';
+
+	form.data.ingredients = (await getRecipeIngredients(recipeId)).map((ingredient) => {
+		return {
+			name: ingredient.name ?? '',
+			quantity: ingredient.quantity ?? 0,
+			unit: ingredient.unit ?? 'lb'
+		};
+	});
 
 	// Unless you throw, always return { form } in load and form actions.
 	return { form };
@@ -95,9 +114,26 @@ export const actions = {
 				batchUnit: form.data.batchUnit,
 				originalGravity: form.data.originalGravity,
 				finalGravity: form.data.finalGravity,
-				process: form.data.process.filter((step) => step.length > 0)
+				process: form.data.process.filter((step) => step.length > 0),
+				notes: form.data.notes
 			})
 			.where(eq(recipe.id, recipeEntry.id));
+
+		const dbIngredients = await getRecipeIngredients(recipeEntry.id);
+
+		for (let i = 0; i < dbIngredients.length; i++) {
+			await db.delete(recipeIngredient).where(eq(recipeIngredient.id, dbIngredients[i].id));
+		}
+
+		for (let i = 0; i < form.data.ingredients.length; i++) {
+			await db.insert(recipeIngredient).values({
+				id: uuidv4(),
+				recipeId: recipeEntry.id,
+				name: form.data.ingredients[i].name,
+				quantity: form.data.ingredients[i].quantity,
+				unit: form.data.ingredients[i].unit
+			});
+		}
 
 		// Yep, return { form } here to
 		return { form };
