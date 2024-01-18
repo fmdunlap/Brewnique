@@ -23,12 +23,14 @@
 	$: description = recipe.description ? recipe.description.split('\n') : '';
 	$: notes = recipe.notes ? recipe.notes.split('\n') : '';
 
-	$: pictures = recipe.pictures.map((picture: string) => {
-		return {
-			src: picture,
-			alt: 'Brew Picture'
-		};
-	});
+	$: pictures = recipe.pictures
+		? recipe.pictures.map((picture: string) => {
+				return {
+					src: picture,
+					alt: 'Brew Picture'
+				};
+			})
+		: [];
 </script>
 
 <div class="flex flex-row justify-between pb-4 md:hidden">
