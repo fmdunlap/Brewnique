@@ -41,6 +41,7 @@ export const load = async ({ params, locals }) => {
 	form.data.batchUnit = recipeEntry.batchUnit ?? 'gal';
 	form.data.originalGravity = recipeEntry.originalGravity ?? 1.0;
 	form.data.finalGravity = recipeEntry.finalGravity ?? 1.0;
+	form.data.process = recipeEntry.process ?? [];
 
 	// Unless you throw, always return { form } in load and form actions.
 	return { form };
@@ -62,7 +63,6 @@ export const actions = {
 			error(401, 'You must be logged in to edit a recipe');
 		}
 
-		console.log(form.data.id);
 		const recipeEntry = await getRecipe(form.data.id);
 
 		if (recipeEntry.ownerId != session.user.userId) {
@@ -94,7 +94,8 @@ export const actions = {
 				batchSize: form.data.batchSize,
 				batchUnit: form.data.batchUnit,
 				originalGravity: form.data.originalGravity,
-				finalGravity: form.data.finalGravity
+				finalGravity: form.data.finalGravity,
+				process: form.data.process.filter((step) => step.length > 0)
 			})
 			.where(eq(recipe.id, recipeEntry.id));
 
