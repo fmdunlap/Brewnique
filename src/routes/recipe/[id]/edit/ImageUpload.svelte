@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Dropzone } from 'flowbite-svelte';
+	import { Dropzone, Thumbnails } from 'flowbite-svelte';
 	import ImageUploadIcon from './ImageUploadIcon.svg';
 
 	export let b64imgs: string[] = [];
-	$: b64imgs = [];
+	$: b64imgs;
 
 	const handleChange = (event: Event) => {
 		const eventTarget = event.target as HTMLInputElement;
@@ -100,9 +100,9 @@
 		</Dropzone>
 	</div>
 
-	<div class="flex flex-row gap-x-6">
+	<div class="grid grid-cols-4 gap-x-6">
 		{#each b64imgs as image, i}
-			<div class="mt-6 h-44 w-1/4 text-center">
+			<div class="mt-6 text-center">
 				<img src={image} alt="Preview" class="h-full w-full rounded-xl object-cover" />
 				<button
 					class="text-red-700 dark:text-red-400"

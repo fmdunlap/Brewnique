@@ -18,14 +18,7 @@
 <div class="mx-auto w-3/4">
 	<h1 class="py-6 text-center text-2xl">Create New Recipe</h1>
 	<Card class="my-2 p-8">
-		<form
-			class="flex flex-col gap-y-12"
-			use:enhance
-			method="post"
-			on:submit={(formData) => {
-				console.log(JSON.stringify(new FormData(formData.currentTarget)));
-			}}
-		>
+		<form class="flex flex-col gap-y-12" use:enhance method="post">
 			<input type="hidden" name="id" bind:value={$form.id} />
 			<div class="flex flex-col gap-y-4">
 				<label class="text-lg" for="name">Name</label>
@@ -49,11 +42,10 @@
 				<Textarea id="description" name="description" bind:value={$form.description} />
 			</div>
 
-			<div class="flex flex-col gap-y-4">
+			<div class="flex w-1/2 flex-col gap-y-4">
 				<label class="text-lg" for="batchSize">Batch Size</label>
 				<div class="flex flex-row gap-x-4">
 					<Input
-						class="w-1/3"
 						type="number"
 						id="batchSize"
 						name="batchSize"
@@ -78,6 +70,49 @@
 						name="batchUnit"
 						bind:value={$form.batchUnit}
 					/>
+				</div>
+			</div>
+
+			<div class="flex w-1/2 flex-row gap-x-4">
+				<div class="flex grow flex-col gap-y-4">
+					<label class="text-lg" for="originalGravity">Original Gravity</label>
+					<div class="flex flex-row gap-x-4">
+						<Input
+							type="number"
+							id="originalGravity"
+							name="originalGravity"
+							step="0.001"
+							placeholder={$form.originalGravity.toFixed(3)}
+							on:change={() => {
+								const formattedNumber = Number.parseFloat($form.originalGravity.toString());
+								if (formattedNumber > 0) {
+									$form.originalGravity = formattedNumber;
+								} else {
+									$form.originalGravity = 1;
+								}
+							}}
+						/>
+					</div>
+				</div>
+				<div class="flex grow flex-col gap-y-4">
+					<label class="text-lg" for="originalGravity">Final Gravity</label>
+					<div class="flex flex-row gap-x-4">
+						<Input
+							type="number"
+							step="0.001"
+							id="finalGravity"
+							name="finalGravity"
+							placeholder={$form.finalGravity.toFixed(3)}
+							on:change={() => {
+								const formattedNumber = Number.parseFloat($form.finalGravity.toString());
+								if (formattedNumber > 0) {
+									$form.finalGravity = formattedNumber;
+								} else {
+									$form.finalGravity = 1.0;
+								}
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 
