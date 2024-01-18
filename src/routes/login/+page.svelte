@@ -1,27 +1,13 @@
 <script lang="ts">
-	import type { Provider } from '@supabase/supabase-js';
 	import ContinueWithGoogle from '$lib/components/auth/ContinueWithGoogle.svelte';
 	import ContinueWithGithub from '$lib/components/auth/ContinueWithGithub.svelte';
 	import ContinueWithEmail from '$lib/components/auth/ContinueWithEmail.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
-	import { page } from '$app/stores';
+	import ContinueWithFacebook from '$lib/components/auth/ContinueWithFacebook.svelte';
 
 	const dispatch = createEventDispatcher();
-
-	export let data;
-
-	const { supabase } = data;
-
-	function signInWithOAuth(provider: Provider) {
-		supabase.auth.signInWithOAuth({
-			provider,
-			options: {
-				redirectTo: $page.url.origin + '/login/callback'
-			}
-		});
-	}
 </script>
 
 <div class="my-auto flex flex-col rounded-xl border-2 shadow-xl md:flex-row">
@@ -31,12 +17,17 @@
 	<div class="m-auto flex w-2/3 flex-col gap-y-4 py-8 md:px-8">
 		<ContinueWithGoogle
 			on:click={async () => {
-				await signInWithOAuth('google');
+				await goto('/login/google');
 			}}
 		/>
 		<ContinueWithGithub
 			on:click={async () => {
-				await signInWithOAuth('github');
+				await goto('/login/github');
+			}}
+		/>
+		<ContinueWithFacebook
+			on:click={async () => {
+				await goto('/login/facebook');
 			}}
 		/>
 		<Separator class="dark:bg-white" />

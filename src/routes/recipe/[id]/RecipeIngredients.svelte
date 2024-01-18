@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Tables } from '$lib/types/supabaseDB';
+	import type { recipeIngredient } from '$src/schema';
 
-	export let ingredients: Tables<'recipe_ingredient'>[];
+	export let ingredients: (typeof recipeIngredient.$inferSelect)[];
 </script>
 
 <h1 class="text-xl font-bold">Ingredients</h1>

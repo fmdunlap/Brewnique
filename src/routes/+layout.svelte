@@ -2,30 +2,28 @@
 	import NavBar from '$lib/components/nav/NavBar.svelte';
 	import { onMount } from 'svelte';
 	import '../app.pcss';
-	import { beforeNavigate, goto, invalidate } from '$app/navigation';
+	import { beforeNavigate, goto } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
 	import type { LayoutData } from './$types';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { page } from '$app/stores';
-	import { getUserProfile } from '$lib/data/profile';
 
 	export let data: LayoutData;
 
-	const { supabase, session } = data;
+	const { session } = data;
 
-	async function shouldRedirectToOnboarding() {
-		if (!session) return false;
-
-		const user_profile = await getUserProfile(session, supabase);
-		if (!user_profile) return false;
-		if (user_profile.onboarding_state == 'completed') return false;
-		if ($page.url.pathname.startsWith('/onboarding')) return false;
-
-		return true;
+	function shouldRedirectToOnboarding() {
+		return (
+			session &&
+			session.user &&
+			session.user.onboardingStatus != 'COMPLETE' &&
+			!$page.url.pathname.startsWith('/onboarding')
+		);
 	}
 
 	beforeNavigate(async ({ cancel, to }) => {
 		if (to?.route.id != '/onboarding' && (await shouldRedirectToOnboarding())) {
+			console.log('redirecting to onboarding');
 			cancel();
 			await goto('/onboarding');
 		}
@@ -33,26 +31,22 @@
 
 	onMount(async () => {
 		if (await shouldRedirectToOnboarding()) {
+			console.log('redirecting to onboardingm2');
+
 			await goto('/onboarding');
 		}
-	});
-
-	onMount(() => {
-		const {
-			data: { subscription }
-		} = supabase.auth.onAuthStateChange((event, _session) => {
-			if (_session?.expires_at !== session?.expires_at) {
-				invalidate('supabase:auth');
-			}
-		});
-
-		return () => subscription.unsubscribe();
 	});
 </script>
 
 <ModeWatcher />
 <div class="flex min-h-screen flex-col">
-	<NavBar {data} />
+	<NavBar
+		loggedIn={session != null}
+		avatarUrl={session == null
+			? null
+			: `https://cdn.brewnique.io/avatars/${session.user.userId}.svg`}
+		fallbackText={session == null ? null : session.user.email.slice(0, 1)}
+	/>
 	<div class="mx-auto flex grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
 		<slot />
 	</div>
