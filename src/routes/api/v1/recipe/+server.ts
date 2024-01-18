@@ -14,6 +14,8 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	const recipeResult = await db.select().from(recipe).where(eq(recipe.id, recipeId));
 
+	console.log('Recipe Result: ', JSON.stringify(recipeResult, null, 2));
+
 	if (recipeResult.length < 1) {
 		return json({ message: 'Recipe not found' }, { status: 404 });
 	}

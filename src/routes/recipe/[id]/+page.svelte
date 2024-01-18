@@ -16,7 +16,10 @@
 	$: showData = false;
 
 	$: recipe = data.recipe;
-	$: recipe_owner = data.recipe_owner;
+	$: recipe_owner = data.recipe_owner[0];
+
+	console.log(JSON.stringify(recipe_owner, null, 2));
+
 	$: description = recipe.description ? recipe.description.split('\n') : '';
 	$: notes = recipe.notes ? recipe.notes.split('\n') : '';
 
@@ -46,8 +49,8 @@
 		<h1 class="text-2xl font-bold">{data.recipe.name}</h1>
 		<div class="flex w-full flex-row gap-x-1">
 			<p>by</p>
-			{#if recipe_owner.display_name}
-				<UserLink display_name={recipe_owner.display_name} />
+			{#if recipe_owner.username}
+				<UserLink display_name={recipe_owner.username} />
 			{:else}
 				<p class="line-through">deleted</p>
 			{/if}
@@ -98,8 +101,8 @@
 		</div>
 
 		{#if showData}
-			<DataDebug label="recipe" data={data.recipe} />
-			<DataDebug label="recipe owner" data={data.recipe_owner} />
+			<DataDebug label="recipe" data={data.recipe} toggleable={false} />
+			<DataDebug label="recipe owner" data={data.recipe_owner} toggleable={false} />
 		{/if}
 	</div>
 {/if}

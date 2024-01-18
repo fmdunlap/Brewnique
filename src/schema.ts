@@ -103,7 +103,8 @@ export const unitOfMeasurement = pgEnum('unit_of_measurement', [
 	'cup',
 	'pint',
 	'quart',
-	'gal'
+	'gal',
+	'barrel'
 ]);
 
 export const recipe = pgTable('recipe', {
