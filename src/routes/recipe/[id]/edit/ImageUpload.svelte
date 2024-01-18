@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Dropzone, Thumbnails } from 'flowbite-svelte';
+	import { Dropzone } from 'flowbite-svelte';
 	import ImageUploadIcon from './ImageUploadIcon.svg';
 
 	export let b64imgs: string[] = [];
@@ -65,13 +65,11 @@
 		if (!event.dataTransfer) return;
 
 		if (event.dataTransfer.items) {
-			[...event.dataTransfer.items].forEach((item, i) => {
+			[...event.dataTransfer.items].forEach((item) => {
 				if (item.kind === 'file') {
 					addDataTransferItem(item);
 				}
 			});
-		} else {
-			[...event.dataTransfer.files].forEach((file, i) => {});
 		}
 	};
 </script>

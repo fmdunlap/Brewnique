@@ -6,10 +6,9 @@
 	import { superForm } from 'sveltekit-superforms/client';
 
 	import ImageUpload from './ImageUpload.svelte';
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 	import { X } from 'lucide-svelte';
-	import { recipe, recipeIngredient } from '$src/schema';
+	import { recipeIngredient } from '$src/schema';
 
 	export let data: PageData;
 	const { form, enhance } = superForm(data.form, {
@@ -124,7 +123,7 @@
 
 			<div class="flex flex-col gap-y-4">
 				<label class="text-lg" for="ingredients">Ingredients</label>
-				{#each $form.ingredients as ingredient, i}
+				{#each $form.ingredients as _, i}
 					<div class="flex flex-row gap-x-4">
 						<p class="mx-2 my-auto text-lg">{i + 1}.</p>
 						<Input
@@ -165,7 +164,7 @@
 
 			<div class="flex flex-col gap-y-4">
 				<label class="text-lg" for="process">Process Step</label>
-				{#each $form.process as step, i}
+				{#each $form.process as _, i}
 					<div class="flex flex-row gap-x-4">
 						<p class="mx-2 my-auto text-lg">{i + 1}.</p>
 						<Input id="process" bind:value={$form.process[i]} />
