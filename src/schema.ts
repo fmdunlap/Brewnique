@@ -103,7 +103,8 @@ export const unitOfMeasurement = pgEnum('unit_of_measurement', [
 	'cup',
 	'pint',
 	'quart',
-	'gal'
+	'gal',
+	'barrel'
 ]);
 
 export const recipe = pgTable('recipe', {
@@ -113,19 +114,19 @@ export const recipe = pgTable('recipe', {
 		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
-	name: text('name').notNull(),
+	name: text('name'),
 	description: text('description'),
 	published: boolean('published').notNull().default(false),
-	difficulty: difficulty('difficulty').notNull().default('EASY'),
+	difficulty: difficulty('difficulty').default('EASY'),
 	brewType: brewType('brew_type'),
 	originalGravity: real('original_gravity'),
 	finalGravity: real('final_gravity'),
 	sweetenedGravity: real('sweetened_gravity'),
 	process: text('process').array(),
-	rating: real('rating').notNull().default(0),
+	rating: real('rating').default(0),
 	batchSize: smallint('batch_size').default(0),
 	batchUnit: unitOfMeasurement('batch_unit').default('gal'),
-	pictures: text('pictures').array(),
+	images: text('images').array(),
 	notes: text('notes')
 });
 
@@ -134,8 +135,7 @@ export const recipeIngredient = pgTable('recipe_ingredient', {
 	recipeId: uuid('recipe_id')
 		.notNull()
 		.references(() => recipe.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-	name: text('name').notNull(),
-	quantity: real('quantity').notNull(),
-	unit: unitOfMeasurement('unit').notNull(),
-	type: ingredientType('type').notNull()
+	name: text('name'),
+	quantity: real('quantity'),
+	unit: unitOfMeasurement('unit')
 });

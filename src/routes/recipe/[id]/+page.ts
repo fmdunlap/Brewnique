@@ -8,7 +8,7 @@ export const load = async ({ params, fetch }) => {
 	}
 	const recipe = await recipe_resp.json();
 
-	const user_resp = await fetch(`/api/v1/user?id=${recipe.user_id}`);
+	const user_resp = await fetch(`/api/v1/user?id=${recipe.ownerId}`);
 	const recipe_owner = await user_resp.json();
 
 	return {

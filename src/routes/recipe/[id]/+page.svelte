@@ -16,16 +16,21 @@
 	$: showData = false;
 
 	$: recipe = data.recipe;
-	$: recipe_owner = data.recipe_owner;
+	$: recipe_owner = data.recipe_owner[0];
+
+	console.log(JSON.stringify(recipe_owner, null, 2));
+
 	$: description = recipe.description ? recipe.description.split('\n') : '';
 	$: notes = recipe.notes ? recipe.notes.split('\n') : '';
 
-	$: pictures = recipe.pictures.map((picture: string) => {
-		return {
-			src: picture,
-			alt: 'Brew Picture'
-		};
-	});
+	$: images = recipe.images
+		? recipe.images.map((picture: string) => {
+				return {
+					src: picture,
+					alt: 'Brew Picture'
+				};
+			})
+		: [];
 </script>
 
 <div class="flex flex-row justify-between pb-4 md:hidden">
@@ -42,12 +47,12 @@
 		<SaveCount count={203} />
 	</div>
 	<div class="flex w-full flex-col gap-y-3">
-		<BrewImagesCarousel images={pictures} />
+		<BrewImagesCarousel {images} />
 		<h1 class="text-2xl font-bold">{data.recipe.name}</h1>
 		<div class="flex w-full flex-row gap-x-1">
 			<p>by</p>
-			{#if recipe_owner.display_name}
-				<UserLink display_name={recipe_owner.display_name} />
+			{#if recipe_owner.username}
+				<UserLink display_name={recipe_owner.username} />
 			{:else}
 				<p class="line-through">deleted</p>
 			{/if}
@@ -59,10 +64,10 @@
 		</div>
 		<div class="mx-auto w-4/5 py-4 md:w-2/3">
 			<BrewQuickFacts
-				og={recipe.original_gravity}
-				fg={recipe.final_gravity}
-				batch_size={recipe.batch_size}
-				batch_unit={recipe.batch_unit}
+				og={recipe.originalGravity}
+				fg={recipe.finalGravity}
+				batch_size={recipe.batchSize}
+				batch_unit={recipe.batchUnit}
 			/>
 		</div>
 		<RecipeIngredients ingredients={recipe.ingredients} />
@@ -98,8 +103,8 @@
 		</div>
 
 		{#if showData}
-			<DataDebug label="recipe" data={data.recipe} />
-			<DataDebug label="recipe owner" data={data.recipe_owner} />
+			<DataDebug label="recipe" data={data.recipe} toggleable={false} />
+			<DataDebug label="recipe owner" data={data.recipe_owner} toggleable={false} />
 		{/if}
 	</div>
 {/if}
