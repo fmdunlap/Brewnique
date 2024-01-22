@@ -38,7 +38,7 @@ async function advanceOnboardingState(userId: string) {
 
 	// The state machine is just a linear progression.
 	//
-	// display_name_pending -> bio_pending -> avatar_pending -> completed
+	// email_verification_pending -> display_name_pending -> bio_pending -> avatar_pending -> completed
 	let nextState: typeof currentState | null = null;
 	switch (currentState) {
 		case 'PENDING_USERNAME':

@@ -33,7 +33,7 @@
 		<Separator class="dark:bg-white" />
 		<ContinueWithEmail
 			on:click={async () => {
-				await goto('/auth/email');
+				await goto('/login/email');
 				await invalidateAll();
 				dispatch('close');
 			}}
