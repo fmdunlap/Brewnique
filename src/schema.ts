@@ -14,6 +14,7 @@ import {
 // AUTH
 
 export const onboardingStatus = pgEnum('onboarding_status', [
+	'PENDING_EMAIL_VERIFICATION',
 	'PENDING_USERNAME',
 	'PENDING_AVATAR',
 	'PENDING_BIO',

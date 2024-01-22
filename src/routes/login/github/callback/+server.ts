@@ -22,6 +22,7 @@ export const GET = async ({ url, cookies, locals }) => {
 		}
 
 		const user = await getOrCreateOAuthUser(githubUser.email, 'github', githubUser.id.toString());
+
 		const session = await auth.createSession({
 			userId: user.id,
 			attributes: {}
