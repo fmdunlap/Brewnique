@@ -11,14 +11,14 @@
 		<div class="p-2">
 			<RecipeCard
 				id={recipe.id}
-				title={recipe.name}
-				rating={recipe.rating}
+				title={recipe.name ?? 'Untitled'}
+				rating={recipe.rating ?? 0}
 				saved={false}
-				image={recipe.pictures ? recipe.pictures[0] : 'http://placekitten.com/300/200'}
-				batch_size={recipe.batch_size}
+				image={recipe.images ? recipe.images[0] : 'http://placekitten.com/300/200'}
+				batch_size={recipe.batchSize ?? 0}
 				batch_unit="gal"
-				og={recipe.original_gravity}
-				fg={recipe.final_gravity}
+				og={recipe.originalGravity ?? 1.0}
+				fg={recipe.finalGravity ?? 1.0}
 			/>
 		</div>
 	{/each}
