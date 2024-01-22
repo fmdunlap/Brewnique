@@ -1,8 +1,8 @@
 import { dev } from '$app/environment';
 import { githubAuth } from '$lib/auth/lucia.js';
 
-export const GET = async ({ cookies }) => {
-	const [url, state] = await githubAuth.getAuthorizationUrl();
+export const GET = async ({ cookies, url }) => {
+	const [authUrl, state] = await githubAuth(url.origin).getAuthorizationUrl();
 	// store state
 	cookies.set('github_oauth_state', state, {
 		httpOnly: true,
@@ -13,7 +13,7 @@ export const GET = async ({ cookies }) => {
 	return new Response(null, {
 		status: 302,
 		headers: {
-			Location: url.toString()
+			Location: authUrl.toString()
 		}
 	});
 };

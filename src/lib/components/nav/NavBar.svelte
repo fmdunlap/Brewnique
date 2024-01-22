@@ -36,6 +36,7 @@
 	<div class="my-auto flex flex-row gap-x-2">
 		<Button variant="outline">LOGO</Button>
 		<a href="/"><Button variant="link">Home</Button></a>
+		<Button variant="link" on:click={async () => await goto('/recipe/new')}>New Recipe</Button>
 	</div>
 	<div class="hidden grow px-4 md:flex">
 		<SearchBar />

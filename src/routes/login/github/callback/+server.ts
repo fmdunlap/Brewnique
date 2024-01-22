@@ -13,7 +13,7 @@ export const GET = async ({ url, cookies, locals }) => {
 		});
 	}
 	try {
-		const { githubUser } = await githubAuth.validateCallback(code);
+		const { githubUser } = await githubAuth(url.origin).validateCallback(code);
 
 		if (!githubUser.email) {
 			return new Response(null, {

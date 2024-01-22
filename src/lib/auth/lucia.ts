@@ -104,24 +104,30 @@ export const getOrCreateOAuthUser = async (
 
 // PROVIDERS
 
-export const githubAuth = github(auth, {
-	clientId: GITHUB_CLIENT_ID,
-	clientSecret: GITHUB_CLIENT_SECRET,
-	redirectUri: 'http://localhost:5173/login/github/callback'
-});
+export const githubAuth = (urlOrigin: string) => {
+	return github(auth, {
+		clientId: GITHUB_CLIENT_ID,
+		clientSecret: GITHUB_CLIENT_SECRET,
+		redirectUri: urlOrigin + '/login/github/callback'
+	});
+};
 
-export const googleAuth = google(auth, {
-	clientId: GOOGLE_CLIENT_ID,
-	clientSecret: GOOGLE_CLIENT_SECRET,
-	redirectUri: 'http://localhost:5173/login/google/callback',
-	scope: ['email']
-});
+export const googleAuth = (urlOrigin: string) => {
+	return google(auth, {
+		clientId: GOOGLE_CLIENT_ID,
+		clientSecret: GOOGLE_CLIENT_SECRET,
+		redirectUri: urlOrigin + '/login/google/callback',
+		scope: ['email']
+	});
+};
 
-export const facebookAuth = facebook(auth, {
-	clientId: FACEBOOK_CLIENT_ID,
-	clientSecret: FACEBOOK_CLIENT_SECRET,
-	redirectUri: 'http://localhost:5173/login/facebook/callback',
-	scope: ['email']
-});
+export const facebookAuth = (urlOrigin: string) => {
+	return facebook(auth, {
+		clientId: FACEBOOK_CLIENT_ID,
+		clientSecret: FACEBOOK_CLIENT_SECRET,
+		redirectUri: urlOrigin + '/login/facebook/callback',
+		scope: ['email']
+	});
+};
 
 export type Auth = typeof auth;

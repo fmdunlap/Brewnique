@@ -13,7 +13,7 @@ export const GET = async ({ url, cookies, locals }) => {
 		});
 	}
 	try {
-		const { facebookUser } = await facebookAuth.validateCallback(code);
+		const { facebookUser } = await facebookAuth(url.origin).validateCallback(code);
 
 		if (!facebookUser.email) {
 			return new Response(null, {
