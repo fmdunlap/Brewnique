@@ -9,7 +9,7 @@
 	$: abv = (og - fg) * 131.25;
 </script>
 
-<div class=" flex h-20 flex-row justify-around">
+<div class="flex h-20 flex-row justify-around">
 	<div class="my-auto flex flex-col">
 		<p class="mx-auto text-center text-sm">Batch Size</p>
 		<p class="mx-auto">{batch_size} {batch_unit}</p>

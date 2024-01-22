@@ -20,7 +20,9 @@
 		</Dropdown.Trigger>
 		<Dropdown.Content class="w-72">
 			<Dropdown.Group>
-				<Dropdown.Item>Profile</Dropdown.Item>
+				<a href="/user">
+					<Dropdown.Item>Profile</Dropdown.Item>
+				</a>
 				<Dropdown.Item on:click={() => dispatch('signout')}>Log Out</Dropdown.Item>
 				{#if dev}
 					<Dropdown.Separator />

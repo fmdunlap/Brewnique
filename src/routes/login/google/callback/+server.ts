@@ -13,7 +13,7 @@ export const GET = async ({ url, cookies, locals }) => {
 		});
 	}
 	try {
-		const { googleUser } = await googleAuth.validateCallback(code);
+		const { googleUser } = await googleAuth(url.origin).validateCallback(code);
 
 		console.log(JSON.stringify(googleUser, null, 2));
 

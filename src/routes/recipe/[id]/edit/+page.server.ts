@@ -7,6 +7,8 @@ import { uploadRecipePhoto } from '$lib/data/recipe';
 import { recipe, recipeIngredient } from '$src/schema';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import type { Session } from 'lucia';
+import type { SuperValidated } from 'sveltekit-superforms';
 
 async function getRecipe(recipeId: string): Promise<typeof recipe.$inferSelect> {
 	const recipeEntry = (await db.select().from(recipe).where(eq(recipe.id, recipeId)))[0];
@@ -66,75 +68,110 @@ export const load = async ({ params, locals }) => {
 	return { form };
 };
 
+async function uploadImages(images: string[] | null, recipeId: string) {
+	if (!images) {
+		return [];
+	}
+
+	const imageUrls: string[] = [];
+
+	for (let i = 0; i < images.length; i++) {
+		let imageUrl = '';
+		if (images[i].startsWith('http')) {
+			imageUrl = images[i];
+		} else {
+			const imageFile = convertBase64ToFile(images[i]);
+			imageUrl = await uploadRecipePhoto(imageFile, recipeId);
+		}
+		imageUrls.push(imageUrl);
+	}
+	return imageUrls;
+}
+
+async function updateRecipeIngredients(
+	recipeId: string,
+	ingredients: { name: string; quantity: number; unit: typeof recipeIngredient.$inferInsert.unit }[]
+) {
+	const dbIngredients = await getRecipeIngredients(recipeId);
+
+	for (let i = 0; i < dbIngredients.length; i++) {
+		await db.delete(recipeIngredient).where(eq(recipeIngredient.id, dbIngredients[i].id));
+	}
+
+	for (let i = 0; i < ingredients.length; i++) {
+		await db.insert(recipeIngredient).values({
+			id: uuidv4(),
+			recipeId: recipeId,
+			name: ingredients[i].name,
+			quantity: ingredients[i].quantity,
+			unit: ingredients[i].unit as typeof recipeIngredient.$inferSelect.unit
+		});
+	}
+}
+
+async function updateRecipe(
+	form: SuperValidated<typeof NewRecipeFormSchema>,
+	session: Session | null,
+	published: boolean
+): Promise<{ isError: boolean; errorCode: number } | null> {
+	if (!session || !session.user) {
+		throw error(401, 'You must be logged in to edit a recipe.');
+	}
+
+	// Convenient validation check:
+	if (!form.valid) {
+		return { isError: true, errorCode: 400 };
+	}
+
+	const recipeEntry = await getRecipe(form.data.id);
+	if (recipeEntry.ownerId != session.user.userId) {
+		throw error(401, 'You do not own this recipe. You can only edit recipes you own.');
+	}
+
+	const imageUrls = await uploadImages(form.data.images, recipeEntry.id);
+
+	await db
+		.update(recipe)
+		.set({
+			name: form.data.name,
+			description: form.data.description,
+			images: imageUrls,
+			batchSize: form.data.batchSize,
+			batchUnit: form.data.batchUnit,
+			originalGravity: form.data.originalGravity,
+			finalGravity: form.data.finalGravity,
+			process: form.data.process.filter((step) => step.length > 0),
+			notes: form.data.notes,
+			published: published
+		})
+		.where(eq(recipe.id, recipeEntry.id));
+
+	await updateRecipeIngredients(recipeEntry.id, form.data.ingredients);
+
+	return null;
+}
+
 export const actions = {
-	default: async ({ request, locals }) => {
+	save: async ({ request, locals }) => {
+		const form = await superValidate(request, NewRecipeFormSchema);
+		const updateResult = await updateRecipe(form, await locals.auth.validate(), false);
+
+		if (updateResult) {
+			return fail(updateResult.errorCode, { form });
+		}
+
+		// Yep, return { form } here to
+		return { form };
+	},
+	publish: async ({ request, locals }) => {
 		const form = await superValidate(request, NewRecipeFormSchema);
 
-		// Convenient validation check:
-		if (!form.valid) {
-			// Again, return { form } and things will just work.
-			return fail(400, { form });
+		const updateResult = await updateRecipe(form, await locals.auth.validate(), true);
+
+		if (updateResult) {
+			return fail(updateResult.errorCode, { form });
 		}
-
-		const session = await locals.auth.validate();
-
-		if (!session || !session.user) {
-			error(401, 'You must be logged in to edit a recipe');
-		}
-
-		const recipeEntry = await getRecipe(form.data.id);
-
-		if (recipeEntry.ownerId != session.user.userId) {
-			error(401, 'You do not own this recipe');
-		}
-
-		const imageUrls = [];
-
-		if (!form.data.images) {
-			form.data.images = [];
-		}
-		for (let i = 0; i < form.data.images.length; i++) {
-			let imageUrl = '';
-			if (form.data.images[i].startsWith('http')) {
-				imageUrl = form.data.images[i];
-			} else {
-				const imageFile = convertBase64ToFile(form.data.images[i]);
-				imageUrl = await uploadRecipePhoto(imageFile, recipeEntry.id);
-			}
-			imageUrls.push(imageUrl);
-		}
-
-		await db
-			.update(recipe)
-			.set({
-				name: form.data.name,
-				description: form.data.description,
-				images: imageUrls,
-				batchSize: form.data.batchSize,
-				batchUnit: form.data.batchUnit,
-				originalGravity: form.data.originalGravity,
-				finalGravity: form.data.finalGravity,
-				process: form.data.process.filter((step) => step.length > 0),
-				notes: form.data.notes
-			})
-			.where(eq(recipe.id, recipeEntry.id));
-
-		const dbIngredients = await getRecipeIngredients(recipeEntry.id);
-
-		for (let i = 0; i < dbIngredients.length; i++) {
-			await db.delete(recipeIngredient).where(eq(recipeIngredient.id, dbIngredients[i].id));
-		}
-
-		for (let i = 0; i < form.data.ingredients.length; i++) {
-			await db.insert(recipeIngredient).values({
-				id: uuidv4(),
-				recipeId: recipeEntry.id,
-				name: form.data.ingredients[i].name,
-				quantity: form.data.ingredients[i].quantity,
-				unit: form.data.ingredients[i].unit
-			});
-		}
-
+		console.log('Publishing recipe');
 		// Yep, return { form } here to
 		return { form };
 	}

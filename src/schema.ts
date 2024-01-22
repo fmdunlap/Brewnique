@@ -97,7 +97,7 @@ export const unitOfMeasurement = pgEnum('unit_of_measurement', [
 	'oz',
 	'lb',
 	'ml',
-	'l',
+	'liter',
 	'tsp',
 	'tbsp',
 	'cup',
