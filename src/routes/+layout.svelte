@@ -42,9 +42,7 @@
 <div class="flex min-h-screen flex-col">
 	<NavBar
 		loggedIn={session != null}
-		avatarUrl={session == null
-			? null
-			: `https://cdn.brewnique.io/avatars/${session.user.userId}.svg`}
+		avatarUrl={session == null ? null : session.user.avatarUrl}
 		fallbackText={session == null ? null : session.user.email.slice(0, 1)}
 	/>
 	<div class="mx-auto flex grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
