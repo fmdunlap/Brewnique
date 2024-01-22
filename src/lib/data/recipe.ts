@@ -51,8 +51,8 @@ export async function getUnpublishedRecipesByUser(userId: string) {
 export async function getRecipes(
 	limit: number,
 	offset: number,
-	unpublished: boolean,
-	fromUserId: string
+	unpublished: boolean = false,
+	fromUserId: string | null = null
 ) {
 	const andPredicates = [];
 
@@ -60,7 +60,7 @@ export async function getRecipes(
 		andPredicates.push(eq(recipe.published, true));
 	}
 
-	if (fromUserId) {
+	if (fromUserId != null) {
 		andPredicates.push(eq(recipe.ownerId, fromUserId));
 	}
 
@@ -70,6 +70,8 @@ export async function getRecipes(
 		.limit(limit)
 		.offset(offset)
 		.where(and(...andPredicates));
+
+	console.log(JSON.stringify(resultRecipes));
 
 	return resultRecipes;
 }
