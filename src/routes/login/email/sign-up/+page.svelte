@@ -1,8 +1,5 @@
 <script lang="ts">
-	import { Button, Card } from 'flowbite-svelte';
 	import EmailSignupForm from './EmailSignupForm.svelte';
-	import DataDebug from '$lib/components/dev/DataDebug.svelte';
-	import { navigating } from '$app/stores';
 
 	export let data;
 </script>

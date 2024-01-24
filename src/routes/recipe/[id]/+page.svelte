@@ -2,7 +2,7 @@
 	import { Switch } from '$lib/components/ui/switch';
 	import DataDebug from '$lib/components/dev/DataDebug.svelte';
 	import { dev } from '$app/environment';
-	import { Bookmark, GitFork, MoreHorizontal, Pencil, Share } from 'lucide-svelte';
+	import { Bookmark, GitFork, MoreHorizontal, Share } from 'lucide-svelte';
 	import SaveCount from './SaveCount.svelte';
 	import BrewImagesCarousel from './BrewImagesCarousel.svelte';
 	import UserLink from './UserLink.svelte';

@@ -7,7 +7,7 @@
 
 	import ImageUpload from './ImageUpload.svelte';
 	import type { PageData } from './$types';
-	import { Plus, Trash2, X } from 'lucide-svelte';
+	import { Plus, Trash2 } from 'lucide-svelte';
 	import { recipeIngredient } from '$src/schema';
 	import FormError from '$lib/components/form/FormError.svelte';
 

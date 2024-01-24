@@ -5,9 +5,6 @@
 
 	export let data: PageData;
 
-	const { session } = data;
-	$: user = session ? session.user : null;
-
 	const { form, errors, enhance } = superForm(data.usernameForm);
 </script>
 

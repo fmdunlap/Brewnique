@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { Pencil } from 'lucide-svelte';
-
 	export let userAvatarUrl: string;
 	export let username: string;
 	export let userBio: string;
