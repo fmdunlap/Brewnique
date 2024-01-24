@@ -13,16 +13,11 @@
 	const { session } = data;
 
 	function shouldRedirectToOnboarding() {
-		return (
-			session &&
-			session.user &&
-			session.user.onboardingStatus != 'COMPLETE' &&
-			!$page.url.pathname.startsWith('/onboarding')
-		);
+		return session && session.user && session.user.onboardingStatus != 'COMPLETE';
 	}
 
 	beforeNavigate(async ({ cancel, to }) => {
-		if (to?.route.id != '/onboarding' && (await shouldRedirectToOnboarding())) {
+		if (!to?.route.id?.startsWith('/onboarding') && (await shouldRedirectToOnboarding())) {
 			console.log('redirecting to onboarding');
 			cancel();
 			await goto('/onboarding');
@@ -30,7 +25,7 @@
 	});
 
 	onMount(async () => {
-		if (await shouldRedirectToOnboarding()) {
+		if (!$page.url.pathname.startsWith('/onboarding') && (await shouldRedirectToOnboarding())) {
 			console.log('redirecting to onboardingm2');
 
 			await goto('/onboarding');

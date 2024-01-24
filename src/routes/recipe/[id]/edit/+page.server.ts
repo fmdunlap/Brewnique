@@ -171,7 +171,6 @@ export const actions = {
 		if (updateResult) {
 			return fail(updateResult.errorCode, { form });
 		}
-		console.log('Publishing recipe');
 		// Yep, return { form } here to
 		return { form };
 	}
