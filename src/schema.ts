@@ -74,8 +74,7 @@ export const emailVerification = pgTable('email_verification_token', {
 		length: 15
 	})
 		.notNull()
-		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
-
+		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' })
 });
 
 // MODELS
