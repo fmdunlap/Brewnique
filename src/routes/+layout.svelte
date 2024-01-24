@@ -45,7 +45,7 @@
 		avatarUrl={session == null ? null : session.user.avatarUrl}
 		fallbackText={session == null ? null : session.user.email.slice(0, 1)}
 	/>
-	<div class="mx-auto flex grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
+	<div class="mx-auto flex w-full grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
 		<slot />
 	</div>
 	<div class="w-full bg-secondary">

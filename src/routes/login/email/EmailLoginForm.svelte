@@ -2,9 +2,7 @@
 	import { type SuperValidated } from 'sveltekit-superforms';
 	import type { EmailLoginFormSchema } from './EmailLoginFormSchema';
 	import { superForm } from 'sveltekit-superforms/client';
-	import { Label } from '$lib/components/ui/label';
-	import Button from '$lib/components/ui/button/button.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
+	import { Button, Label, Input } from 'flowbite-svelte';
 
 	export let data: SuperValidated<EmailLoginFormSchema>;
 

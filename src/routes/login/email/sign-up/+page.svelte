@@ -12,12 +12,11 @@
 >
 	<h1 class="text-center text-2xl font-bold">Sign-Up</h1>
 	<EmailSignupForm data={data.form} />
-	<Button
+	<button
 		on:click={() => {
 			history.back();
 		}}
-		type="submit"
-		class="mt-2"
-		color="alternative">Cancel</Button
+		class="py-2 hover:underline"
+		type="submit">Cancel</button
 	>
 </div>
