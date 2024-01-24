@@ -63,6 +63,21 @@ export const key = pgTable('user_key', {
 	})
 });
 
+export const emailVerification = pgTable('email_verification_token', {
+	id: varchar('id', {
+		length: 255
+	}).primaryKey(),
+	expires: bigint('expires', {
+		mode: 'number'
+	}).notNull(),
+	userId: varchar('user_id', {
+		length: 15
+	})
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+
+});
+
 // MODELS
 
 export const difficulty = pgEnum('difficulty', ['EASY', 'MEDIUM', 'HARD']);

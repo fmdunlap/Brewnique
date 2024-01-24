@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type SuperValidated } from 'sveltekit-superforms';
-	import type { EmailLoginFormSchema } from '$lib/types/forms';
+	import type { EmailLoginFormSchema } from './EmailLoginFormSchema';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { Label } from '$lib/components/ui/label';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -33,6 +33,4 @@
 	/>
 	{#if $errors.password}<span class="invalid">{$errors.password}</span>{/if}
 	<Button type="submit">Sign In</Button>
-	<Button variant="secondary">Sign Up</Button>
-	<Button variant="link">Forgot Password</Button>
 </form>

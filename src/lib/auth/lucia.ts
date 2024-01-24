@@ -13,10 +13,12 @@ import {
 	GOOGLE_CLIENT_ID,
 	GOOGLE_CLIENT_SECRET
 } from '$env/static/private';
-import { key, user } from '$src/schema';
+import { emailVerification, key, user } from '$src/schema';
 import { and, eq } from 'drizzle-orm';
-import { generateRandomString } from 'lucia/utils';
+import { generateRandomString, isWithinExpiration } from 'lucia/utils';
 import { addDefaultAvatarToStorage, userAvatarUrl } from '$lib/data/avatar';
+
+const EMAIL_EXPIRE_TIME = 1000 * 60 * 60 * 2; // 2 hours
 
 // AUTH
 
@@ -38,6 +40,44 @@ export const auth = lucia({
 		};
 	}
 });
+
+// EMAIL VERIFICATION
+
+export const generateEmailVerificationToken = async (userId: string) => {
+	const storedUserTokens = await db
+		.select()
+		.from(emailVerification)
+		.where(eq(emailVerification.userId, userId));
+	if (storedUserTokens.length > 0) {
+		const reuseableToken = storedUserTokens.find((token) => {
+			return isWithinExpiration(Number(token.expires) - EMAIL_EXPIRE_TIME / 2);
+		});
+		if (reuseableToken) return reuseableToken.id;
+	}
+	const newToken = generateRandomString(63);
+	await db.insert(emailVerification).values({
+		id: newToken,
+		userId: userId,
+		expires: Date.now() + EMAIL_EXPIRE_TIME
+	});
+
+	return newToken;
+};
+
+export const validateEmailVerificationToken = async (token: string) => {
+	const storedToken = await db.transaction(async (tx) => {
+		const storedToken = await tx
+			.select()
+			.from(emailVerification)
+			.where(eq(emailVerification.id, token));
+		if (!storedToken || storedToken.length === 0) throw new Error('Invalid Token');
+		await tx.delete(emailVerification).where(eq(emailVerification.id, token));
+		return storedToken[0];
+	});
+	const tokenExpires = Number(storedToken.expires);
+	if (!isWithinExpiration(tokenExpires)) throw new Error('Token Expired');
+	return storedToken.userId;
+};
 
 // UTIL FUNCTIONS
 

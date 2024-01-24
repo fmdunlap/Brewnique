@@ -1,5 +1,5 @@
 import { superValidate } from 'sveltekit-superforms/server';
-import { emailLoginFormSchema } from '$lib/types/forms';
+import { emailLoginFormSchema } from './EmailLoginFormSchema';
 import { fail } from '@sveltejs/kit';
 
 export const load = async () => {
