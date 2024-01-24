@@ -11,7 +11,6 @@ export const load = async () => {
 export const actions = {
 	default: async ({ request }) => {
 		const form = await superValidate(request, emailSignupFormSchema);
-		console.log('POST', form);
 
 		// Convenient validation check:
 		if (!form.valid) {

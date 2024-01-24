@@ -10,7 +10,7 @@
 </script>
 
 <div class="mx-auto flex w-5/6 flex-col gap-y-4 pt-4">
-	<div class="mx-auto w-1/6">
+	<div class="mx-auto">
 		<UserAvatar
 			userAvatarUrl={data.user?.avatarUrl ?? ''}
 			username={data.user?.username ?? ''}
@@ -19,9 +19,9 @@
 		/>
 	</div>
 
-	<h1 class="text-4xl font-bold">Recipes {firstCardIndex}</h1>
+	<h1 class="text-4xl font-bold">Recipes</h1>
 	{#if data.recipes && data.recipes != undefined && data.recipes.length > 0}
-		<div class="flex flex-row gap-x-4">
+		<div class="flex flex-row justify-between gap-x-4">
 			<button
 				on:click={() => {
 					firstCardIndex = Math.max(0, firstCardIndex - 1);
@@ -33,7 +33,7 @@
 			</button>
 			{#each data.recipes as recipe, i}
 				{#if i >= firstCardIndex && i < firstCardIndex + 3}
-					<div class="w-1/3">
+					<div class="mr-auto w-1/3">
 						<RecipeCard
 							id={recipe.id}
 							title={recipe.name ?? ''}

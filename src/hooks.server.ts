@@ -1,5 +1,4 @@
 import type { Handle } from '@sveltejs/kit';
-// import { AUTH_SECRET, GITHUB_ID, GITHUB_SECRET } from '$env/static/private';
 
 import { auth } from '$lib/auth/lucia';
 
