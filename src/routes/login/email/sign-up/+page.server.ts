@@ -36,7 +36,7 @@ export const actions = {
 			return fail(400, { form });
 		}
 
-		// TODO: Do something with the validated form.data
+		// Create the new user
 
 		// Yep, return { form } here too
 		return { form };

@@ -108,12 +108,47 @@ const createOAuthUser = async (email: string) => {
 	return newUserId;
 };
 
+const createEmailUser = async (email: string) => {
+	const newUserId = generateRandomString(15);
+	const newUser: typeof user.$inferInsert = {
+		id: generateRandomString(15),
+		email: email,
+		username: null,
+		avatarUrl: userAvatarUrl(newUserId),
+		bio: null,
+		onboardingStatus: 'PENDING_EMAIL_VERIFICATION'
+	};
+	await db.insert(user).values(newUser);
+	await addDefaultAvatarToStorage(newUserId);
+	return newUser;
+};
+
+const createEmailKey = async (userId: string, email: string, password: string) => {
+	await auth.createKey({
+		userId,
+		providerId: 'email',
+		providerUserId: email.toLowerCase(),
+		password: password
+	});
+};
+
 const userHasProviderKey = async (luciaUser: typeof user.$inferSelect, providerKey: string) => {
 	const keyQueryResult = await db
 		.select()
 		.from(key)
 		.where(and(eq(key.id, providerKey), eq(key.userId, luciaUser.id)));
 	return keyQueryResult.length > 0;
+};
+
+export const getOrCreateEmailUser = async (email: string, password: string) => {
+	const existingUser = await getUserByEmail(email);
+	if (existingUser) {
+		return existingUser;
+	}
+	// Create & return a new email user.
+	const newUser = await createEmailUser(email);
+	await createEmailKey(newUser.id, email, password);
+	return newUser;
 };
 
 export const getOrCreateOAuthUser = async (
