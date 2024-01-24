@@ -1,4 +1,4 @@
-import { sendEmail } from '$lib/email.js';
+import { sendEmail } from '$lib/email/email.js';
 
 export const actions = {
 	default: async () => {
