@@ -9,7 +9,7 @@ import { advanceOnboardingState, obscenityMatcher } from '../utils.js';
 
 export const load = async () => {
 	return {
-		usernameForm: await superValidate(usernameFormSchema)
+		form: await superValidate(usernameFormSchema)
 	};
 };
 
@@ -27,28 +27,28 @@ export const actions = {
 		if (!session) {
 			return fail(401, { message: 'Unauthorized' });
 		}
-		const usernameForm = await superValidate(request, usernameFormSchema);
+		const form = await superValidate(request, usernameFormSchema);
 
-		if (!usernameForm.valid) {
-			return fail(400, { usernameForm });
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		// Check for duplicate names
-		if (await usernameTaken(usernameForm.data.username)) {
-			usernameForm.errors.username = ['Username is already taken.'];
-			return fail(400, { usernameForm });
+		if (await usernameTaken(form.data.username)) {
+			form.errors.username = ['Username is already taken.'];
+			return fail(400, { form });
 		}
 
 		// Check for profanity in the username
-		if (obscenityMatcher.hasMatch(usernameForm.data.username)) {
-			usernameForm.errors.username = ['Username name contains profanity.'];
-			return fail(400, { usernameForm });
+		if (obscenityMatcher.hasMatch(form.data.username)) {
+			form.errors.username = ['Username name contains profanity.'];
+			return fail(400, { form });
 		}
 
-		await setUsername(session.user.userId, usernameForm.data.username);
+		await setUsername(session.user.userId, form.data.username);
 		await advanceOnboardingState(session.user.userId);
 		auth.updateUserAttributes(session.user.userId, {
-			username: usernameForm.data.username,
+			username: form.data.username,
 			onboarding_status: 'PENDING_BIO'
 		});
 

@@ -24,27 +24,27 @@ export const actions = {
 			return fail(401, { message: 'Unauthorized' });
 		}
 
-		const bioForm = await superValidate(request, bioFormSchema);
-		if (!bioForm.valid) {
-			return fail(400, { bioForm });
+		const form = await superValidate(request, bioFormSchema);
+		if (!form.valid) {
+			return fail(400, { form });
 		}
 
 		// Skip the bio if the user wants to
-		if (bioForm.data.skip) {
+		if (form.data.skip) {
 			await advanceOnboardingState(session.user.userId);
-			return { bioForm };
+			return { form };
 		}
 
 		// Check for profanity in the bio
-		if (obscenityMatcher.hasMatch(bioForm.data.bio)) {
-			bioForm.errors.bio = ['Bio contains profanity.'];
-			return fail(400, { bioForm });
+		if (obscenityMatcher.hasMatch(form.data.bio)) {
+			form.errors.bio = ['Bio contains profanity.'];
+			return fail(400, { form });
 		}
 
-		await setBio(session.user.userId, bioForm.data.bio);
+		await setBio(session.user.userId, form.data.bio);
 		await advanceOnboardingState(session.user.userId);
 		auth.updateUserAttributes(session.user.userId, {
-			bio: bioForm.data.bio,
+			bio: form.data.bio,
 			onboarding_status: 'COMPLETE'
 		});
 

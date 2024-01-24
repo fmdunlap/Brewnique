@@ -5,7 +5,7 @@
 
 	export let data: PageData;
 
-	const { form, errors, enhance } = superForm(data.usernameForm);
+	const { form, errors, enhance } = superForm(data.form);
 </script>
 
 <form class="flex flex-col gap-y-4" use:enhance method="POST">
