@@ -51,7 +51,7 @@
     "@vite-pwa/sveltekit": "^0.3.0",
     "bits-ui": "^0.13.5",
     "clsx": "^2.1.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.1",
     "drizzle-orm": "^0.29.3",
     "drizzle-zod": "^0.5.1",
     "flowbite": "^2.2.1",

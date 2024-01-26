@@ -15,22 +15,6 @@
 	function shouldRedirectToOnboarding() {
 		return session && session.user && session.user.onboardingStatus != 'COMPLETE';
 	}
-
-	beforeNavigate(async ({ cancel, to }) => {
-		if (!to?.route.id?.startsWith('/onboarding') && (await shouldRedirectToOnboarding())) {
-			console.log('redirecting to onboarding');
-			cancel();
-			await goto('/onboarding');
-		}
-	});
-
-	onMount(async () => {
-		if (!$page.url.pathname.startsWith('/onboarding') && (await shouldRedirectToOnboarding())) {
-			console.log('redirecting to onboardingm2');
-
-			await goto('/onboarding');
-		}
-	});
 </script>
 
 <ModeWatcher />

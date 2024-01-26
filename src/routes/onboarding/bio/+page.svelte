@@ -6,7 +6,9 @@
 	export let data: PageData;
 
 	let skip = false;
-	const { form, errors, enhance } = superForm(data.form);
+	const { form, errors, enhance } = superForm(data.form, {
+		dataType: 'json'
+	});
 </script>
 
 <form method="POST" use:enhance class="flex flex-col gap-y-4">
