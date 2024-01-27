@@ -28,6 +28,14 @@ export const GET = async ({ url, cookies, locals }) => {
 			attributes: {}
 		});
 		locals.auth.setSession(session);
+		if (session.user.onboardingStatus !== 'COMPLETE') {
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: '/onboarding'
+				}
+			});
+		}
 		return new Response(null, {
 			status: 302,
 			headers: {
