@@ -1,20 +1,13 @@
 <script lang="ts">
 	import NavBar from '$lib/components/nav/NavBar.svelte';
-	import { onMount } from 'svelte';
 	import '../app.pcss';
-	import { beforeNavigate, goto } from '$app/navigation';
 	import { ModeWatcher } from 'mode-watcher';
 	import type { LayoutData } from './$types';
 	import * as Dialog from '$lib/components/ui/dialog';
-	import { page } from '$app/stores';
 
 	export let data: LayoutData;
 
 	const { session } = data;
-
-	function shouldRedirectToOnboarding() {
-		return session && session.user && session.user.onboardingStatus != 'COMPLETE';
-	}
 </script>
 
 <ModeWatcher />
