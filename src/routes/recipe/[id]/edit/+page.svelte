@@ -1,8 +1,6 @@
 <script lang="ts">
 	import DataDebug from '$lib/components/dev/DataDebug.svelte';
-	import { Card } from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
-	import { Input, Textarea, Select } from 'flowbite-svelte';
+	import { Input, Textarea, Select, Card, Button } from 'flowbite-svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 
 	import ImageUpload from './ImageUpload.svelte';

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Mail } from 'lucide-svelte';
-	import Button from '../ui/button/button.svelte';
+	import { Button } from 'flowbite-svelte';
 </script>
 
-<Button variant="secondary" on:click>
+<Button variant="secondary" on:click color="alternative">
 	<div class="my-auto flex w-full flex-row">
 		<Mail class="mr-[12px] h-[20px] w-[20px] min-w-[20px]" />
 		<span class="mx-auto">Continue with Email</span>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Separator } from '$lib/components/ui/separator';
+	import Separator from './Separator.svelte';
 
 	export let batch_size: number = 0;
 	export let batch_unit: string = '';

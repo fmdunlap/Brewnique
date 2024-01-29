@@ -2,7 +2,6 @@
 	import ContinueWithGoogle from '$lib/components/auth/ContinueWithGoogle.svelte';
 	import ContinueWithGithub from '$lib/components/auth/ContinueWithGithub.svelte';
 	import ContinueWithEmail from '$lib/components/auth/ContinueWithEmail.svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
 	import ContinueWithFacebook from '$lib/components/auth/ContinueWithFacebook.svelte';
@@ -30,7 +29,12 @@
 				await goto('/login/facebook');
 			}}
 		/>
-		<Separator class="dark:bg-white" />
+		<!-- Separator -->
+		<div class="flex flex-row items-center gap-x-4">
+			<div class="flex-grow border-t-2 border-gray-300" />
+			<div class="text-gray-500">or</div>
+			<div class="flex-grow border-t-2 border-gray-300" />
+		</div>
 		<ContinueWithEmail
 			on:click={async () => {
 				await goto('/login/email');

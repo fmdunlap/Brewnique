@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Dropdown from '$lib/components/ui/dropdown-menu';
-	import * as Avatar from '$lib/components/ui/avatar';
+	import { Avatar } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { dev } from '$app/environment';
 
@@ -13,10 +13,9 @@
 <div class="h-10 w-10 rounded-full">
 	<Dropdown.Root>
 		<Dropdown.Trigger>
-			<Avatar.Root>
-				<Avatar.Image src={avatar_url} alt="Avatar" />
-				<Avatar.Fallback>{fallback_text}</Avatar.Fallback>
-			</Avatar.Root>
+			<Avatar src={avatar_url ?? ''}>
+				{fallback_text}
+			</Avatar>
 		</Dropdown.Trigger>
 		<Dropdown.Content class="w-72">
 			<Dropdown.Group>

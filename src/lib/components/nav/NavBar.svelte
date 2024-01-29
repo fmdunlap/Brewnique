@@ -4,7 +4,7 @@
 	import LoginPage from '../../../routes/login/+page.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import Button from '../ui/button/button.svelte';
+	import { Button } from 'flowbite-svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
 	import { page } from '$app/stores';

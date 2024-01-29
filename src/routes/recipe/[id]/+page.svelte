@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Switch } from '$lib/components/ui/switch';
+	import { Toggle } from 'flowbite-svelte';
 	import DataDebug from '$lib/components/dev/DataDebug.svelte';
 	import { dev } from '$app/environment';
 	import { Bookmark, GitFork, MoreHorizontal, Share } from 'lucide-svelte';
@@ -9,7 +9,7 @@
 	import BrewQuickFacts from '$lib/components/BrewQuickFacts.svelte';
 	import RecipeIngredients from './RecipeIngredients.svelte';
 	import RecipeProcess from './RecipeProcess.svelte';
-	import { Separator } from '$lib/components/ui/separator';
+	import Separator from '$lib/components/Separator.svelte';
 
 	export let data;
 
@@ -82,7 +82,7 @@
 				{/each}
 			</div>
 		{/if}
-		<Separator orientation="horizontal" class="mx-auto my-4 w-full" />
+		<Separator orientation="horizontal" />
 		<div>
 			<h1 class="pb-2 text-xl font-bold">Comments</h1>
 		</div>
@@ -101,7 +101,7 @@
 	<div class="flex flex-col gap-y-4">
 		<div class="flex flex-row gap-x-2">
 			<p>Show Data:</p>
-			<Switch bind:checked={showData} />
+			<Toggle bind:checked={showData} />
 		</div>
 
 		{#if showData}
