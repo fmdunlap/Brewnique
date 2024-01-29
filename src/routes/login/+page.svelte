@@ -22,7 +22,7 @@
 					dispatch('close');
 				}}
 			>
-				<X class="m-2 ml-auto" />
+				<X class="m-3 ml-auto" />
 			</button>
 		{/if}
 		<div class="m-auto flex flex-col gap-y-4 py-8 md:px-8">

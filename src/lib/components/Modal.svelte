@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { twMerge } from 'tailwind-merge';
 	const dispatch = createEventDispatcher();
 
 	export let showModal: boolean;
 
 	let dialog: HTMLDialogElement;
+	export let rounded: 'sm' | 'md' | 'lg' | 'xl' | 'none' = 'md';
 
 	export const close = (andGoBack: boolean = false) => {
 		dialog.close();
@@ -20,10 +22,10 @@
 	on:click|self={() => {
 		close();
 	}}
-	class="mx-auto w-full max-w-2xl rounded p-0"
+	class={twMerge('mx-auto w-full max-w-2xl p-0', rounded === 'none' ? '' : `rounded-${rounded}`)}
 >
 	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation class="p-2">
+	<div on:click|stopPropagation>
 		<slot />
 	</div>
 </dialog>

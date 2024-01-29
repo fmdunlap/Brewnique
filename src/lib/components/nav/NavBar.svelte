@@ -79,6 +79,7 @@
 			history.back();
 		}
 	}}
+	rounded="xl"
 >
 	<LoginPage
 		showCloseIcon
