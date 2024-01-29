@@ -44,7 +44,7 @@
 <style>
 	.im-div {
 		height: calc(50vh);
-		background-image: url('$lib/assets/images/signinup-background.png');
+		background-image: url('https://cdn.brewnique.io/signinup-background.png');
 		background-size: cover;
 		background-position: center;
 	}

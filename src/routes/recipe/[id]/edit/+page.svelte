@@ -22,16 +22,21 @@
 <div class="mx-auto w-3/4">
 	<h1 class="py-6 text-center text-2xl">Create New Recipe</h1>
 	<Card class="my-2 p-8">
-		<form class="flex flex-col gap-y-12" use:enhance method="post">
+		<form class="flex flex-col gap-y-12" action="?/save" use:enhance method="post">
 			<!-- Hidden ID -->
 
-			<input type="hidden" bind:value={$form.id} />
+			<input type="hidden" name="id" bind:value={$form.id} />
 
 			<!-- Name -->
 
 			<div class="flex flex-col gap-y-4">
 				<label class="text-lg" for="name">Name</label>
-				<Input type="text" placeholder="The marvelous melon mead" bind:value={$form.name} />
+				<Input
+					type="text"
+					name="name"
+					placeholder="The marvelous melon mead"
+					bind:value={$form.name}
+				/>
 				<FormError errorMessages={$errors.name} />
 			</div>
 
@@ -40,14 +45,14 @@
 			<ImageUpload bind:b64imgs={$form.images} />
 
 			{#each $form.images as _, i}
-				<input type="hidden" bind:value={$form.images[i]} />
+				<input type="hidden" name="images" bind:value={$form.images[i]} />
 			{/each}
 
 			<!-- Description -->
 
 			<div class="flex flex-col gap-y-4">
 				<label class="text-lg" for="description">Description</label>
-				<Textarea id="description" bind:value={$form.description} />
+				<Textarea id="description" name="description" bind:value={$form.description} />
 			</div>
 
 			<!-- Batch Size -->
@@ -57,6 +62,7 @@
 				<div class="flex flex-row gap-x-4">
 					<Input
 						type="number"
+						name="batchSize"
 						placeholder="1"
 						bind:value={$form.batchSize}
 						on:change={() => {
@@ -71,6 +77,7 @@
 
 					<Select
 						class="w-1/5"
+						name="batchUnit"
 						items={batchSizeUnits.map((unit) => {
 							return { value: unit, name: unit };
 						})}
@@ -89,6 +96,7 @@
 					<div class="flex flex-row gap-x-4">
 						<Input
 							type="number"
+							name="originalGravity"
 							step="0.001"
 							bind:value={$form.originalGravity}
 							placeholder={$form.originalGravity.toFixed(3)}
@@ -109,6 +117,7 @@
 					<div class="flex flex-row gap-x-4">
 						<Input
 							type="number"
+							name="finalGravity"
 							step="0.001"
 							bind:value={$form.finalGravity}
 							on:change={() => {
@@ -135,17 +144,23 @@
 						<Input
 							class="w-1/3"
 							type="number"
+							name="quantity"
 							step="0.1"
 							bind:value={$form.ingredients[i].quantity}
 						/>
 						<Select
 							class="w-1/3"
+							name="unit"
 							items={recipeIngredient.unit.enumValues.map((unit) => {
 								return { value: unit, name: unit };
 							})}
 							bind:value={$form.ingredients[i].unit}
 						/>
-						<Input placeholder="Ingredient Name" bind:value={$form.ingredients[i].name} />
+						<Input
+							name="name"
+							placeholder="Ingredient Name"
+							bind:value={$form.ingredients[i].name}
+						/>
 						<Button
 							variant="destructive"
 							class="p-2"
@@ -179,7 +194,7 @@
 				{#each $form.process as _, i}
 					<div class="flex flex-row gap-x-4">
 						<p class="mx-2 my-auto text-lg">{i + 1}.</p>
-						<Input id="process" bind:value={$form.process[i]} />
+						<Input id="process" name="process" bind:value={$form.process[i]} />
 						<Button
 							variant="destructive"
 							class="p-2"
@@ -203,11 +218,11 @@
 
 			<div class="flex flex-col gap-y-4">
 				<label class="text-lg" for="notes">Notes</label>
-				<Textarea bind:value={$form.notes} />
+				<Textarea name="notes" bind:value={$form.notes} />
 			</div>
 
 			<div class="flex w-full flex-col gap-y-2">
-				<Button type="submit" variant="secondary" formaction="?/save">Save</Button>
+				<Button type="submit" variant="secondary">Save</Button>
 				<Button type="submit" formaction="?/publish">Publish</Button>
 			</div>
 		</form>
