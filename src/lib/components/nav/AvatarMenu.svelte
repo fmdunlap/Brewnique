@@ -1,6 +1,5 @@
 <script lang="ts">
-	import * as Dropdown from '$lib/components/ui/dropdown-menu';
-	import { Avatar } from 'flowbite-svelte';
+	import { Avatar, Dropdown, DropdownDivider, DropdownItem } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { dev } from '$app/environment';
 
@@ -10,24 +9,16 @@
 	export let fallback_text: string | null = null;
 </script>
 
-<div class="h-10 w-10 rounded-full">
-	<Dropdown.Root>
-		<Dropdown.Trigger>
-			<Avatar src={avatar_url ?? ''}>
-				{fallback_text}
-			</Avatar>
-		</Dropdown.Trigger>
-		<Dropdown.Content class="w-72">
-			<Dropdown.Group>
-				<a href="/user">
-					<Dropdown.Item>Profile</Dropdown.Item>
-				</a>
-				<Dropdown.Item on:click={() => dispatch('signout')}>Log Out</Dropdown.Item>
-				{#if dev}
-					<Dropdown.Separator />
-					<a href="/dev"><Dropdown.Item>Dev Menu</Dropdown.Item></a>
-				{/if}
-			</Dropdown.Group>
-		</Dropdown.Content>
-	</Dropdown.Root>
-</div>
+<Avatar src={avatar_url ?? ''} class="hover:cursor-pointer">
+	{fallback_text}
+</Avatar>
+<Dropdown>
+	<a href="/user">
+		<DropdownItem>Profile</DropdownItem>
+	</a>
+	<DropdownItem on:click={() => dispatch('signout')}>Log Out</DropdownItem>
+	{#if dev}
+		<DropdownDivider />
+		<a href="/dev"><DropdownItem>Dev Menu</DropdownItem></a>
+	{/if}
+</Dropdown>
