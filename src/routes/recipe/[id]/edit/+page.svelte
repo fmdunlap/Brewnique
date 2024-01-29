@@ -1,6 +1,6 @@
 <script lang="ts">
 	import DataDebug from '$lib/components/dev/DataDebug.svelte';
-	import { Input, Textarea, Select, Card, Button } from 'flowbite-svelte';
+	import { Input, Textarea, Select, Button } from 'flowbite-svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 
 	import ImageUpload from './ImageUpload.svelte';
@@ -19,7 +19,9 @@
 
 <div class="mx-auto w-3/4">
 	<h1 class="py-6 text-center text-2xl">Create New Recipe</h1>
-	<Card class="my-2 p-8">
+	<div
+		class="border-accent-400 bg-background-light-secondary dark:bg-background-dark-secondary my-2 rounded-lg border-2 p-8"
+	>
 		<form class="flex flex-col gap-y-12" action="?/save" use:enhance method="post">
 			<!-- Hidden ID -->
 
@@ -224,7 +226,7 @@
 				<Button type="submit" formaction="?/publish">Publish</Button>
 			</div>
 		</form>
-	</Card>
+	</div>
 </div>
 
 <DataDebug {data} />

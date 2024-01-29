@@ -11,7 +11,7 @@
 </script>
 
 <ModeWatcher />
-<div class="flex min-h-screen flex-col">
+<div class="bg-background-light-primary dark:bg-background-dark-primary flex min-h-screen flex-col">
 	<NavBar
 		loggedIn={session != null}
 		avatarUrl={session == null ? null : session.user.avatarUrl}
@@ -20,7 +20,7 @@
 	<div class="mx-auto flex w-full grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
 		<slot />
 	</div>
-	<div class="w-full bg-secondary">
+	<div class="w-full">
 		<p class="m-auto py-12 text-center">This is the footer</p>
 	</div>
 </div>

@@ -1,5 +1,3 @@
-import { fontFamily } from 'tailwindcss/defaultTheme';
-
 /** @type {import('tailwindcss').Config} */
 const config = {
 	darkMode: ['class'],
@@ -18,57 +16,55 @@ const config = {
 		},
 		extend: {
 			colors: {
-				border: 'hsl(var(--border) / <alpha-value>)',
-				input: 'hsl(var(--input) / <alpha-value>)',
-				ring: 'hsl(var(--ring) / <alpha-value>)',
-				background: 'hsl(var(--background) / <alpha-value>)',
-				foreground: 'hsl(var(--foreground) / <alpha-value>)',
 				primary: {
-					DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
-					foreground: 'hsl(var(--primary-foreground) / <alpha-value>)',
-					50: '#FFF5F2',
-					100: '#FFF1EE',
-					200: '#FFE4DE',
-					300: '#FFD5CC',
-					400: '#FFBCAD',
-					500: '#FE795D',
-					600: '#EF562F',
-					700: '#EB4F27',
-					800: '#CC4522',
-					900: '#A5371B'
+					50: '#fef7ee',
+					100: '#fdedd7',
+					200: '#fad8ae',
+					300: '#f6bb7b',
+					400: '#f19446',
+					500: '#ed7621',
+					600: '#de5d18',
+					700: '#de5d18',
+					800: '#933919',
+					900: '#763118',
+					950: '#40160a'
 				},
 				secondary: {
-					DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
-					foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)'
-				},
-				destructive: {
-					DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
-					foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)'
-				},
-				muted: {
-					DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
-					foreground: 'hsl(var(--muted-foreground) / <alpha-value>)'
+					50: '#f3f4f1',
+					100: '#e5e7e0',
+					200: '#ccd2c4',
+					300: '#b9c1ae',
+					400: '#909b80',
+					500: '#727f63',
+					600: '#59644c',
+					700: '#464e3d',
+					800: '#3a4034',
+					900: '#34382f',
+					950: '#1a1d16'
 				},
 				accent: {
-					DEFAULT: 'hsl(var(--accent) / <alpha-value>)',
-					foreground: 'hsl(var(--accent-foreground) / <alpha-value>)'
+					50: '#f4f6f3',
+					100: '#e5e9e2',
+					200: '#cad4c6',
+					300: '#9bad94',
+					400: '#7d9275',
+					500: '#5b7455',
+					600: '#455b40',
+					700: '#364933',
+					800: '#2d3b2a',
+					900: '#253123',
+					950: '#141b13'
 				},
-				popover: {
-					DEFAULT: 'hsl(var(--popover) / <alpha-value>)',
-					foreground: 'hsl(var(--popover-foreground) / <alpha-value>)'
-				},
-				card: {
-					DEFAULT: 'hsl(var(--card) / <alpha-value>)',
-					foreground: 'hsl(var(--card-foreground) / <alpha-value>)'
+				background: {
+					light: {
+						primary: '#fff',
+						secondary: '#f8fafc'
+					},
+					dark: {
+						primary: '#020617',
+						secondary: '#0f172a'
+					}
 				}
-			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			fontFamily: {
-				sans: [...fontFamily.sans]
 			}
 		}
 	},

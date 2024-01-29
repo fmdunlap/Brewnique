@@ -22,15 +22,17 @@
 	<h1 class="text-4xl font-bold">Recipes</h1>
 	{#if data.recipes && data.recipes != undefined && data.recipes.length > 0}
 		<div class="flex flex-row justify-between gap-x-4">
-			<button
-				on:click={() => {
-					firstCardIndex = Math.max(0, firstCardIndex - 1);
-				}}
-			>
-				<ArrowLeft
-					class="my-auto h-10 w-10 rounded-full p-1 hover:bg-slate-200 dark:hover:bg-slate-800"
-				/>
-			</button>
+			{#if data.recipes.length > 3}
+				<button
+					on:click={() => {
+						firstCardIndex = Math.max(0, firstCardIndex - 1);
+					}}
+				>
+					<ArrowLeft
+						class="my-auto h-10 w-10 rounded-full p-1 hover:bg-slate-200 dark:hover:bg-slate-800"
+					/>
+				</button>
+			{/if}
 			{#each data.recipes as recipe, i}
 				{#if i >= firstCardIndex && i < firstCardIndex + 3}
 					<div class="mr-auto w-1/3">
@@ -48,16 +50,19 @@
 					</div>
 				{/if}
 			{/each}
-			<button
-				on:click={() => {
-					console.log('what');
-					firstCardIndex = Math.min(Math.max(0, lastCardIndex), firstCardIndex + 1);
-				}}
-			>
-				<ArrowRight
-					class="my-auto h-10 w-10 rounded-full p-1 hover:bg-slate-200 dark:hover:bg-slate-800"
-				/>
-			</button>
+
+			{#if data.recipes.length > 3}
+				<button
+					on:click={() => {
+						console.log('what');
+						firstCardIndex = Math.min(Math.max(0, lastCardIndex), firstCardIndex + 1);
+					}}
+				>
+					<ArrowRight
+						class="my-auto h-10 w-10 rounded-full p-1 hover:bg-slate-200 dark:hover:bg-slate-800"
+					/>
+				</button>
+			{/if}
 		</div>
 	{/if}
 </div>

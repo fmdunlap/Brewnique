@@ -31,7 +31,7 @@
 </script>
 
 <div
-	class="sticky top-0 z-40 flex min-w-full flex-row justify-between border-b-2 bg-background px-4 py-4"
+	class="bg-background-light-primary dark:bg-background-dark-primary dark:border-background-dark-secondary sticky top-0 z-40 flex min-w-full flex-row justify-between border-b-2 px-4 py-4"
 >
 	<div class="my-auto flex flex-row gap-x-2">
 		<Button variant="outline">LOGO</Button>

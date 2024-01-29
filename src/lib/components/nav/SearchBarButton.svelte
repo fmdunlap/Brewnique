@@ -19,10 +19,3 @@
 <Popover>
 	<SearchBar />
 </Popover>
-
-<!-- <Popover.Root bind:open={popoverOpen}>
-	<Popover.Trigger />
-	<Popover.Content strategy="fixed" class="-ml-2 h-auto w-11/12" fitViewport={true}>
-		<SearchBar />
-	</Popover.Content>
-</Popover.Root> -->
