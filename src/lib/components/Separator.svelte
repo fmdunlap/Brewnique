@@ -3,7 +3,7 @@
 </script>
 
 {#if orientation === 'horizontal'}
-	<div class="h-px w-full bg-gray-300"></div>
+	<div class="bg-background-light-secondary dark:bg-background-dark-secondary h-px w-full"></div>
 {:else}
-	<div class="h-full w-px bg-gray-300"></div>
+	<div class="bg-background-light-secondary dark:bg-background-dark-secondary h-full w-px"></div>
 {/if}

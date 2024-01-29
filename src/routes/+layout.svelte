@@ -3,7 +3,7 @@
 	import '../app.pcss';
 	import { ModeWatcher } from 'mode-watcher';
 	import type { LayoutData } from './$types';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import Separator from '$lib/components/Separator.svelte';
 
 	export let data: LayoutData;
 
@@ -20,9 +20,8 @@
 	<div class="mx-auto flex w-full grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
 		<slot />
 	</div>
-	<div class="w-full">
-		<p class="m-auto py-12 text-center">This is the footer</p>
+	<div class="bg-background-light-secondary dark:bg-background-dark-secondary w-full">
+		<Separator />
+		<p class=" m-auto py-12 text-center">This is the footer</p>
 	</div>
 </div>
-
-<Dialog.Root></Dialog.Root>
