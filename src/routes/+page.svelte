@@ -1,9 +1,10 @@
 <script lang="ts">
-	import DataDebug from '$lib/components/dev/DataDebug.svelte';
+	import SearchSidebar from '$lib/components/search-sidebar/SearchSidebar.svelte';
+	import type { SearchSidebarOptions } from '$lib/components/search-sidebar/types';
 
-	export let data;
+	let selectedOptions: SearchSidebarOptions | undefined;
 </script>
 
-<div>
-	<DataDebug {data} />
+<div class="flex grow flex-row">
+	<SearchSidebar bind:selectedOptions />
 </div>

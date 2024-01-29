@@ -11,16 +11,16 @@
 </script>
 
 <ModeWatcher />
-<div class="bg-background-light-primary dark:bg-background-dark-primary flex min-h-screen flex-col">
+<div class="flex min-h-screen flex-col bg-background-light-primary dark:bg-background-dark-primary">
 	<NavBar
 		loggedIn={session != null}
 		avatarUrl={session == null ? null : session.user.avatarUrl}
 		fallbackText={session == null ? null : session.user.email.slice(0, 1)}
 	/>
-	<div class="mx-auto flex w-full grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
+	<div class="mx-auto flex w-full grow flex-col p-6 md:p-0">
 		<slot />
 	</div>
-	<div class="bg-background-light-secondary dark:bg-background-dark-secondary w-full">
+	<div class="w-full bg-background-light-secondary dark:bg-background-dark-secondary">
 		<Separator />
 		<p class=" m-auto py-12 text-center">This is the footer</p>
 	</div>
