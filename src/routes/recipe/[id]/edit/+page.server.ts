@@ -1,6 +1,6 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { NewRecipeFormSchema } from './NewRecipeForm';
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { db } from '$lib/data/db';
 import { convertBase64ToFile } from '$lib/data/util';
 import { uploadRecipePhoto } from '$lib/data/recipe';
@@ -160,8 +160,7 @@ export const actions = {
 			return fail(updateResult.errorCode, { form });
 		}
 
-		// Yep, return { form } here to
-		return { form };
+		throw redirect(302, `/recipe/${form.data.id}`);
 	},
 	publish: async ({ request, locals }) => {
 		const form = await superValidate(request, NewRecipeFormSchema);
@@ -172,6 +171,6 @@ export const actions = {
 			return fail(updateResult.errorCode, { form });
 		}
 		// Yep, return { form } here to
-		return { form };
+		throw redirect(302, `/recipe/${form.data.id}`);
 	}
 };

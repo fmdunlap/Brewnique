@@ -1,4 +1,4 @@
-import { getUserProfile } from '$lib/data/user.js';
+import { getUserProfileByUsername } from '$lib/data/user.js';
 import { getAllRecipesByUser, getPublishedRecipesByUser } from '$lib/data/recipe.js';
 import { fail } from '@sveltejs/kit';
 
@@ -8,7 +8,7 @@ export const load = async ({ params, locals }) => {
 		return fail(400, { message: 'Bad request' });
 	}
 
-	const user = await getUserProfile(username);
+	const user = await getUserProfileByUsername(username);
 	if (!user) {
 		return fail(404, { message: 'User not found' });
 	}

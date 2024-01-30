@@ -22,6 +22,6 @@
 	</div>
 	<div class="w-full bg-background-light-secondary dark:bg-background-dark-secondary">
 		<Separator />
-		<p class=" m-auto py-12 text-center">This is the footer</p>
+		<p class=" m-auto py-6 text-center">This is the footer</p>
 	</div>
 </div>
