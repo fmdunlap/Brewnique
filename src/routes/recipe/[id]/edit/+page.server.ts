@@ -50,7 +50,6 @@ export const load = async ({ params, locals }) => {
 	form.data.description = recipeEntry.description ?? '';
 	form.data.images = recipeEntry.images ?? [];
 	form.data.batchSize = recipeEntry.batchSize ?? 1;
-	form.data.batchUnit = recipeEntry.batchUnit ?? 'gal';
 	form.data.originalGravity = recipeEntry.originalGravity ?? 1.0;
 	form.data.finalGravity = recipeEntry.finalGravity ?? 1.0;
 	form.data.process = recipeEntry.process ?? [];
@@ -137,7 +136,6 @@ async function updateRecipe(
 			description: form.data.description,
 			images: imageUrls,
 			batchSize: form.data.batchSize,
-			batchUnit: form.data.batchUnit,
 			originalGravity: form.data.originalGravity,
 			finalGravity: form.data.finalGravity,
 			process: form.data.process.filter((step) => step.length > 0),

@@ -67,7 +67,6 @@
 				og={recipe.originalGravity ?? 1.0}
 				fg={recipe.finalGravity ?? 1.0}
 				batch_size={recipe.batchSize ?? 1}
-				batch_unit={recipe.batchUnit ?? 'gal'}
 			/>
 		</div>
 		<RecipeIngredients ingredients={recipe.ingredients} />

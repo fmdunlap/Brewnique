@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
-	import { type SearchSidebarOptions, DefaultSearchSidebarOptions } from './types';
-	import BatchSizeCheckboxes from './BatchSizeCheckboxes.svelte';
-	import AbvCheckboxes from './AbvCheckboxes.svelte';
+	import BatchSize from './BatchSizeFields.svelte';
+	import AbvFields from './AbvFields.svelte';
 	import RatingCheckboxes from './RatingCheckboxes.svelte';
 	import SortByButtons from './SortByButtons.svelte';
 	import { SearchIcon } from 'lucide-svelte';
+	import {
+		DEFAULT_SEARCH_OPTIONS,
+		type SearchOptions
+	} from '$src/routes/api/v1/recipes/filterOptions';
 	$: activeUrl = $page.url.pathname;
 
-	export let selectedOptions: SearchSidebarOptions = DefaultSearchSidebarOptions;
+	export let selectedOptions: SearchOptions = DEFAULT_SEARCH_OPTIONS;
 </script>
 
 <Sidebar {activeUrl} class="h-[100%]] flex flex-col">
@@ -24,9 +27,15 @@
 				<p class="text-lg">Rating</p>
 				<RatingCheckboxes bind:selectedRatings={selectedOptions.filter.rating} />
 				<p class="text-lg">Batch Size</p>
-				<BatchSizeCheckboxes bind:selectedBatchSizes={selectedOptions.filter.size} />
+				<BatchSize
+					bind:minBatchSize={selectedOptions.filter.minBatchSize}
+					bind:maxBatchSize={selectedOptions.filter.maxAbv}
+				/>
 				<p class="text-lg">ABV %</p>
-				<AbvCheckboxes bind:selectedAbvFilters={selectedOptions.filter.abv} />
+				<AbvFields
+					bind:minAbv={selectedOptions.filter.minAbv}
+					bind:maxAbv={selectedOptions.filter.maxAbv}
+				/>
 			</div>
 		</SidebarGroup>
 		<SidebarGroup>

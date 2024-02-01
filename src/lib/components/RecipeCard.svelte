@@ -9,14 +9,13 @@
 	export let saved: boolean;
 	export let image: string;
 	export let batch_size: number;
-	export let batch_unit: string;
 	export let og: number;
 	export let fg: number;
 </script>
 
 <a href="/recipe/{id}">
 	<div
-		class="bg-background-light-secondary dark:bg-background-dark-secondary cursor-pointer rounded-xl border-2 p-4 transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800"
+		class="cursor-pointer rounded-xl border-2 bg-background-light-secondary p-4 transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-background-dark-secondary"
 	>
 		<div class="flex flex-col gap-y-2 pt-4">
 			<div class="flex max-h-min flex-row justify-between pb-2">
@@ -41,7 +40,7 @@
 			<AspectRatio ratio={16 / 9}>
 				<img class="h-full w-full rounded-md object-cover" src={image} alt="Recipe" />
 			</AspectRatio>
-			<BrewQuickFacts {batch_size} {batch_unit} {og} {fg} />
+			<BrewQuickFacts {batch_size} {og} {fg} />
 		</div>
 	</div>
 </a>

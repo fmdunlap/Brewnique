@@ -17,7 +17,6 @@ export const NewRecipeFormSchema = z.object({
 		.min(0, { message: 'Cannot have a negative batch size.' })
 		.max(1000, { message: 'Batch size cannot be more than 1000. Maybe use a different unit?' })
 		.default(1),
-	batchUnit: z.enum(unitOfMeasurement.enumValues).default('gal'),
 	originalGravity: z
 		.number()
 		.min(0.79, {

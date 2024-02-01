@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SortByOptions, type SortByValue } from './types';
+	import { SortByOptions, type SortByValue } from '$src/routes/api/v1/recipes/filterOptions';
 
 	export let sortBy: SortByValue;
 </script>

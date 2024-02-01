@@ -140,8 +140,8 @@ export const recipe = pgTable('recipe', {
 	process: text('process').array(),
 	rating: real('rating').default(0),
 	batchSize: smallint('batch_size').default(0),
-	batchUnit: unitOfMeasurement('batch_unit').default('gal'),
 	images: text('images').array(),
+	abv: real('abv'),
 	notes: text('notes')
 });
 

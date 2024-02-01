@@ -5,7 +5,7 @@
 	export let selectedRatings: number[] = [];
 </script>
 
-<div class="flex flex-col gap-y-2 ps-4">
+<div class="flex flex-col gap-y-2 py-2 ps-4">
 	{#each [5, 4, 3, 2, 1] as rating}
 		<div class="flex flex-row">
 			<Checkbox

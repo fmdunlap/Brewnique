@@ -8,19 +8,21 @@
 	import { Plus, Trash2 } from 'lucide-svelte';
 	import { recipeIngredient } from '$src/schema';
 	import FormError from '$lib/components/form/FormError.svelte';
+	import SuperDebug from 'sveltekit-superforms/client/SuperDebug.svelte';
 
 	export let data: PageData;
 	const { form, enhance, errors } = superForm(data.form, {
 		dataType: 'json'
 	});
 
-	const batchSizeUnits = ['gal', 'liter', 'barrel', 'cup', 'oz'];
+	let process: string[] = [];
+	$form.process = process;
 </script>
 
 <div class="mx-auto w-3/4">
 	<h1 class="py-6 text-center text-2xl">Create New Recipe</h1>
 	<div
-		class="border-accent-400 bg-background-light-secondary dark:bg-background-dark-secondary my-2 rounded-lg border-2 p-8"
+		class="my-2 rounded-lg border-2 border-accent-400 bg-background-light-secondary p-8 dark:bg-background-dark-secondary"
 	>
 		<form class="flex flex-col gap-y-12" action="?/save" use:enhance method="post">
 			<!-- Hidden ID -->
@@ -74,18 +76,9 @@
 							}
 						}}
 					/>
-
-					<Select
-						class="w-1/5"
-						name="batchUnit"
-						items={batchSizeUnits.map((unit) => {
-							return { value: unit, name: unit };
-						})}
-						bind:value={$form.batchUnit}
-					/>
+					<p>Gallons</p>
 				</div>
 				<FormError errorMessages={$errors.batchSize} />
-				<FormError errorMessages={$errors.batchUnit} />
 			</div>
 
 			<!-- Gravity -->
@@ -99,7 +92,7 @@
 							name="originalGravity"
 							step="0.001"
 							bind:value={$form.originalGravity}
-							placeholder={$form.originalGravity.toFixed(3)}
+							placeholder="1.000"
 							on:change={() => {
 								const formattedNumber = Number.parseFloat($form.originalGravity.toString());
 								if (formattedNumber > 0) {
@@ -119,6 +112,7 @@
 							type="number"
 							name="finalGravity"
 							step="0.001"
+							placeholder="1.000"
 							bind:value={$form.finalGravity}
 							on:change={() => {
 								const formattedNumber = Number.parseFloat($form.finalGravity.toString());
@@ -229,4 +223,4 @@
 	</div>
 </div>
 
-<DataDebug {data} />
+<SuperDebug {data} />
