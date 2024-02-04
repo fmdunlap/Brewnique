@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { Sidebar, SidebarGroup, SidebarItem, SidebarWrapper } from 'flowbite-svelte';
 	import BatchSize from './BatchSizeFields.svelte';
 	import AbvFields from './AbvFields.svelte';

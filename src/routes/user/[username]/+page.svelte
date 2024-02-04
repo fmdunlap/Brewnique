@@ -16,6 +16,9 @@
 			username={data.user?.username ?? ''}
 			userBio={data.user?.bio ?? ''}
 			isLoggedInUser={data.session?.user.userId == data.user?.id}
+			on:click={() => {
+				console.log('edit');
+			}}
 		/>
 	</div>
 
@@ -33,9 +36,9 @@
 					/>
 				</button>
 			{/if}
-			{#each data.recipes as recipe, i}
-				{#if i >= firstCardIndex && i < firstCardIndex + 3}
-					<div class="mr-auto w-1/3">
+			<div class="flex grow flex-row gap-x-4">
+				{#each data.recipes as recipe, i}
+					{#if i >= firstCardIndex && i < firstCardIndex + 3}
 						<RecipeCard
 							id={recipe.id}
 							title={recipe.name ?? ''}
@@ -46,9 +49,9 @@
 							og={recipe.originalGravity ?? 1.0}
 							fg={recipe.finalGravity ?? 1.0}
 						/>
-					</div>
-				{/if}
-			{/each}
+					{/if}
+				{/each}
+			</div>
 
 			{#if data.recipes.length > 3}
 				<button

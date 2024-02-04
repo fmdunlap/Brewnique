@@ -15,7 +15,7 @@
 
 <a
 	href="/recipe/{id}"
-	class="h-min cursor-pointer rounded-xl border-2 bg-background-light-secondary p-4 transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-background-dark-secondary"
+	class="w-full cursor-pointer rounded-xl border-2 bg-background-light-secondary p-4 transition-all hover:-translate-x-1 hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-background-dark-secondary"
 >
 	<div class="flex flex-col gap-y-2 pt-4">
 		<div class="flex max-h-min flex-row justify-between pb-2">
