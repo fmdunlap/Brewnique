@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { dev } from '$app/environment';
 	import { Toggle } from 'flowbite-svelte';
 
 	export let data: unknown;
@@ -88,21 +89,23 @@
 	$: debugData = data;
 </script>
 
-{#if toggleable}
-	<Toggle bind:checked={open} />
-{/if}
+{#if dev}
+	{#if toggleable}
+		<Toggle bind:checked={open} />
+	{/if}
 
-{#if open}
-	<div class={'super-debug'}>
-		{#if label}
-			<div class="super-debug--label px-4 py-1 text-xl">{label}</div>
-		{/if}
-		<pre class="super-debug--pre" bind:this={ref}>
+	{#if open}
+		<div class={'super-debug'}>
+			{#if label}
+				<div class="super-debug--label px-4 py-1 text-xl">{label}</div>
+			{/if}
+			<pre class="super-debug--pre" bind:this={ref}>
     <code class="super-debug--code">
 	    {@html syntaxHighlight(debugData)}
     </code>
   </pre>
-	</div>
+		</div>
+	{/if}
 {/if}
 
 <style>
