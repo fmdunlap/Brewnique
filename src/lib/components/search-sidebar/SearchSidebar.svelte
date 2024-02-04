@@ -11,18 +11,18 @@
 		type SearchOptions
 	} from '$src/routes/api/v1/recipes/filterOptions';
 	import { createEventDispatcher } from 'svelte';
-	import debounce from 'lodash/debounce';
-
-	$: activeUrl = $page.url.pathname;
-
-	const dispatch = createEventDispatcher();
 
 	export let selectedOptions: SearchOptions = DEFAULT_SEARCH_OPTIONS;
 
-	$: dispatch('change', selectedOptions);
+	const dispatch = createEventDispatcher();
+	function dispatchChange() {
+		dispatch('change', selectedOptions);
+	}
+
+	$: selectedOptions, dispatchChange();
 </script>
 
-<Sidebar {activeUrl} class="h-[100%]] flex flex-col">
+<Sidebar class="h-[100%]] flex flex-col">
 	<SidebarWrapper class="flex min-h-full grow flex-col px-4">
 		<SidebarGroup>
 			<p class="text-xl font-bold">Sort By</p>
