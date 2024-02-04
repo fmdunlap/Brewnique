@@ -10,9 +10,16 @@
 		DEFAULT_SEARCH_OPTIONS,
 		type SearchOptions
 	} from '$src/routes/api/v1/recipes/filterOptions';
+	import { createEventDispatcher } from 'svelte';
+	import debounce from 'lodash/debounce';
+
 	$: activeUrl = $page.url.pathname;
 
+	const dispatch = createEventDispatcher();
+
 	export let selectedOptions: SearchOptions = DEFAULT_SEARCH_OPTIONS;
+
+	$: dispatch('change', selectedOptions);
 </script>
 
 <Sidebar {activeUrl} class="h-[100%]] flex flex-col">

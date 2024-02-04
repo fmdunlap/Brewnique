@@ -59,24 +59,27 @@
 		on:click={async () => {
 			fetchRecipes();
 		}}
+		on:change={async () => {
+			fetchRecipes();
+		}}
 	/>
 	{#if loading}
 		<Spinner class="m-auto" size="20" />
 	{:else}
-		<div class="grid w-full grid-cols-4 p-4">
+		<div
+			class="grid w-full auto-cols-min grid-cols-1 gap-4 p-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+		>
 			{#each recipes as recipe}
-				<div class="px-1 py-0">
-					<RecipeCard
-						id={recipe.id}
-						title={recipe.name ?? ''}
-						rating={recipe.rating ?? 0}
-						saved={false}
-						image={recipe.images ? recipe.images[0] : ''}
-						batch_size={recipe.batchSize ?? 0}
-						og={recipe.originalGravity ?? 1.0}
-						fg={recipe.finalGravity ?? 1.0}
-					/>
-				</div>
+				<RecipeCard
+					id={recipe.id}
+					title={recipe.name ?? ''}
+					rating={recipe.rating ?? 0}
+					saved={false}
+					image={recipe.images ? recipe.images[0] : ''}
+					batch_size={recipe.batchSize ?? 0}
+					og={recipe.originalGravity ?? 1.0}
+					fg={recipe.finalGravity ?? 1.0}
+				/>
 			{/each}
 		</div>
 	{/if}
