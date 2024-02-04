@@ -6,7 +6,6 @@
 	export let b64imgs: string[] = [];
 
 	export function openModal() {
-		console.log('IM CLICKING');
 		clickOutsideModal = true;
 	}
 </script>
