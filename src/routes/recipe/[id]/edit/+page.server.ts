@@ -1,6 +1,6 @@
 import { superValidate } from 'sveltekit-superforms/server';
 import { NewRecipeFormSchema } from './NewRecipeForm';
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { db } from '$lib/data/db';
 import { convertBase64ToFile } from '$lib/data/util';
 import { uploadRecipePhoto } from '$lib/data/recipe';
@@ -50,7 +50,6 @@ export const load = async ({ params, locals }) => {
 	form.data.description = recipeEntry.description ?? '';
 	form.data.images = recipeEntry.images ?? [];
 	form.data.batchSize = recipeEntry.batchSize ?? 1;
-	form.data.batchUnit = recipeEntry.batchUnit ?? 'gal';
 	form.data.originalGravity = recipeEntry.originalGravity ?? 1.0;
 	form.data.finalGravity = recipeEntry.finalGravity ?? 1.0;
 	form.data.process = recipeEntry.process ?? [];
@@ -137,7 +136,6 @@ async function updateRecipe(
 			description: form.data.description,
 			images: imageUrls,
 			batchSize: form.data.batchSize,
-			batchUnit: form.data.batchUnit,
 			originalGravity: form.data.originalGravity,
 			finalGravity: form.data.finalGravity,
 			process: form.data.process.filter((step) => step.length > 0),
@@ -160,8 +158,7 @@ export const actions = {
 			return fail(updateResult.errorCode, { form });
 		}
 
-		// Yep, return { form } here to
-		return { form };
+		throw redirect(302, `/recipe/${form.data.id}`);
 	},
 	publish: async ({ request, locals }) => {
 		const form = await superValidate(request, NewRecipeFormSchema);
@@ -172,6 +169,6 @@ export const actions = {
 			return fail(updateResult.errorCode, { form });
 		}
 		// Yep, return { form } here to
-		return { form };
+		throw redirect(302, `/recipe/${form.data.id}`);
 	}
 };

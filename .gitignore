@@ -10,3 +10,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .secrets
 /postgres-data
+
+# Convenience delivery stuff
+*.tar.gz
+*.tgz
+send.sh

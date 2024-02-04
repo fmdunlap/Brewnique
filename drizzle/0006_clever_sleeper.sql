@@ -1,0 +1,1 @@
+ALTER TABLE "recipe" DROP COLUMN IF EXISTS "batch_unit";

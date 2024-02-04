@@ -1,12 +1,12 @@
 <script>
-	import Button from '../ui/button/button.svelte';
+	import { Button } from 'flowbite-svelte';
 	import { mode } from 'mode-watcher';
 </script>
 
 <Button on:click>
 	<div class="my-auto flex w-full flex-row">
 		<svg
-			fill={$mode === 'dark' ? '#000' : '#FFF'}
+			fill="#FFF"
 			height="20px"
 			width="20px"
 			version="1.1"

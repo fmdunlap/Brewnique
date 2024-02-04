@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Switch } from '../ui/switch';
+	import { Toggle } from 'flowbite-svelte';
 
 	export let data: unknown;
 	export let label: string | null = null;
@@ -89,7 +89,7 @@
 </script>
 
 {#if toggleable}
-	<Switch bind:checked={open} />
+	<Toggle bind:checked={open} />
 {/if}
 
 {#if open}

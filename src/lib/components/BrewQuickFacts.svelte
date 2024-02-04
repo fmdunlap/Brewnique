@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Separator } from '$lib/components/ui/separator';
+	import Separator from './Separator.svelte';
 
 	export let batch_size: number = 0;
-	export let batch_unit: string = '';
 	export let og: number = 0;
 	export let fg: number = 0;
 
@@ -12,7 +11,7 @@
 <div class="flex h-20 flex-row justify-around">
 	<div class="my-auto flex flex-col">
 		<p class="mx-auto text-center text-sm">Batch Size</p>
-		<p class="mx-auto">{batch_size} {batch_unit}</p>
+		<p class="mx-auto">{batch_size} gal</p>
 	</div>
 	<Separator orientation="vertical" />
 	<div class="my-auto flex flex-col">

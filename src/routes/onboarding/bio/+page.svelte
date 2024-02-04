@@ -20,13 +20,17 @@
 		aria-invalid={$form.bio ? 'true' : undefined}
 	/>
 	<input type="hidden" name="skip" bind:value={skip} />
-	{#if $errors.bio}<span class="text-red-500">{$errors.bio}</span>{/if}
+	{#if $errors.bio}
+		<span class="text-red-500">{$errors.bio}</span>
+	{/if}
 	<Button type="submit">Submit</Button>
 	<Button
 		variant="secondary"
 		type="submit"
 		on:click={() => {
 			skip = true;
-		}}>Skip</Button
+		}}
 	>
+		Skip
+	</Button>
 </form>

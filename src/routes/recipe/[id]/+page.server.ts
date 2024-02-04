@@ -1,5 +1,5 @@
 import { getRecipeWithIngredients } from '$lib/data/recipe.js';
-import { getUserProfile } from '$lib/data/user.js';
+import { getUserProfileById } from '$lib/data/user.js';
 import { error } from '@sveltejs/kit';
 
 export const load = async ({ params }) => {
@@ -15,7 +15,7 @@ export const load = async ({ params }) => {
 		return error(404, { message: 'Recipe not found' });
 	}
 
-	const recipeOwner = await getUserProfile(recipe.ownerId);
+	const recipeOwner = await getUserProfileById(recipe.ownerId);
 
 	return {
 		recipe,

@@ -16,7 +16,6 @@
 				saved={false}
 				image={recipe.images ? recipe.images[0] : 'http://placekitten.com/300/200'}
 				batch_size={recipe.batchSize ?? 0}
-				batch_unit="gal"
 				og={recipe.originalGravity ?? 1.0}
 				fg={recipe.finalGravity ?? 1.0}
 			/>

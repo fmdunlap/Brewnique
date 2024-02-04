@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Input from '$lib/components/ui/input/input.svelte';
+	import { Input } from 'flowbite-svelte';
 </script>
 
 <Input placeholder="Search" />

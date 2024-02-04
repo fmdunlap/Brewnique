@@ -2,18 +2,20 @@
 	import AvatarMenu from './AvatarMenu.svelte';
 	import { goto, preloadData, pushState } from '$app/navigation';
 	import LoginPage from '../../../routes/login/+page.svelte';
-	import * as Dialog from '$lib/components/ui/dialog';
 	import DarkModeToggle from './DarkModeToggle.svelte';
-	import Button from '../ui/button/button.svelte';
+	import { Button } from 'flowbite-svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
 	import { page } from '$app/stores';
+	import Modal from '../Modal.svelte';
 
 	export let avatarUrl: string | undefined | null = undefined;
 	export let fallbackText: string | undefined | null = undefined;
 	export let loggedIn: boolean;
 
 	$: loginDialogOpen = $page.state.loginOpen;
+	let modal: Modal;
+	let goBack: boolean = true;
 
 	async function onLoginPressed(e: MouseEvent & { currentTarget: HTMLAnchorElement }) {
 		if (e.metaKey || e.ctrlKey) return;
@@ -31,7 +33,7 @@
 </script>
 
 <div
-	class="sticky top-0 z-40 flex min-w-full flex-row justify-between border-b-2 bg-background px-4 py-4"
+	class="sticky top-0 z-40 flex min-w-full flex-row justify-between border-b-2 bg-background-light-primary px-4 py-4 dark:border-background-dark-secondary dark:bg-background-dark-primary"
 >
 	<div class="my-auto flex flex-row gap-x-2">
 		<Button variant="outline">LOGO</Button>
@@ -69,13 +71,25 @@
 	</div>
 </div>
 
-<Dialog.Root
-	open={loginDialogOpen}
-	onOpenChange={(open) => {
-		if (!open) history.back();
+<Modal
+	bind:this={modal}
+	bind:showModal={loginDialogOpen}
+	on:close={() => {
+		if (goBack) {
+			history.back();
+		}
 	}}
+	rounded="xl"
 >
-	<Dialog.Content class="md:w-2/3 md:max-w-full md:p-0">
-		<LoginPage on:close={() => (loginDialogOpen = false)} />
-	</Dialog.Content>
-</Dialog.Root>
+	<LoginPage
+		showCloseIcon
+		on:close={() => {
+			modal.close();
+		}}
+		on:email={() => {
+			goBack = false;
+			modal.close();
+			goBack = true;
+		}}
+	/>
+</Modal>
