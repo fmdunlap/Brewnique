@@ -43,7 +43,6 @@
 							saved={false}
 							image={recipe.images ? recipe.images[0] : ''}
 							batch_size={recipe.batchSize ?? 0}
-							batch_unit={recipe.batchUnit ?? 'gal'}
 							og={recipe.originalGravity ?? 1.0}
 							fg={recipe.finalGravity ?? 1.0}
 						/>
