@@ -26,14 +26,6 @@ export interface SortByOption {
 }
 
 export const SortByOptions: Record<SortByValue, SortByOption> = {
-	NameAsc: {
-		value: 'NameAsc',
-		label: 'Name (A-Z)'
-	},
-	NameDesc: {
-		value: 'NameDesc',
-		label: 'Name (Z-A)'
-	},
 	Newest: {
 		value: 'Newest',
 		label: 'Newest'
@@ -41,6 +33,14 @@ export const SortByOptions: Record<SortByValue, SortByOption> = {
 	Oldest: {
 		value: 'Oldest',
 		label: 'Oldest'
+	},
+	NameAsc: {
+		value: 'NameAsc',
+		label: 'Name (A-Z)'
+	},
+	NameDesc: {
+		value: 'NameDesc',
+		label: 'Name (Z-A)'
 	},
 	RatingAsc: {
 		value: 'RatingAsc',
