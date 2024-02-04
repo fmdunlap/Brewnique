@@ -3,6 +3,8 @@
 	import ImageUploadIcon from './ImageUploadIcon.svg';
 
 	export let b64imgs: string[] = [];
+	export let showPreview = true;
+	export let multiple = true;
 	$: b64imgs;
 
 	const handleChange = (event: Event) => {
@@ -75,29 +77,25 @@
 </script>
 
 <div class="flex w-full grow flex-col">
-	<div class="flex flex-row gap-x-6">
-		<div class="my-auto flex w-1/4 flex-col">
-			<h2 class="text-lg font-bold">Images</h2>
-			<p>Add a thumbnail image. Whatever you think represents your brew best.</p>
-		</div>
-		<Dropzone
-			on:drop={dropHandle}
-			on:dragover={(event) => {
-				event.preventDefault();
-			}}
-			on:change={(e) => handleChange(e)}
-			multiple
-		>
-			<img src={ImageUploadIcon} alt="Upload Icon" class="mx-auto my-4 h-16 w-full" />
-			<p class="text-xl">
-				Drag and drop an image, or <span class="text-emerald-700 dark:text-emerald-400"
-					>click to Browse</span
-				>
-			</p>
-			<p>Supports PNG, JPG, and WEBP up to 5M.</p>
-		</Dropzone>
-	</div>
+	<Dropzone
+		on:drop={dropHandle}
+		on:dragover={(event) => {
+			event.preventDefault();
+		}}
+		on:change={(e) => handleChange(e)}
+		{multiple}
+	>
+		<img src={ImageUploadIcon} alt="Upload Icon" class="mx-auto my-4 h-16 w-full" />
+		<p class="text-xl">
+			Drag and drop an image, or <span class="text-emerald-700 dark:text-emerald-400"
+				>click to Browse</span
+			>
+		</p>
+		<p>Supports PNG, JPG, and WEBP up to 5M.</p>
+	</Dropzone>
+</div>
 
+{#if showPreview}
 	<div class="grid grid-cols-4 gap-x-6">
 		{#each b64imgs as image, i}
 			<div class="mt-6 text-center">
@@ -111,4 +109,4 @@
 			</div>
 		{/each}
 	</div>
-</div>
+{/if}

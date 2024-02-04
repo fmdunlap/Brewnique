@@ -1,9 +1,8 @@
 <script lang="ts">
-	import DataDebug from '$lib/components/dev/DataDebug.svelte';
 	import { Input, Textarea, Select, Button } from 'flowbite-svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 
-	import ImageUpload from './ImageUpload.svelte';
+	import ImageUpload from '$lib/components/ImageUpload.svelte';
 	import type { PageData } from './$types';
 	import { Plus, Trash2 } from 'lucide-svelte';
 	import { recipeIngredient } from '$src/schema';
@@ -43,8 +42,13 @@
 			</div>
 
 			<!-- Images -->
-
-			<ImageUpload bind:b64imgs={$form.images} />
+			<div class="flex flex-row gap-x-6">
+				<div class="my-auto flex w-1/4 flex-col">
+					<h2 class="text-lg font-bold">Images</h2>
+					<p>Add a thumbnail image. Whatever you think represents your brew best.</p>
+				</div>
+				<ImageUpload bind:b64imgs={$form.images} />
+			</div>
 
 			{#each $form.images as _, i}
 				<input type="hidden" name="images" bind:value={$form.images[i]} />
