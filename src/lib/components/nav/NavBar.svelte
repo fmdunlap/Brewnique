@@ -2,7 +2,6 @@
 	import AvatarMenu from './AvatarMenu.svelte';
 	import { goto, preloadData, pushState } from '$app/navigation';
 	import LoginPage from '../../../routes/login/+page.svelte';
-	import DarkModeToggle from './DarkModeToggle.svelte';
 	import { Button } from 'flowbite-svelte';
 	import SearchBarButton from './SearchBarButton.svelte';
 	import SearchBar from './SearchBar.svelte';
@@ -40,9 +39,12 @@
 		{#if loggedIn}
 			<Button
 				variant="link"
+				class="p-2"
 				on:click={async () => {
 					await goto('/recipe/new');
-				}}>New Recipe</Button
+				}}
+			>
+				<p class="m-0 line-clamp-1 p-0">New Recipe</p></Button
 			>
 		{/if}
 	</div>
@@ -50,10 +52,9 @@
 		<SearchBar />
 	</div>
 	<div class="my-auto flex flex-row gap-x-2">
-		<div class="md:hidden">
+		<div class="my-auto md:hidden">
 			<SearchBarButton />
 		</div>
-		<DarkModeToggle />
 		<div class="my-auto">
 			{#if loggedIn}
 				<AvatarMenu avatar_url={avatarUrl} on:signout={async () => await goto('/login/logout')} />

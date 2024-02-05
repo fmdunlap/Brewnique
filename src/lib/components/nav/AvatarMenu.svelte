@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Avatar, Dropdown, DropdownDivider, DropdownItem } from 'flowbite-svelte';
+	import { Dropdown, DropdownDivider, DropdownItem } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { dev } from '$app/environment';
+	import { mode, toggleMode } from 'mode-watcher';
 
 	const dispatch = createEventDispatcher();
 
@@ -17,6 +18,13 @@
 	<a href="/user">
 		<DropdownItem>Profile</DropdownItem>
 	</a>
+	{#if $mode == 'dark'}
+		<DropdownItem on:click={toggleMode}>Light Mode</DropdownItem>
+	{:else}
+		<DropdownItem on:click={toggleMode}>Dark Mode</DropdownItem>
+	{/if}
+	<DropdownDivider />
+
 	<DropdownItem on:click={() => dispatch('signout')}>Log Out</DropdownItem>
 	{#if dev}
 		<DropdownDivider />
