@@ -5,7 +5,7 @@ import { S3 } from './s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 export function userAvatarUrl(userId: string) {
-	return 'https://cdn.brewnique.io/avatars/' + userId + '.svg';
+	return `https://cdn.brewnique.io/avatars/${userId}`;
 }
 
 export async function userHasAvatar(userId: string) {
@@ -23,13 +23,13 @@ export async function downloadDicebearAvatar(userId: string) {
 	return svg;
 }
 
-export async function uploadAvatarToStorage(userId: string, avatarBlob: Blob) {
+export async function uploadAvatarToStorage(userId: string, filetype: string, avatarBlob: Blob) {
 	S3.send(
 		new PutObjectCommand({
 			Bucket: 'brewnique',
-			Key: 'avatars/' + userId + '.svg',
+			Key: `avatars/${userId}`,
 			Body: Buffer.from(await avatarBlob.arrayBuffer()),
-			ContentType: 'image/svg+xml',
+			ContentType: filetype == 'svg' ? 'image/svg+xml' : `image/${filetype}`,
 			ContentLength: avatarBlob.size
 		})
 	);
@@ -37,5 +37,5 @@ export async function uploadAvatarToStorage(userId: string, avatarBlob: Blob) {
 
 export async function addDefaultAvatarToStorage(user_id: string) {
 	const avatar_blob = await downloadDicebearAvatar(user_id);
-	await uploadAvatarToStorage(user_id, avatar_blob);
+	await uploadAvatarToStorage(user_id, 'svg', avatar_blob);
 }

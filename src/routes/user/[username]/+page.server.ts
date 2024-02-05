@@ -27,20 +27,3 @@ export const load = async ({ params, locals }) => {
 		recipes
 	};
 };
-
-export const actions = {
-	newAvatar: async ({ params, locals, request }) => {
-		const session = await locals.auth.validate();
-		if (!session || !session.user) {
-			return fail(401, { message: 'You must be logged in to edit a recipe' });
-		}
-
-		console.log('Got avatar');
-
-		const form = await request.formData();
-		const avatar = form.get('avatar');
-		if (!avatar) {
-			return fail(400, { message: 'Bad request' });
-		}
-	}
-};

@@ -1,12 +1,15 @@
 <script lang="ts">
 	import ImageUpload from '$lib/components/ImageUpload.svelte';
 	import { Button, Modal } from 'flowbite-svelte';
+	import { createEventDispatcher } from 'svelte';
 	let clickOutsideModal = false;
-
+	const dispatch = createEventDispatcher();
 	export let b64imgs: string[] = [];
-
 	export function openModal() {
 		clickOutsideModal = true;
+	}
+	export function closeModal() {
+		clickOutsideModal = false;
 	}
 </script>
 
@@ -23,7 +26,13 @@
 					alt="User Avatar"
 				/>
 			</div>
-			<Button class="mx-auto w-2/3 rounded-full p-2" color="primary">Save</Button>
+			<Button
+				class="mx-auto w-2/3 rounded-full p-2"
+				on:click={() => {
+					dispatch('submit');
+				}}
+				color="primary">Save</Button
+			>
 			<Button
 				class="mx-auto w-2/3 rounded-full p-2"
 				color="alternative"

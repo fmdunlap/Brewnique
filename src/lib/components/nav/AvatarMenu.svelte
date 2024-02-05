@@ -9,9 +9,11 @@
 	export let fallback_text: string | null = null;
 </script>
 
-<Avatar src={avatar_url ?? ''} class="hover:cursor-pointer">
-	{fallback_text}
-</Avatar>
+<img
+	src={avatar_url + '?' + Date.now() ?? ''}
+	alt="User Avatar"
+	class="h-12 w-12 rounded-full object-cover"
+/>
 <Dropdown>
 	<a href="/user">
 		<DropdownItem>Profile</DropdownItem>

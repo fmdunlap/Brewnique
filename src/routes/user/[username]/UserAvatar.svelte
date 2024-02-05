@@ -14,7 +14,11 @@
 				<p class="absolute bottom-0 w-full pb-4 text-2xl font-bold text-white underline">Edit</p>
 			</diV>
 			<div>
-				<img class="mx-auto h-48 w-48 rounded-full" src={userAvatarUrl} alt="User Avatar" />
+				<img
+					class="mx-auto h-48 w-48 rounded-full object-cover"
+					src={userAvatarUrl}
+					alt="User Avatar"
+				/>
 			</div>
 		</button>
 		<h2 class="text-center text-4xl font-bold">{username}</h2>
@@ -22,7 +26,11 @@
 	</div>
 {:else}
 	<div class="flex flex-col gap-y-4">
-		<img class="mx-auto h-48 w-48 rounded-full" src={userAvatarUrl} alt="User Avatar" />
+		<img
+			class="mx-auto h-48 w-48 rounded-full object-cover"
+			src={userAvatarUrl}
+			alt="User Avatar"
+		/>
 		<h2 class="text-center text-4xl font-bold">{username}</h2>
 		<p class="text-center">{userBio}</p>
 	</div>
