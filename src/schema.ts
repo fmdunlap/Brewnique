@@ -154,3 +154,18 @@ export const recipeIngredient = pgTable('recipe_ingredient', {
 	quantity: real('quantity'),
 	unit: unitOfMeasurement('unit')
 });
+
+export const recipeComment = pgTable('recipe_comment', {
+	id: uuid('id').primaryKey().notNull(),
+	recipeId: uuid('recipe_id')
+		.notNull()
+		.references(() => recipe.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+	userId: varchar('user_id', {
+		length: 15
+	})
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+	content: text('content')
+});
