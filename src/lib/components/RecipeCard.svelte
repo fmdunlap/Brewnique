@@ -2,6 +2,7 @@
 	import { Bookmark, Star, BookmarkCheck } from 'lucide-svelte';
 	import { AspectRatio } from './ui/aspect-ratio';
 	import BrewQuickFacts from './BrewQuickFacts.svelte';
+	import { Rating } from 'flowbite-svelte';
 
 	export let id: string;
 	export let title: string;
@@ -21,8 +22,6 @@
 		<div class="flex max-h-min flex-row justify-between pb-2">
 			<h1 class="line-clamp-1 overflow-clip text-xl font-bold">{title}</h1>
 			<div class="my-auto flex flex-row gap-x-2">
-				<Star class="dark:fill-white" />
-				<p>{rating.toFixed(1)}</p>
 				<button
 					on:click={(e) => {
 						e.preventDefault();
@@ -40,6 +39,16 @@
 		<AspectRatio ratio={16 / 9}>
 			<img class="h-full w-full rounded-md object-cover" src={image} alt="Recipe" />
 		</AspectRatio>
+		<div class="flex flex-row pt-2">
+			<Rating {rating} total={5} />
+			<span class="mx-1.5 my-auto h-1 w-1 rounded-full bg-gray-500 dark:bg-gray-400" />
+			<a
+				href="/"
+				class="my-auto text-sm font-medium text-gray-900 underline hover:no-underline dark:text-white"
+			>
+				73 reviews
+			</a>
+		</div>
 		<BrewQuickFacts {batch_size} {og} {fg} />
 	</div>
 </a>
