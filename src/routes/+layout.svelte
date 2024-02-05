@@ -12,11 +12,7 @@
 
 <ModeWatcher />
 <div class="flex min-h-screen flex-col bg-background-light-primary dark:bg-background-dark-primary">
-	<NavBar
-		loggedIn={session != null}
-		avatarUrl={session == null ? null : session.user.avatarUrl}
-		fallbackText={session == null ? null : session.user.email.slice(0, 1)}
-	/>
+	<NavBar loggedIn={session != null} avatarUrl={session == null ? null : session.user.avatarUrl} />
 	<div class="mx-auto flex w-full grow flex-col p-6 md:p-0">
 		<slot />
 	</div>

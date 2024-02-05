@@ -6,13 +6,12 @@
 	const dispatch = createEventDispatcher();
 
 	export let avatar_url: string | null = null;
-	export let fallback_text: string | null = null;
 </script>
 
 <img
 	src={avatar_url + '?' + Date.now() ?? ''}
 	alt="User Avatar"
-	class="h-12 w-12 rounded-full object-cover"
+	class="h-12 w-12 rounded-full object-cover transition duration-200 ease-in-out hover:cursor-pointer hover:saturate-150"
 />
 <Dropdown>
 	<a href="/user">

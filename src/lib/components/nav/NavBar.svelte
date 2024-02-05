@@ -10,7 +10,6 @@
 	import Modal from '../Modal.svelte';
 
 	export let avatarUrl: string | undefined | null = undefined;
-	export let fallbackText: string | undefined | null = undefined;
 	export let loggedIn: boolean;
 
 	$: loginDialogOpen = $page.state.loginOpen;
@@ -57,11 +56,7 @@
 		<DarkModeToggle />
 		<div class="my-auto">
 			{#if loggedIn}
-				<AvatarMenu
-					avatar_url={avatarUrl}
-					fallback_text={fallbackText}
-					on:signout={async () => await goto('/login/logout')}
-				/>
+				<AvatarMenu avatar_url={avatarUrl} on:signout={async () => await goto('/login/logout')} />
 			{:else}
 				<a href="/login" on:click={onLoginPressed}>
 					<Button variant="secondary">Log In</Button>
