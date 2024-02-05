@@ -1,12 +1,6 @@
 import { db } from '$lib/data/db';
 import { user } from '$src/schema';
-import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
 import { eq } from 'drizzle-orm';
-
-export const obscenityMatcher = new RegExpMatcher({
-	...englishDataset.build(),
-	...englishRecommendedTransformers
-});
 
 export async function advanceOnboardingState(userId: string) {
 	const currentState = (await db.select().from(user).where(eq(user.id, userId)))[0]

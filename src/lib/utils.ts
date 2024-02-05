@@ -3,6 +3,12 @@ import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
 
+import { RegExpMatcher, englishDataset, englishRecommendedTransformers } from 'obscenity';
+export const obscenityMatcher = new RegExpMatcher({
+	...englishDataset.build(),
+	...englishRecommendedTransformers
+});
+
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }

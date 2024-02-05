@@ -1,7 +1,6 @@
 <script lang="ts">
 	export let userAvatarUrl: string;
 	export let username: string;
-	export let userBio: string;
 	export let isLoggedInUser: boolean;
 </script>
 
@@ -22,7 +21,6 @@
 			</div>
 		</button>
 		<h2 class="text-center text-4xl font-bold">{username}</h2>
-		<p class="text-center">{userBio}</p>
 	</div>
 {:else}
 	<div class="flex flex-col gap-y-4">
@@ -32,6 +30,5 @@
 			alt="User Avatar"
 		/>
 		<h2 class="text-center text-4xl font-bold">{username}</h2>
-		<p class="text-center">{userBio}</p>
 	</div>
 {/if}

@@ -14,6 +14,11 @@ export const POST: RequestHandler = async ({ request, params }) => {
 
 	const base64Image = (await request.json()).b64img;
 	const filetype = base64Image.split(';')[0].split('/')[1];
+
+	if (!filetype || !['png', 'jpeg', 'jpg', 'svg'].includes(filetype)) {
+		return new Response('Invalid image', { status: 400 });
+	}
+
 	const imageFile = await convertBase64ToFile(base64Image);
 	await uploadAvatarToStorage(userId, filetype, imageFile);
 	await db

@@ -5,7 +5,8 @@ import { eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms/server';
 import { usernameFormSchema } from './UsernameForm.js';
 import { auth } from '$lib/auth/lucia.js';
-import { advanceOnboardingState, obscenityMatcher } from '../utils.js';
+import { advanceOnboardingState } from '../utils.js';
+import { obscenityMatcher } from '$lib/utils.js';
 
 export const load = async () => {
 	return {

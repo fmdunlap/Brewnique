@@ -1,11 +1,12 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms/server';
 import { bioFormSchema } from './BioForm.js';
-import { advanceOnboardingState, obscenityMatcher } from '../utils.js';
+import { obscenityMatcher } from '$lib/utils.js';
 import { db } from '$lib/data/db.js';
 import { user } from '$src/schema.js';
 import { eq } from 'drizzle-orm';
 import { auth } from '$lib/auth/lucia';
+import { advanceOnboardingState } from '../utils.js';
 
 export const load = async () => {
 	return {
