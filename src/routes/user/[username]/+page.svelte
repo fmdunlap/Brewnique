@@ -7,6 +7,7 @@
 	import { error } from '@sveltejs/kit';
 	import UserBio from './UserBio.svelte';
 	import EditBioModal from './EditBioModal.svelte';
+	import RecipeCard from '$lib/components/RecipeCard.svelte';
 
 	export let data;
 
@@ -19,7 +20,7 @@
 	let bioModalError = '';
 </script>
 
-<div class="mx-auto flex w-5/6 flex-col gap-y-4 pt-4">
+<div class="mx-auto flex w-full flex-col gap-y-4 pt-4 md:w-5/6">
 	<div class="mx-auto">
 		<UserAvatar
 			userAvatarUrl={avatarUrl}
@@ -40,7 +41,23 @@
 
 	<h1 class="text-4xl font-bold">Recipes</h1>
 	{#if data.recipes && data.recipes != undefined && data.recipes.length > 0}
-		<RecipesCarousel recipes={data.recipes} />
+		<div class="hidden lg:block">
+			<RecipesCarousel recipes={data.recipes} />
+		</div>
+		<div class="flex flex-col gap-y-4 lg:hidden">
+			{#each data.recipes as recipe}
+				<RecipeCard
+					id={recipe.id}
+					title={recipe.name ?? ''}
+					rating={recipe.rating ?? 0}
+					saved={false}
+					image={recipe.images ? recipe.images[0] : ''}
+					batch_size={recipe.batchSize ?? 0}
+					og={recipe.originalGravity ?? 1.0}
+					fg={recipe.finalGravity ?? 1.0}
+				/>
+			{/each}
+		</div>
 	{/if}
 </div>
 
