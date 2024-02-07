@@ -8,7 +8,8 @@ import {
 	boolean,
 	real,
 	smallint,
-	uuid
+	uuid,
+	type AnyPgColumn
 } from 'drizzle-orm/pg-core';
 
 // AUTH
@@ -165,6 +166,10 @@ export const recipeComment = pgTable('recipe_comment', {
 	})
 		.notNull()
 		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+	parentId: uuid('parent_id').references((): AnyPgColumn => recipeComment.id, {
+		onDelete: 'cascade',
+		onUpdate: 'cascade'
+	}),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 	content: text('content')

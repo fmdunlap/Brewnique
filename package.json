@@ -67,6 +67,7 @@
     "obscenity": "^0.2.0",
     "postgres": "^3.4.3",
     "postmark": "^4.0.2",
+    "svelte-autosize": "^1.1.0",
     "svelte-file-dropzone": "^2.0.2",
     "sveltekit-superforms": "^1.13.3",
     "tailwind-merge": "^2.2.0",
