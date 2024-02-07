@@ -2,13 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { S3 } from './s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { db } from './db';
-import { recipe, recipeIngredient } from '$src/schema';
+import { recipe, recipeComment, recipeIngredient, user } from '$src/schema';
 import { and, eq, desc, asc, or, lte, gte } from 'drizzle-orm';
 import {
 	DEFAULT_FILTER_OPTIONS,
 	type FilterOptions,
 	type SortByValue
 } from '$src/routes/api/v1/recipes/filterOptions';
+import { getUserProfileById } from './user';
 
 export async function getRecipe(id: string) {
 	const recipeResult = await db.select().from(recipe).where(eq(recipe.id, id));
@@ -167,4 +168,105 @@ export async function uploadRecipePhoto(file: File, recipeId: string) {
 		})
 	);
 	return 'https://cdn.brewnique.io/' + key;
+}
+
+async function getRecipeComments(recipeId: string) {
+	return await db
+		.select()
+		.from(recipeComment)
+		.where(eq(recipeComment.recipeId, recipeId))
+		.orderBy(asc(recipeComment.createdAt));
+}
+
+export async function getComment(commentId: string) {
+	return await db.select().from(recipeComment).where(eq(recipeComment.id, commentId));
+}
+
+export type Comment = {
+	parent: Comment | null;
+	children: Comment[];
+	user: typeof user.$inferSelect | null;
+	data: typeof recipeComment.$inferSelect;
+};
+
+export async function getRecipeThreads(recipeId: string) {
+	const allComments = await getRecipeComments(recipeId);
+	const commentMap: Map<string, Comment> = new Map();
+	allComments.forEach((comment) => {
+		commentMap.set(comment.id, {
+			parent: null,
+			children: [],
+			user: null,
+			data: comment
+		});
+	});
+
+	for (const comment of allComments) {
+		const user = await getUserProfileById(comment.userId);
+		const thisComment = commentMap.get(comment.id);
+		if (!thisComment) {
+			continue;
+		}
+
+		thisComment.user = user;
+
+		commentMap.set(comment.id, thisComment);
+
+		const parentId = comment.parentId;
+		if (!parentId) {
+			continue;
+		}
+
+		thisComment.parent = commentMap.get(parentId) ?? null;
+		commentMap.get(parentId)?.children.push(thisComment);
+	}
+
+	const threads: Comment[] = [];
+
+	commentMap.forEach((comment) => {
+		if (comment.parent == null) {
+			threads.push(comment);
+		}
+	});
+
+	return threads;
+}
+
+export async function getThreadFromComment(commentId: string) {
+	const commentMatches = await db
+		.select()
+		.from(recipeComment)
+		.where(eq(recipeComment.id, commentId));
+	if (commentMatches.length < 1) {
+		return null;
+	}
+
+	const threads = await getRecipeThreads(commentMatches[0].recipeId);
+	while (threads.length > 0) {
+		const thread = threads.pop();
+		if (thread?.data.id === commentId) {
+			return thread;
+		}
+		threads.push(...(thread?.children ?? []));
+	}
+	return null;
+}
+
+export async function createRecipeComment(
+	recipeId: string,
+	userId: string,
+	parentId: string | null,
+	content: string
+) {
+	const commentValues = {
+		id: uuidv4(),
+		recipeId: recipeId,
+		userId: userId,
+		parentId: parentId,
+		content: content
+	};
+
+	await db.insert(recipeComment).values(commentValues);
+
+	return commentValues;
 }

@@ -64,6 +64,13 @@
       "when": 1707167896242,
       "tag": "0008_next_stingray",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1707328404792,
+      "tag": "0009_tricky_rockslide",
+      "breakpoints": true
     }
   ]
 }
