@@ -1,5 +1,4 @@
 import { createRecipeComment, getComment, getRecipe } from '$lib/data/recipe';
-import { getUserProfileById } from '$lib/data/user';
 import type { RequestHandler } from '@sveltejs/kit';
 import { z } from 'zod';
 
@@ -21,7 +20,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	let comment: {
 		recipeId: string;
 		content: string;
-		parentId?: string | undefined;
+		parentId?: string | null;
 	} | null = null;
 
 	try {
