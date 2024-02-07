@@ -14,7 +14,7 @@
 		dataType: 'json'
 	});
 
-	let process: string[] = [];
+	let process: string[] = $form.process;
 	$form.process = process;
 </script>
 
