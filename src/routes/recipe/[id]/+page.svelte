@@ -85,7 +85,7 @@
 		{/if}
 		<Separator orientation="horizontal" />
 		<h1 class="pb-2 text-xl font-bold">Comments</h1>
-		<CommentSection threads={data.threads} />
+		<CommentSection threads={data.threads} recipeId={data.recipe.id} />
 	</div>
 	<ActionButtons showMore={data.session?.user.userId == recipe.ownerId} />
 </div>

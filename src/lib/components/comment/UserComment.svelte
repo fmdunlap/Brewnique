@@ -18,6 +18,42 @@
 		isClamped = isTextClamped(contentElem);
 	});
 
+	async function handleSubmitReply() {
+		const commentResponse = await fetch('/api/v1/comment', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				parentId: comment.data.id,
+				recipeId: comment.data.recipeId,
+				content: textareaValue
+			})
+		});
+
+		if (commentResponse.ok) {
+			textareaValue = '';
+			showCommentBar = false;
+			const values = await commentResponse.json();
+			comment.children.push({
+				children: [],
+				data: {
+					userId: values.userId,
+					parentId: values.parentId,
+					content: values.content,
+					createdAt: new Date(Date.now()),
+					id: values.id,
+					recipeId: values.recipeId,
+					updatedAt: new Date(Date.now())
+				},
+				parent: comment,
+				user: values.user
+			});
+		} else {
+			console.error('Failed to submit comment');
+		}
+	}
+
 	$: isClamped = false;
 	$: showCommentBar = false;
 	$: textareaValue = '';
@@ -70,44 +106,7 @@
 			}}>Reply</button
 		>
 		<div class={showCommentBar ? '' : 'hidden'}>
-			<NewCommentBar
-				bind:value={textareaValue}
-				on:submit={async () => {
-					const commentResponse = await fetch('/api/v1/comment', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							parentId: comment.data.id,
-							recipeId: comment.data.recipeId,
-							content: textareaValue
-						})
-					});
-
-					if (commentResponse.ok) {
-						textareaValue = '';
-						showCommentBar = false;
-						const values = await commentResponse.json();
-						comment.children.push({
-							children: [],
-							data: {
-								userId: values.userId,
-								parentId: values.parentId,
-								content: values.content,
-								createdAt: new Date(Date.now()),
-								id: values.id,
-								recipeId: values.recipeId,
-								updatedAt: new Date(Date.now())
-							},
-							parent: comment,
-							user: values.user
-						});
-					} else {
-						console.error('Failed to submit comment');
-					}
-				}}
-			/>
+			<NewCommentBar bind:value={textareaValue} on:submit={handleSubmitReply} />
 		</div>
 	</div>
 </div>
