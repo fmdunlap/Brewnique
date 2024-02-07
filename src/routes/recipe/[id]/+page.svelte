@@ -10,6 +10,8 @@
 	import RecipeIngredients from './RecipeIngredients.svelte';
 	import RecipeProcess from './RecipeProcess.svelte';
 	import Separator from '$lib/components/Separator.svelte';
+	import ActionButtons from './ActionButtons.svelte';
+	import UserComment from './UserComment.svelte';
 
 	export let data;
 
@@ -82,18 +84,14 @@
 			</div>
 		{/if}
 		<Separator orientation="horizontal" />
-		<div>
-			<h1 class="pb-2 text-xl font-bold">Comments</h1>
-		</div>
+		<h1 class="pb-2 text-xl font-bold">Comments</h1>
+		<UserComment
+			title="This is a review"
+			content="Suspendisse ut bibendum ipsum. In vitae vulputate eros. Aliquam quis leo viverra, venenatis ex quis, aliquet est. Pellentesque quis aliquet dolor, eu luctus ipsum. Vestibulum sit amet lacus elit. Aliquam ut neque id velit fringilla pulvinar eu eu lorem. Morbi quis mauris vulputate, laoreet tellus quis, dapibus sapien. Donec ornare sapien at libero tincidunt, eget facilisis nibh porttitor. Cras ultricies pharetra tortor at feugiat.			"
+			rating={3.45}
+		/>
 	</div>
-	<div class="hidden flex-row gap-x-2 pl-4 md:flex">
-		<Bookmark />
-		<GitFork />
-		<Share />
-		{#if data.session?.user.userId == recipe.ownerId}
-			<MoreHorizontal />
-		{/if}
-	</div>
+	<ActionButtons showMore={data.session?.user.userId == recipe.ownerId} />
 </div>
 
 {#if dev}
