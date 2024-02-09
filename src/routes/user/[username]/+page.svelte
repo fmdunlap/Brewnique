@@ -3,8 +3,6 @@
 	import UserAvatar from './UserAvatar.svelte';
 	import RecipesCarousel from './RecipesCarousel.svelte';
 	import EditAvatarModal from './EditAvatarModal.svelte';
-	import { goto, invalidate, invalidateAll } from '$app/navigation';
-	import { error } from '@sveltejs/kit';
 	import UserBio from './UserBio.svelte';
 	import EditBioModal from './EditBioModal.svelte';
 	import RecipeCard from '$lib/components/RecipeCard.svelte';

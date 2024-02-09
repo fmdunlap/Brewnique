@@ -5,7 +5,7 @@
 </script>
 
 <div class="flex w-[100%] flex-col">
-	{#each Object.values(SortByOptions) as option, i}
+	{#each Object.values(SortByOptions) as option}
 		<button
 			class={'w-full rounded-lg py-1 ps-3 text-start hover:bg-slate-300 hover:underline dark:hover:bg-slate-700' +
 				(sortBy == option.value ? ' bg-slate-300 font-bold dark:bg-slate-700' : '')}
