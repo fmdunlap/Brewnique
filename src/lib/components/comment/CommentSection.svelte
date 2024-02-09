@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { submitComment } from '$lib/data/client/comment';
 	import type { Comment } from '$lib/data/recipe';
 	import CommentThread from './CommentThread.svelte';
 	import NewCommentBar from './NewCommentBar.svelte';
@@ -8,37 +9,9 @@
 	export let recipeId: string;
 
 	async function handleCommentSubmit() {
-		const commentResponse = await fetch('/api/v1/comment', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				recipeId: recipeId,
-				content: commentValue
-			})
-		});
-
-		if (commentResponse.ok) {
-			commentValue = '';
-			const values = await commentResponse.json();
-			threads.push({
-				children: [],
-				data: {
-					userId: values.userId,
-					parentId: values.parentId,
-					content: values.content,
-					createdAt: new Date(Date.now()),
-					id: values.id,
-					recipeId: values.recipeId,
-					updatedAt: new Date(Date.now())
-				},
-				parent: null,
-				user: values.user
-			});
-		} else {
-			console.error('Failed to submit comment');
-		}
+		const commentResponse = await submitComment(recipeId, commentValue, null);
+		if (commentResponse) threads.push(commentResponse);
+		location.reload();
 	}
 
 	$: commentValue = '';
