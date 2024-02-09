@@ -5,6 +5,8 @@
 	import { onMount } from 'svelte';
 	import NewCommentBar from './NewCommentBar.svelte';
 	import { session } from '$src/schema';
+	import { submitComment } from '$lib/data/client/comment';
+	import { goto } from '$app/navigation';
 
 	export let comment: Comment;
 	let commentTime = new Date(Date.now() - comment.data.updatedAt.getTime()).getHours();
@@ -19,39 +21,12 @@
 	});
 
 	async function handleSubmitReply() {
-		const commentResponse = await fetch('/api/v1/comment', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				parentId: comment.data.id,
-				recipeId: comment.data.recipeId,
-				content: textareaValue
-			})
-		});
-
-		if (commentResponse.ok) {
-			textareaValue = '';
-			showCommentBar = false;
-			const values = await commentResponse.json();
-			comment.children.push({
-				children: [],
-				data: {
-					userId: values.userId,
-					parentId: values.parentId,
-					content: values.content,
-					createdAt: new Date(Date.now()),
-					id: values.id,
-					recipeId: values.recipeId,
-					updatedAt: new Date(Date.now())
-				},
-				parent: comment,
-				user: values.user
-			});
-		} else {
-			console.error('Failed to submit comment');
-		}
+		const commentResponse = await submitComment(
+			comment.data.recipeId,
+			textareaValue,
+			comment.data.id
+		);
+		await goto(`/comment/${comment.data.id}`);
 	}
 
 	$: isClamped = false;

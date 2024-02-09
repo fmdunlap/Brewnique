@@ -11,7 +11,7 @@
 </script>
 
 <div class="relative flex flex-row gap-x-4">
-	<textarea use:autosize rows={2} class="w-full rounded-xl p-2" bind:value />
+	<textarea use:autosize rows={2} class="w-full rounded-xl p-2 text-black" bind:value />
 	<Button
 		class="mt-auto h-fit"
 		on:click={() => {
