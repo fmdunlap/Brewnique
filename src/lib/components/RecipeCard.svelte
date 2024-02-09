@@ -2,7 +2,7 @@
 	import { Bookmark, BookmarkCheck } from 'lucide-svelte';
 	import { AspectRatio } from './ui/aspect-ratio';
 	import BrewQuickFacts from './BrewQuickFacts.svelte';
-	import { Rating } from 'flowbite-svelte';
+	import { Rating, Spinner } from 'flowbite-svelte';
 
 	export let id: string;
 	export let title: string;
@@ -12,6 +12,21 @@
 	export let batch_size: number;
 	export let og: number;
 	export let fg: number;
+
+	$: loading = false;
+
+	async function handleSaveClicked() {
+		loading = true;
+		const result = saved
+			? await fetch(`/api/v1/recipe/${id}/unsave`, {
+					method: 'POST'
+				})
+			: await fetch(`/api/v1/recipe/${id}/save`, {
+					method: 'POST'
+				});
+		if (result.ok) saved = !saved;
+		loading = false;
+	}
 </script>
 
 <a
@@ -23,12 +38,14 @@
 			<h1 class="line-clamp-1 overflow-clip text-xl font-bold">{title}</h1>
 			<div class="my-auto flex flex-row gap-x-2">
 				<button
-					on:click={(e) => {
+					on:click={async (e) => {
 						e.preventDefault();
-						saved = !saved;
+						await handleSaveClicked();
 					}}
 				>
-					{#if saved}
+					{#if loading}
+						<Spinner size="8" />
+					{:else if saved}
 						<BookmarkCheck class="my-auto" />
 					{:else}
 						<Bookmark class="my-auto" />

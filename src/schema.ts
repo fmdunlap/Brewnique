@@ -174,3 +174,15 @@ export const recipeComment = pgTable('recipe_comment', {
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 	content: text('content')
 });
+
+export const recipeSave = pgTable('recipe_save', {
+	id: uuid('id').primaryKey().notNull(),
+	userId: varchar('user_id', {
+		length: 15
+	})
+		.notNull()
+		.references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
+	recipeId: uuid('recipe_id')
+		.notNull()
+		.references(() => recipe.id, { onDelete: 'cascade', onUpdate: 'cascade' })
+});

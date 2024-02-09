@@ -6,8 +6,11 @@
 	import { onMount } from 'svelte';
 	import { recipe } from '$src/schema.js';
 
+	export let data;
+
 	let recipes: (typeof recipe.$inferSelect)[] = [];
 	let selectedOptions: SearchOptions | undefined;
+	let savedRecipeIds: string[] = [];
 
 	let loading: boolean = true;
 
@@ -21,13 +24,13 @@
 			searchParams.set('maxBatchSize', selectedOptions.filter.maxBatchSize.toString());
 			searchParams.set('ratings', selectedOptions.filter.rating.join(','));
 		}
-		console.log(searchParams.toString());
 		return searchParams.toString();
 	}
 
 	function fetchRecipes() {
 		loading = true;
-		fetch(`/api/v1/recipes?${selectedOptionsAsQueryParams()}`, {
+
+		const recipeFetch = fetch(`/api/v1/recipes?${selectedOptionsAsQueryParams()}`, {
 			method: 'GET'
 		})
 			.then((res) => {
@@ -37,7 +40,6 @@
 				throw new Error('Failed to fetch recipes');
 			})
 			.then((data) => {
-				console.log(data);
 				recipes = data;
 			})
 			.catch((err) => {
@@ -46,6 +48,20 @@
 			.finally(() => {
 				loading = false;
 			});
+
+		if (data.session?.user.userId) {
+			fetch(`/api/v1/user/${data.session?.user.userId}/saved-recipes`)
+				.then((res) => {
+					if (res.ok) return res.json();
+					throw new Error('Failed to fetch saved recipes');
+				})
+				.then((data) => {
+					savedRecipeIds = data;
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		}
 	}
 
 	onMount(() => {
@@ -74,7 +90,7 @@
 					id={recipe.id}
 					title={recipe.name ?? ''}
 					rating={recipe.rating ?? 0}
-					saved={false}
+					saved={savedRecipeIds.includes(recipe.id)}
 					image={recipe.images ? recipe.images[0] : ''}
 					batch_size={recipe.batchSize ?? 0}
 					og={recipe.originalGravity ?? 1.0}

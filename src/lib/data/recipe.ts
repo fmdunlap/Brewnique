@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { S3 } from './s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { db } from './db';
-import { recipe, recipeComment, recipeIngredient, user } from '$src/schema';
+import { recipe, recipeComment, recipeIngredient, recipeSave, user } from '$src/schema';
 import { and, eq, desc, asc, or, lte, gte } from 'drizzle-orm';
 import {
 	DEFAULT_FILTER_OPTIONS,
@@ -269,4 +269,38 @@ export async function createRecipeComment(
 	await db.insert(recipeComment).values(commentValues);
 
 	return commentValues;
+}
+
+export async function getUserSavedRecipes(userId: string) {
+	const userSavedRecipes = await db.select().from(recipeSave).where(eq(recipeSave.userId, userId));
+	return userSavedRecipes.map((row) => {
+		return row.recipeId;
+	});
+}
+
+export async function recipeIsSavedByUser(userId: string, recipeId: string) {
+	return (
+		(
+			await db
+				.select()
+				.from(recipeSave)
+				.where(and(eq(recipeSave.userId, userId), eq(recipeSave.recipeId, recipeId)))
+		).length > 0
+	);
+}
+
+export async function saveRecipe(recipeId: string, userId: string) {
+	if (!(await recipeIsSavedByUser(userId, recipeId)))
+		await db.insert(recipeSave).values({
+			id: uuidv4(),
+			recipeId,
+			userId
+		});
+}
+
+export async function unsaveRecipe(recipeId: string, userId: string) {
+	if (await recipeIsSavedByUser(userId, recipeId))
+		await db
+			.delete(recipeSave)
+			.where(and(eq(recipeSave.recipeId, recipeId), eq(recipeSave.userId, userId)));
 }
