@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Checkbox, Input } from 'flowbite-svelte';
+	import { Input } from 'flowbite-svelte';
 
 	export let minAbv = 0;
 	export let maxAbv = 100;

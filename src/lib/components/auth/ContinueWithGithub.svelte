@@ -1,6 +1,5 @@
 <script>
 	import { Button } from 'flowbite-svelte';
-	import { mode } from 'mode-watcher';
 </script>
 
 <Button on:click>

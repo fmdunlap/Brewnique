@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
-	// @ts-ignore
+	// @ts-expect-error svelte autosize does not have typescript definitions.
 	import autosize from 'svelte-autosize';
 
 	const dispatch = createEventDispatcher();

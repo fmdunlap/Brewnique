@@ -2,7 +2,7 @@
 	import ContinueWithGoogle from '$lib/components/auth/ContinueWithGoogle.svelte';
 	import ContinueWithGithub from '$lib/components/auth/ContinueWithGithub.svelte';
 	import ContinueWithEmail from '$lib/components/auth/ContinueWithEmail.svelte';
-	import { goto, invalidateAll, pushState } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { createEventDispatcher } from 'svelte';
 	import ContinueWithFacebook from '$lib/components/auth/ContinueWithFacebook.svelte';
 	import { X } from 'lucide-svelte';

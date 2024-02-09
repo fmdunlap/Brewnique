@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Bookmark, Star, BookmarkCheck } from 'lucide-svelte';
+	import { Bookmark, BookmarkCheck } from 'lucide-svelte';
 	import { AspectRatio } from './ui/aspect-ratio';
 	import BrewQuickFacts from './BrewQuickFacts.svelte';
 	import { Rating } from 'flowbite-svelte';

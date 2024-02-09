@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ImageUpload from '$lib/components/ImageUpload.svelte';
 	import { Button, Modal, Textarea } from 'flowbite-svelte';
 	import { createEventDispatcher } from 'svelte';
 	let clickOutsideModal = false;

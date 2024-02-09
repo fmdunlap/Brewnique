@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { Comment } from '$lib/data/recipe';
 	import { Dropdown, DropdownItem } from 'flowbite-svelte';
-	import { MoreHorizontal, ThumbsUp } from 'lucide-svelte';
+	import { MoreHorizontal } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import NewCommentBar from './NewCommentBar.svelte';
-	import { session } from '$src/schema';
 	import { submitComment } from '$lib/data/client/comment';
 	import { goto } from '$app/navigation';
 
@@ -21,11 +20,7 @@
 	});
 
 	async function handleSubmitReply() {
-		const commentResponse = await submitComment(
-			comment.data.recipeId,
-			textareaValue,
-			comment.data.id
-		);
+		await submitComment(comment.data.recipeId, textareaValue, comment.data.id);
 		await goto(`/comment/${comment.data.id}`);
 	}
 

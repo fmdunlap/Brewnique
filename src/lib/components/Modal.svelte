@@ -8,7 +8,7 @@
 	let dialog: HTMLDialogElement;
 	export let rounded: 'sm' | 'md' | 'lg' | 'xl' | 'none' = 'md';
 
-	export const close = (andGoBack: boolean = false) => {
+	export const close = () => {
 		dialog.close();
 		dispatch('close');
 	};
