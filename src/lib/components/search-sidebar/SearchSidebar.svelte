@@ -10,8 +10,10 @@
 		type SearchOptions
 	} from '$src/routes/api/v1/recipes/filterOptions';
 	import { createEventDispatcher } from 'svelte';
+	import SavedCheckbox from './SavedCheckbox.svelte';
 
 	export let selectedOptions: SearchOptions = DEFAULT_SEARCH_OPTIONS;
+	export let showSaved = false;
 
 	const dispatch = createEventDispatcher();
 	function dispatchChange() {
@@ -30,6 +32,9 @@
 		<SidebarGroup border class="mb-auto">
 			<p class="text-xl font-bold">Filter</p>
 			<div class="flex flex-col ps-4">
+				{#if showSaved}
+					<SavedCheckbox bind:checked={selectedOptions.filter.onlySaved} />
+				{/if}
 				<p class="text-lg">Rating</p>
 				<RatingCheckboxes bind:selectedRatings={selectedOptions.filter.rating} />
 				<p class="text-lg">Batch Size</p>

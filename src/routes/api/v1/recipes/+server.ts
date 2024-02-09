@@ -1,6 +1,6 @@
 import type { RequestHandler } from './$types';
 import { isSortByValue, type FilterOptions } from './filterOptions';
-import { getRecipes } from '$lib/data/recipe';
+import { getRecipes, getUserSavedRecipes } from '$lib/data/recipe';
 import { error } from '@sveltejs/kit';
 
 function extractSortBy(searchParams: URLSearchParams) {
@@ -86,25 +86,50 @@ function parseRating(searchParams: URLSearchParams) {
 	return ratingValues;
 }
 
+function parseOnlySaved(searchParams: URLSearchParams) {
+	const onlySaved = searchParams.get('onlySaved') ?? 'false';
+
+	if (onlySaved == 'true') {
+		return true;
+	}
+
+	return false;
+}
+
 function extractFilter(searchParams: URLSearchParams) {
 	const minAbv = parseMinAbv(searchParams);
 	const maxAbv = parseMaxAbv(searchParams);
 	const minBatchSize = parseMinBatchSize(searchParams);
 	const maxBatchSize = parseMaxBatchSize(searchParams);
 	const rating = parseRating(searchParams);
+	const onlySaved = parseOnlySaved(searchParams);
 
 	return {
 		minAbv,
 		maxAbv,
 		minBatchSize,
 		maxBatchSize,
-		rating
+		rating,
+		onlySaved
 	} as FilterOptions;
 }
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, locals }) => {
 	const sortBy = extractSortBy(url.searchParams);
 	const filter = extractFilter(url.searchParams);
 
-	return new Response(JSON.stringify(await getRecipes(30, 0, true, null, sortBy, filter)));
+	let recipes = await getRecipes(30, 0, true, null, sortBy, filter);
+
+	if (filter.onlySaved) {
+		const session = await locals.auth.validate();
+		if (!session) {
+			return new Response('Attempted to get saved recipe without session', { status: 401 });
+		}
+		const userSavedRecipes = await getUserSavedRecipes(session.user.userId);
+		recipes = recipes.filter((row) => {
+			return userSavedRecipes.includes(row.id);
+		});
+	}
+
+	return new Response(JSON.stringify(recipes), { status: 200 });
 };

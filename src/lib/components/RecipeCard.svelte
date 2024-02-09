@@ -3,6 +3,7 @@
 	import { AspectRatio } from './ui/aspect-ratio';
 	import BrewQuickFacts from './BrewQuickFacts.svelte';
 	import { Rating, Spinner } from 'flowbite-svelte';
+	import { goto } from '$app/navigation';
 
 	export let id: string;
 	export let title: string;
@@ -12,10 +13,15 @@
 	export let batch_size: number;
 	export let og: number;
 	export let fg: number;
+	export let loggedIn = false;
 
 	$: loading = false;
 
 	async function handleSaveClicked() {
+		if (!loggedIn) {
+			await goto('/login');
+			return;
+		}
 		loading = true;
 		const result = saved
 			? await fetch(`/api/v1/recipe/${id}/unsave`, {

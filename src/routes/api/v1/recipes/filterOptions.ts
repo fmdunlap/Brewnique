@@ -4,6 +4,7 @@ export type FilterOptions = {
 	minBatchSize: number;
 	maxBatchSize: number;
 	rating: number[];
+	onlySaved: boolean;
 };
 
 export const DEFAULT_FILTER_OPTIONS: FilterOptions = {
@@ -11,7 +12,8 @@ export const DEFAULT_FILTER_OPTIONS: FilterOptions = {
 	minAbv: 0,
 	minBatchSize: 0,
 	maxBatchSize: 100,
-	rating: []
+	rating: [],
+	onlySaved: false
 };
 
 export type SortByValue = 'NameAsc' | 'NameDesc' | 'Newest' | 'Oldest' | 'RatingAsc' | 'RatingDesc';

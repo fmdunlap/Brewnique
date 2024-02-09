@@ -5,6 +5,7 @@
 	import type { SearchOptions } from './api/v1/recipes/filterOptions.js';
 	import { onMount } from 'svelte';
 	import { recipe } from '$src/schema.js';
+	import { page } from '$app/stores';
 
 	export let data;
 
@@ -23,6 +24,7 @@
 			searchParams.set('minBatchSize', selectedOptions.filter.minBatchSize.toString());
 			searchParams.set('maxBatchSize', selectedOptions.filter.maxBatchSize.toString());
 			searchParams.set('ratings', selectedOptions.filter.rating.join(','));
+			searchParams.set('onlySaved', selectedOptions.filter.onlySaved.toString());
 		}
 		return searchParams.toString();
 	}
@@ -72,6 +74,7 @@
 <div class="flex grow flex-row">
 	<SearchSidebar
 		bind:selectedOptions
+		showSaved={data.session != null}
 		on:click={async () => {
 			fetchRecipes();
 		}}
@@ -95,6 +98,7 @@
 					batch_size={recipe.batchSize ?? 0}
 					og={recipe.originalGravity ?? 1.0}
 					fg={recipe.finalGravity ?? 1.0}
+					loggedIn={data.session != null}
 				/>
 			{/each}
 		</div>
