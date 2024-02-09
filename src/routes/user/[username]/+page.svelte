@@ -40,7 +40,7 @@
 	<h1 class="text-4xl font-bold">Recipes</h1>
 	{#if data.recipes && data.recipes != undefined && data.recipes.length > 0}
 		<div class="hidden lg:block">
-			<RecipesCarousel recipes={data.recipes} />
+			<RecipesCarousel recipes={data.recipes} loggedIn={data.session != null} />
 		</div>
 		<div class="flex flex-col gap-y-4 lg:hidden">
 			{#each data.recipes as recipe}

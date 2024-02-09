@@ -5,6 +5,7 @@
 	import { ArrowLeft, ArrowRight } from 'lucide-svelte';
 
 	export let recipes: (typeof recipe.$inferSelect)[] = [];
+	export let loggedIn = false;
 
 	$: firstCardIndex = 0;
 	let lastCardIndex = recipes ? recipes.length - 3 : 0;
@@ -34,6 +35,7 @@
 					batch_size={recipe.batchSize ?? 0}
 					og={recipe.originalGravity ?? 1.0}
 					fg={recipe.finalGravity ?? 1.0}
+					{loggedIn}
 				/>
 			{/if}
 		{/each}
