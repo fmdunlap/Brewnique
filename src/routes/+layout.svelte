@@ -53,7 +53,7 @@
 <ModeWatcher />
 <div class="flex min-h-screen flex-col">
 	<NavBar {data} />
-	<div class="mx-auto flex grow flex-col p-6 md:w-5/6 md:p-0 md:pb-2">
+	<div class="mx-auto flex grow flex-col p-6">
 		<slot />
 	</div>
 	<div class="w-full bg-secondary">
