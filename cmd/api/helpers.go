@@ -21,7 +21,7 @@ func (app *application) readIdParam(r *http.Request) (int64, error) {
 }
 
 func (app *application) readJson(w http.ResponseWriter, r *http.Request, data any) error {
-	r.Body = http.MaxBytesReader(w, r.Body, app.config.maxBodySize)
+	r.Body = http.MaxBytesReader(w, r.Body, app.config.http.maxBodySize)
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 
@@ -49,7 +49,7 @@ func (app *application) readJson(w http.ResponseWriter, r *http.Request, data an
 			FieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
 			return fmt.Errorf("body contains unkown key: %s", FieldName)
 		case err.Error() == "http: request body too large":
-			return fmt.Errorf("body must not be larger than %d bytes", app.config.maxBodySize)
+			return fmt.Errorf("body must not be larger than %d bytes", app.config.http.maxBodySize)
 		case errors.As(err, &invalidUnmarshalError):
 			panic(err)
 		default:

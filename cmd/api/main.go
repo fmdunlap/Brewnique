@@ -19,28 +19,21 @@ const DefaultReadTimeout = 60 * time.Second
 const DefaultWriteTimeout = 60 * time.Second
 const DefaultMaxBodySize = 4 * units.Mebibyte
 
-type config struct {
-	port         int
-	env          string
-	idleTimeout  time.Duration
-	readTimeout  time.Duration
-	writeTimeout time.Duration
-	maxBodySize  int64
-}
-
 type application struct {
-	config config
+	config applicationConfig
 	logger *log.Logger
 }
 
 func main() {
-	cfg := config{
-		port:         DefaultPort,
-		env:          DefaultEnv,
-		idleTimeout:  DefaultIdleTimeout,
-		readTimeout:  DefaultReadTimeout,
-		writeTimeout: DefaultWriteTimeout,
-		maxBodySize:  int64(DefaultMaxBodySize),
+	cfg := applicationConfig{
+		port: DefaultPort,
+		env:  DefaultEnv,
+		http: httpConfig{
+			idleTimeout:  DefaultIdleTimeout,
+			readTimeout:  DefaultReadTimeout,
+			writeTimeout: DefaultWriteTimeout,
+			maxBodySize:  int64(DefaultMaxBodySize),
+		},
 	}
 
 	flag.IntVar(&cfg.port, "port", DefaultPort, "Port to listen on")
@@ -59,9 +52,9 @@ func main() {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
-		IdleTimeout:  cfg.idleTimeout,
-		ReadTimeout:  cfg.readTimeout,
-		WriteTimeout: cfg.writeTimeout,
+		IdleTimeout:  cfg.http.idleTimeout,
+		ReadTimeout:  cfg.http.readTimeout,
+		WriteTimeout: cfg.http.writeTimeout,
 	}
 
 	err := server.ListenAndServe()
