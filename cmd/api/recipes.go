@@ -28,6 +28,7 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 		Instructions: input.Instructions,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
+		Version:      1,
 	}
 
 	v := validator.New()

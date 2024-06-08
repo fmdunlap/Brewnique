@@ -12,6 +12,7 @@ type Recipe struct {
 	Name         string    `json:"name"`
 	Ingredients  []string  `json:"ingredients"`
 	Instructions []string  `json:"instructions"`
+	Version      int       `json:"version"`
 }
 
 func ValidateRecipe(v *validator.Validator, recipe Recipe) {
