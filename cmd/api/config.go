@@ -3,13 +3,15 @@ package main
 import (
 	"github.com/spf13/viper"
 	"log"
+	"strings"
 	"time"
 )
 
 type applicationConfig struct {
-	port int
-	env  string
-	http httpConfig
+	port     int
+	env      string
+	http     httpConfig
+	database databaseConfig
 }
 
 type httpConfig struct {
@@ -25,30 +27,37 @@ type databaseConfig struct {
 }
 
 func loadConfig() applicationConfig {
+	viper.AddConfigPath(".")
+	viper.SetConfigFile("config.env")
+	viper.SetEnvPrefix("brewnique")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
 	viper.SetDefault("port", 8080)
 	viper.SetDefault("env", "dev")
-	viper.SetDefault("http.idleTimeout", time.Minute)
-	viper.SetDefault("http.readTimeout", time.Minute)
-	viper.SetDefault("http.writeTimeout", time.Minute)
-	viper.SetDefault("http.maxBodySize", 4*1024*1024)
+	viper.SetDefault("http.idle_timeout", time.Minute)
+	viper.SetDefault("http.read_timeout", time.Minute)
+	viper.SetDefault("http.write_timeout", time.Minute)
+	viper.SetDefault("http.max_body_size", 4*1024*1024)
 
 	viper.SetDefault("database.driver", "postgres")
 	viper.SetDefault("database.dsn", "postgres://postgres:postgres@localhost:5432/brewnique")
 
-	viper.AddConfigPath(".")
-	viper.SetConfigFile("config.env")
-	viper.SetEnvPrefix("brewnique")
-
 	viper.AutomaticEnv()
+
+	log.Printf("%v", viper.AllSettings())
 
 	return applicationConfig{
 		port: viper.GetInt("port"),
 		env:  viper.GetString("env"),
 		http: httpConfig{
-			idleTimeout:  viper.GetDuration("http.idleTimeout"),
-			readTimeout:  viper.GetDuration("http.readTimeout"),
-			writeTimeout: viper.GetDuration("http.writeTimeout"),
-			maxBodySize:  viper.GetInt64("http.maxBodySize"),
+			idleTimeout:  viper.GetDuration("http.idle_timeout"),
+			readTimeout:  viper.GetDuration("http.read_timeout"),
+			writeTimeout: viper.GetDuration("http.write_timeout"),
+			maxBodySize:  viper.GetInt64("http.max_body_size"),
+		},
+		database: databaseConfig{
+			driver: viper.GetString("database.driver"),
+			dsn:    viper.GetString("database.dsn"),
 		},
 	}
 }
