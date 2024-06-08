@@ -25,4 +25,4 @@ dist-ssr
 
 # tmp directory
 tmp
-.env
+config.env

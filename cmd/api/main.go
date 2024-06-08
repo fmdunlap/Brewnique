@@ -1,23 +1,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"github.com/alecthomas/units"
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 const version = "0.0.1"
-
-const DefaultPort = 8080
-const DefaultEnv = "dev"
-const DefaultIdleTimeout = 60 * time.Second
-const DefaultReadTimeout = 60 * time.Second
-const DefaultWriteTimeout = 60 * time.Second
-const DefaultMaxBodySize = 4 * units.Mebibyte
 
 type application struct {
 	config applicationConfig
@@ -25,20 +15,7 @@ type application struct {
 }
 
 func main() {
-	cfg := applicationConfig{
-		port: DefaultPort,
-		env:  DefaultEnv,
-		http: httpConfig{
-			idleTimeout:  DefaultIdleTimeout,
-			readTimeout:  DefaultReadTimeout,
-			writeTimeout: DefaultWriteTimeout,
-			maxBodySize:  int64(DefaultMaxBodySize),
-		},
-	}
-
-	flag.IntVar(&cfg.port, "port", DefaultPort, "Port to listen on")
-	flag.StringVar(&cfg.env, "env", DefaultEnv, "Environment to use (dev, prod)")
-	flag.Parse()
+	cfg := loadConfig()
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
