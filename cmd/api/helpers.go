@@ -20,21 +20,6 @@ func (app *application) readIdParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func (app *application) errorResponse(w http.ResponseWriter, status int, err error) {
-	data := map[string]string{
-		"status":      "error",
-		"environment": app.config.env,
-		"version":     version,
-		"error":       err.Error(),
-	}
-
-	err = app.writeJson(w, status, data, nil)
-	if err != nil {
-		app.logger.Printf("errorResponse: error writing json: %s", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-	}
-}
-
 func (app *application) readJson(w http.ResponseWriter, r *http.Request, data any) error {
 	r.Body = http.MaxBytesReader(w, r.Body, app.config.maxBodySize)
 	decoder := json.NewDecoder(r.Body)
@@ -78,10 +63,6 @@ func (app *application) readJson(w http.ResponseWriter, r *http.Request, data an
 	}
 
 	return nil
-}
-
-func (app *application) badRequestResponse(w http.ResponseWriter, err error) {
-	app.errorResponse(w, http.StatusBadRequest, err)
 }
 
 func (app *application) writeJson(w http.ResponseWriter, status int, data any, headers http.Header) error {

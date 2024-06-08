@@ -24,6 +24,9 @@ func applyMiddleware(r chi.Router) chi.Router {
 func (app *application) routes() chi.Router {
 	r := applyMiddleware(chi.NewRouter())
 
+	r.NotFound(app.notFoundResponse)
+	r.MethodNotAllowed(app.methodNotAllowedResponse)
+
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/healthcheck", app.healthcheckHandler)
 		r.Post("/recipe", app.newRecipeHandler)

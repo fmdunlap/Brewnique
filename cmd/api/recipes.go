@@ -14,7 +14,7 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 
 	err := app.readJson(w, r, &input)
 	if err != nil {
-		app.badRequestResponse(w, err)
+		app.badRequestResponse(w, r)
 		return
 	}
 
@@ -30,14 +30,17 @@ func (app *application) listRecipesHandler(w http.ResponseWriter, _ *http.Reques
 func (app *application) getRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIdParam(r)
 	if err != nil {
-		app.errorResponse(w, http.StatusBadRequest, err)
+		app.serverErrorResponse(w, r, err)
 	}
 
 	w.WriteHeader(http.StatusOK)
-	app.writeJson(w, http.StatusOK, map[string]any{
+	err = app.writeJson(w, http.StatusOK, map[string]any{
 		"id":           fmt.Sprintf("%d", id),
 		"name":         "My Recipe",
 		"ingredients":  []string{"Eggs", "Milk", "Cheese"},
 		"instructions": []string{"Boil eggs", "Add milk", "Add cheese"},
 	}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
