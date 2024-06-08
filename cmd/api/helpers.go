@@ -58,7 +58,7 @@ func (app *application) readJson(w http.ResponseWriter, r *http.Request, data an
 	}
 
 	err = decoder.Decode(&struct{}{})
-	if err != nil {
+	if err == nil {
 		return errors.New("body must contain a single JSON object")
 	}
 
@@ -66,7 +66,7 @@ func (app *application) readJson(w http.ResponseWriter, r *http.Request, data an
 }
 
 func (app *application) writeJson(w http.ResponseWriter, status int, data any, headers http.Header) error {
-	js, err := json.Marshal(data)
+	js, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
 	}

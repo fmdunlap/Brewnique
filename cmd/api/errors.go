@@ -6,8 +6,8 @@ func (app *application) logError(r *http.Request, err error) {
 	app.logger.Printf("error: %s", err)
 }
 
-func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message string) {
-	data := map[string]string{
+func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message any) {
+	data := map[string]any{
 		"status":      "error",
 		"environment": app.config.env,
 		"version":     version,
@@ -41,4 +41,9 @@ func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 func (app *application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	message := "method not allowed"
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
+}
+
+func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+	app.errorResponse(w, r, http.StatusBadRequest, errors)
+
 }
