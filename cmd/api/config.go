@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/spf13/viper"
-	"log"
 	"strings"
 	"time"
 )
@@ -67,30 +66,4 @@ func loadConfig() applicationConfig {
 			connMaxLifetime: viper.GetDuration("database.conn_max_lifetime"),
 		},
 	}
-}
-
-func initConfigFromEnv() applicationConfig {
-	viper.AddConfigPath(".")
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
-	viper.SetEnvPrefix("brewnique")
-
-	log.Printf(viper.ConfigFileUsed())
-
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("Error reading config file:", err)
-	}
-
-	config := applicationConfig{
-		port: viper.GetInt("port"),
-		env:  viper.GetString("env"),
-		http: httpConfig{
-			idleTimeout:  viper.GetDuration("http.idleTimeout"),
-			readTimeout:  viper.GetDuration("http.readTimeout"),
-			writeTimeout: viper.GetDuration("http.writeTimeout"),
-			maxBodySize:  viper.GetInt64("http.maxBodySize"),
-		},
-	}
-
-	return config
 }
