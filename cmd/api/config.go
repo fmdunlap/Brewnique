@@ -22,8 +22,11 @@ type httpConfig struct {
 }
 
 type databaseConfig struct {
-	driver string
-	dsn    string
+	driver          string
+	dsn             string
+	maxOpenConns    int
+	maxIdleConns    int
+	connMaxLifetime time.Duration
 }
 
 func loadConfig() applicationConfig {
@@ -41,10 +44,11 @@ func loadConfig() applicationConfig {
 
 	viper.SetDefault("database.driver", "postgres")
 	viper.SetDefault("database.dsn", "postgres://postgres:postgres@localhost:5432/brewnique")
+	viper.SetDefault("database.max_open_conns", 10)
+	viper.SetDefault("database.max_idle_conns", 10)
+	viper.SetDefault("database.conn_max_lifetime", time.Minute*15)
 
 	viper.AutomaticEnv()
-
-	log.Printf("%v", viper.AllSettings())
 
 	return applicationConfig{
 		port: viper.GetInt("port"),
@@ -56,8 +60,11 @@ func loadConfig() applicationConfig {
 			maxBodySize:  viper.GetInt64("http.max_body_size"),
 		},
 		database: databaseConfig{
-			driver: viper.GetString("database.driver"),
-			dsn:    viper.GetString("database.dsn"),
+			driver:          viper.GetString("database.driver"),
+			dsn:             viper.GetString("database.dsn"),
+			maxIdleConns:    viper.GetInt("database.max_idle_conns"),
+			maxOpenConns:    viper.GetInt("database.max_open_conns"),
+			connMaxLifetime: viper.GetDuration("database.conn_max_lifetime"),
 		},
 	}
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"brewnique.fdunlap.com/internal/data"
+	"brewnique.fdunlap.com/internal/extern"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,19 +11,34 @@ import (
 
 const version = "0.0.1"
 
+type Services struct {
+	Recipes *data.RecipeService
+}
+
 type application struct {
-	config applicationConfig
-	logger *log.Logger
+	config   applicationConfig
+	logger   *log.Logger
+	services Services
 }
 
 func main() {
 	cfg := loadConfig()
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
+	dbProvider := extern.NewPsqlProvider(extern.PsqlConfig{
+		Dsn:             cfg.database.dsn,
+		MaxOpenConns:    cfg.database.maxOpenConns,
+		MaxIdleConns:    cfg.database.maxIdleConns,
+		ConnMaxLifetime: cfg.database.connMaxLifetime,
+	})
+	defer dbProvider.Close()
 
 	app := &application{
 		config: cfg,
 		logger: logger,
+		services: Services{
+			Recipes: data.NewRecipeService(dbProvider),
+		},
 	}
 
 	log.Printf("Starting %s API server on port %d", app.config.env, app.config.port)
