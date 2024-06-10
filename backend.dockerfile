@@ -6,6 +6,14 @@ WORKDIR /app
 
 # Install necessary dependencies
 RUN apt-get update && apt-get install -y \
+    netselect-apt
+
+RUN netselect-apt -a amd64 -c US bookworm
+RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
+RUN cp ./sources.list /etc/apt/sources.list
+RUN rm -f ./sources.list
+
+RUN apt-get update && apt-get install -y \
     golang \
     git \
     && rm -rf /var/lib/apt/lists/*
@@ -23,9 +31,6 @@ COPY internal ./internal
 # Build the Go application
 RUN go build -o server ./cmd
 
-# Expose the port on which the server will listen
-EXPOSE 8096
-
 # Set ARG variables
 ARG BREWNIQUE_PORT=8080
 ARG BREWNIQUE_ENV=dev
@@ -34,6 +39,9 @@ ARG BREWNIQUE_DATABASE_DSN=postgres://brewnique:localdevpass@localhost/brewnique
 ARG BREWNIQUE_DATABASE_MAX_OPEN_CONNS=25
 ARG BREWNIQUE_DATABASE_MAX_IDLE_CONNS=25
 ARG BREWNIQUE_DATABASE_CONN_MAX_LIFETIME=10m
+
+# Expose the port on which the server will listen
+EXPOSE $BREWNIQUE_PORT
 
 # Set environment variables
 ENV BREWNIQUE_PORT=$BREWNIQUE_PORT \
