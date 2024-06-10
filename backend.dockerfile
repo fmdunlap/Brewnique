@@ -10,9 +10,17 @@ RUN touch /etc/apt/sources.list && \
     echo "deb http://ftp.us.debian.org/debian/ bookworm main" > /etc/apt/sources.list && \
     echo "deb http://ftp.us.debian.org/debian/ bookworm-updates main" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y \
-    golang \
+    wget \
     git \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Go 1.22.4
+
+RUN wget https://go.dev/dl/go1.22.4.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.22.4.linux-amd64.tar.gz && \
+    rm go1.22.4.linux-amd64.tar.gz
+
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 # Copy the Go module files
 COPY go.mod go.sum ./
@@ -25,7 +33,7 @@ COPY cmd ./cmd
 COPY internal ./internal
 
 # Build the Go application
-RUN go build -o server ./cmd
+RUN go build -o server ./cmd/api
 
 # Set ARG variables
 ARG BREWNIQUE_PORT=8080
@@ -49,4 +57,4 @@ ENV BREWNIQUE_PORT=$BREWNIQUE_PORT \
     BREWNIQUE_DATABASE_CONN_MAX_LIFETIME=$BREWNIQUE_DATABASE_CONN_MAX_LIFETIME
 
 # Run the server executable
-CMD ["sh"]
+CMD ["./server"]
