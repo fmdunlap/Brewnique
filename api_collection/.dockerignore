@@ -1,0 +1,9 @@
+.env
+api_collection
+.git
+.github
+.idea
+.vscode
+node_modules
+tmp
+dist
