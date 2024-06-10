@@ -11,7 +11,7 @@ func applyMiddleware(r chi.Router) chi.Router {
 	r.Use(middleware.Logger)
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST"},
+		AllowedMethods:   []string{"GET", "POST", "DELETE"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
@@ -32,6 +32,7 @@ func (app *application) routes() chi.Router {
 		r.Post("/recipe", app.newRecipeHandler)
 		r.Get("/recipes", app.listRecipesHandler)
 		r.Get("/recipe/{id}", app.getRecipeHandler)
+		r.Delete("/recipe/{id}", app.deleteRecipeHandler)
 	})
 
 	return r

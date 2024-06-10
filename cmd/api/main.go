@@ -18,7 +18,7 @@ type Services struct {
 type application struct {
 	config   applicationConfig
 	logger   *log.Logger
-	services Services
+	Services Services
 }
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
-		services: Services{
+		Services: Services{
 			Recipes: data.NewRecipeService(dbProvider),
 		},
 	}

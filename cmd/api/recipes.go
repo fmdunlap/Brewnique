@@ -3,7 +3,8 @@ package main
 import (
 	"brewnique.fdunlap.com/internal/data"
 	"brewnique.fdunlap.com/internal/validator"
-	"fmt"
+	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 )
@@ -39,28 +40,10 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "I'M A NEW RECIPE WITH NAME %s, INGREDIENTS %v, INSTRUCTIONS %v", recipe.Name, recipe.Ingredients, recipe.Instructions)
-}
-
-func (app *application) listRecipesHandler(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "I'M A LIST OF RECIPES")
-}
-
-func (app *application) getRecipeHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.readIdParam(r)
+	recipe, err = app.Services.Recipes.CreateRecipe(recipe)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
-	}
-
-	recipe := data.Recipe{
-		ID:           id,
-		CreatedAt:    time.Now().Add(-12 * time.Hour),
-		UpdatedAt:    time.Now(),
-		Name:         "My Recipe",
-		Ingredients:  []string{"Eggs", "Milk", "Cheese"},
-		Instructions: []string{"Boil eggs", "Add milk", "Add cheese"},
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -68,4 +51,53 @@ func (app *application) getRecipeHandler(w http.ResponseWriter, r *http.Request)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
+}
+
+func (app *application) listRecipesHandler(w http.ResponseWriter, r *http.Request) {
+	recipes, err := app.Services.Recipes.ListRecipes()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, recipes, nil)
+}
+
+func (app *application) getRecipeHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+	}
+
+	recipe, err := app.Services.Recipes.GetRecipe(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			app.notFoundResponse(w, r)
+			return
+		}
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = app.writeJson(w, http.StatusOK, recipe, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) deleteRecipeHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+	err = app.Services.Recipes.DeleteRecipe(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, map[string]string{"status": "ok"}, nil)
 }
