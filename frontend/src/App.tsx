@@ -21,7 +21,7 @@ function NewRecipeForm() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        const response = await fetch(`http://localhost:8080/v1/recipe`, {
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL + `/v1/recipe`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -63,14 +63,14 @@ function RecipeList() {
     const [extraData, setExtraData] = useState<any>({});
 
     const handleListRecipes = async () => {
-        const response = await fetch(`http://localhost:8080/v1/recipes`);
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL + `/v1/recipes`);
         const data = await response.json();
         console.log(data);
         setRecipes(data);
     }
 
     const handleDeleteRecipe = async (id: number) => {
-        const response = await fetch(`http://localhost:8080/v1/recipe/${id}`, {
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL + `/v1/recipe/${id}`, {
             method: "DELETE",
         });
         const data = await response.json();
@@ -78,12 +78,12 @@ function RecipeList() {
         if (data.status === "error") {
             alert("Error deleting recipe");
         } else {
-            handleListRecipes();
+            await handleListRecipes();
         }
     }
 
     const handleGetRecipe = async (id: number) => {
-        const response = await fetch(`http://localhost:8080/v1/recipe/${id}`);
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL + `/v1/recipe/${id}`);
         const data = await response.json();
         console.log(data);
         setExtraData(data);
@@ -116,7 +116,6 @@ function RecipeList() {
 
 
 function App() {
-
     return (
         <div className="flex flex-col gap-2 p-4">
             <h1 className="text-3xl font-bold">Brewnique</h1>

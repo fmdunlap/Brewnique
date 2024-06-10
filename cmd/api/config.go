@@ -32,7 +32,7 @@ type databaseConfig struct {
 func loadConfig() applicationConfig {
 	viper.AddConfigPath(".")
 	viper.SetConfigFile("config.env")
-	viper.SetEnvPrefix("brewnique")
+	viper.SetEnvPrefix("brew_api")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.SetDefault("port", 8080)

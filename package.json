@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dot-env": "^0.0.1",
+    "dotenv-webpack": "^8.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
