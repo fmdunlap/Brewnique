@@ -5,8 +5,7 @@ FROM debian:12
 WORKDIR /app
 
 # Install necessary dependencies
-RUN echo "deb http://ftp.us.debian.org/debian/ bookworm main" > /etc/apt/sources.list && \
-    echo "deb http://ftp.us.debian.org/debian/ bookworm-updates main" >> /etc/apt/sources.list && \
+RUN sed -i 's|http://deb.debian.org/debian/|http://ftp.us.debian.org/debian/|g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && apt-get install -y \
     golang \
     git \
