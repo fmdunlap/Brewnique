@@ -48,9 +48,8 @@ func loadConfig() applicationConfig {
 	viper.SetDefault("database.max_idle_conns", 10)
 	viper.SetDefault("database.conn_max_lifetime", time.Minute*15)
 
-	log.Printf("DSN: %s", viper.GetString("database.dsn"))
-
 	viper.AutomaticEnv()
+	log.Printf("DSN: %s", viper.GetString("database.dsn"))
 
 	return applicationConfig{
 		port: viper.GetInt("port"),
