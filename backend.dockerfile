@@ -5,15 +5,9 @@ FROM debian:12
 WORKDIR /app
 
 # Install necessary dependencies
-RUN apt-get update && apt-get install -y \
-    netselect-apt
-
-RUN netselect-apt -a amd64 -c US bookworm
-RUN cp /etc/apt/sources.list /etc/apt/sources.list.bak
-RUN cp ./sources.list /etc/apt/sources.list
-RUN rm -f ./sources.list
-
-RUN apt-get update && apt-get install -y \
+RUN echo "deb http://ftp.us.debian.org/debian/ bookworm main" > /etc/apt/sources.list && \
+    echo "deb http://ftp.us.debian.org/debian/ bookworm-updates main" >> /etc/apt/sources.list && \
+    apt-get update && apt-get install -y \
     golang \
     git \
     && rm -rf /var/lib/apt/lists/*
