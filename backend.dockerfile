@@ -5,7 +5,10 @@ FROM debian:12
 WORKDIR /app
 
 # Install necessary dependencies
-RUN sed -i 's|http://deb.debian.org/debian/|http://ftp.us.debian.org/debian/|g' /etc/apt/sources.list.d/debian.sources && \
+RUN touch /etc/apt/sources.list && \
+    rm -rf /etc/apt/sources.list.d && \
+    echo "deb http://ftp.us.debian.org/debian/ bookworm main" > /etc/apt/sources.list && \
+    echo "deb http://ftp.us.debian.org/debian/ bookworm-updates main" >> /etc/apt/sources.list && \
     apt-get update && apt-get install -y \
     golang \
     git \
@@ -46,4 +49,4 @@ ENV BREWNIQUE_PORT=$BREWNIQUE_PORT \
     BREWNIQUE_DATABASE_CONN_MAX_LIFETIME=$BREWNIQUE_DATABASE_CONN_MAX_LIFETIME
 
 # Run the server executable
-CMD ["./server"]
+CMD ["sh"]
