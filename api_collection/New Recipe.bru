@@ -1,0 +1,27 @@
+meta {
+  name: New Recipe
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/v1/recipe
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "A recipe",
+    "ingredients": [
+      "first ingredient",
+      "second ingredient",
+      "third ingredient"
+    ],
+    "instructions": [
+      "first instruction",
+      "second instruction",
+      "third instruction"
+    ]
+  }
+}
