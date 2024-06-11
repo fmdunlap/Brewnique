@@ -6,7 +6,7 @@ COPY . /app
 WORKDIR /app
 
 RUN pnpm i && pnpm i -g serve
-RUN pnpm run build
+RUN pnpm run build --mode staging
 
 EXPOSE 8000
-CMD [ "pnpm", "run", "serve" ]
+CMD [ "serve", "-p", "8000", "-C", "frontend/dist" ]
