@@ -7,15 +7,15 @@ function NewRecipeForm() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value.trim());
+        setName(e.target.value);
     }
 
     const handleIngredientsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setIngredients(e.target.value.split(",").map((value) => value.trim()));
+        setIngredients(e.target.value.split(","));
     }
 
     const handleInstructionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInstructions(e.target.value.split(",").map((value) => value.trim()));
+        setInstructions(e.target.value.split(","));
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,9 +27,9 @@ function NewRecipeForm() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: name,
-                ingredients: ingredients,
-                instructions: instructions,
+                name: name.trim(),
+                ingredients: ingredients.map((ingredient) => ingredient.trim()),
+                instructions: instructions.map((instruction) => instruction.trim()),
             }),
         });
         const data = await response.json();
