@@ -7,15 +7,15 @@ function NewRecipeForm() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value);
+        setName(e.target.value.trim());
     }
 
     const handleIngredientsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setIngredients(e.target.value.split(","));
+        setIngredients(e.target.value.split(",").map((value) => value.trim()));
     }
 
     const handleInstructionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInstructions(e.target.value.split(","));
+        setInstructions(e.target.value.split(",").map((value) => value.trim()));
     }
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
