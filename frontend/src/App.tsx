@@ -119,7 +119,7 @@ function App() {
     return (
         <div className="flex flex-col gap-2 p-4">
             <h1 className="text-3xl font-bold">Brewnique</h1>
-            <h2 className="text-2xl font-bold">New Recipe!</h2>
+            <h2 className="text-2xl font-bold">New Recipe</h2>
             <NewRecipeForm/>
             <RecipeList/>
         </div>
