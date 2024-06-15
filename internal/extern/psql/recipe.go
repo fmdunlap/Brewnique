@@ -28,7 +28,7 @@ func (p PostgresProvider) ListRecipes() ([]data.Recipe, error) {
 	var recipes []data.Recipe
 	for rows.Next() {
 		var recipe data.Recipe
-		err = rows.Scan(&recipe.ID, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
+		err = rows.Scan(&recipe.Id, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
 		if err != nil {
 			return nil, err
 		}
@@ -58,7 +58,7 @@ func (p PostgresProvider) PutRecipe(recipe data.Recipe) (data.Recipe, error) {
 		return data.Recipe{}, err
 	}
 
-	recipe.ID = id
+	recipe.Id = id
 
 	return recipe, nil
 }
@@ -70,7 +70,7 @@ func (p PostgresProvider) UpdateRecipe(recipe data.Recipe) (data.Recipe, error) 
 		return data.Recipe{}, err
 	}
 
-	tx.QueryRow("UPDATE recipes SET name = $1, ingredients = $2, instructions = $3, version = $4 WHERE id = $5", recipe.Name, pq.Array(recipe.Ingredients), pq.Array(recipe.Instructions), recipe.Version, recipe.ID)
+	tx.QueryRow("UPDATE recipes SET name = $1, ingredients = $2, instructions = $3, version = $4, updated_at = NOW() WHERE id = $5", recipe.Name, pq.Array(recipe.Ingredients), pq.Array(recipe.Instructions), recipe.Version, recipe.Id)
 	err = tx.Commit()
 	if err != nil {
 		return data.Recipe{}, err

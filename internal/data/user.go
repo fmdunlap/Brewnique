@@ -3,12 +3,15 @@ package data
 import (
 	"brewnique.fdunlap.com/internal/validator"
 	"errors"
+	"time"
 )
 
 type User struct {
-	ID       int64
-	Email    string
-	UserName string
+	Id        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email     string    `json:"email"`
+	UserName  string    `json:"username"`
 }
 
 func ValidateUser(v *validator.Validator, user User) {
@@ -44,12 +47,12 @@ func (s *UserService) CreateNewUser(email string, userName string) (User, error)
 		UserName: userName,
 	}
 
-	existingUser, err := s.userProvider.GetUser(user.ID)
+	existingUser, err := s.userProvider.GetUser(user.Id)
 	if err != nil {
 		return existingUser, err
 	}
 
-	if existingUser.ID > 0 {
+	if existingUser.Id > 0 {
 		return existingUser, errors.New("user already exists")
 	}
 

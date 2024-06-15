@@ -68,7 +68,7 @@ func (p *PostgresProvider) PutUser(user data.User) (data.User, error) {
 
 	log.Printf("Creating user with email %s, user name %s", user.Email, user.UserName)
 
-	err = tx.QueryRow("INSERT INTO users (email, user_name) VALUES ($1, $2) RETURNING id", user.Email, user.UserName).Scan(&user.ID)
+	err = tx.QueryRow("INSERT INTO users (email, user_name) VALUES ($1, $2) RETURNING id", user.Email, user.UserName).Scan(&user.Id)
 	if err != nil {
 		tx.Rollback()
 		return data.User{}, err
@@ -89,13 +89,13 @@ func (p *PostgresProvider) UpdateUser(user data.User) (data.User, error) {
 	}
 
 	existingUser := data.User{}
-	err = tx.QueryRow("SELECT id, email, user_name FROM users WHERE id = $1", user.ID).Scan(&existingUser)
+	err = tx.QueryRow("SELECT id, email, user_name FROM users WHERE id = $1", user.Id).Scan(&existingUser)
 	if err != nil {
 		tx.Rollback()
 		return data.User{}, err
 	}
 
-	if existingUser.ID == 0 {
+	if existingUser.Id == 0 {
 		return data.User{}, errors.New("user not found")
 	}
 
@@ -109,7 +109,7 @@ func (p *PostgresProvider) UpdateUser(user data.User) (data.User, error) {
 		user.UserName = existingUser.UserName
 	}
 
-	err = tx.QueryRow("UPDATE users SET email = $1, user_name = $2 WHERE id = $3", user.Email, user.UserName, user.ID).Scan(&user.ID)
+	err = tx.QueryRow("UPDATE users SET email = $1, user_name = $2, updated_at = NOW() WHERE id = $3", user.Email, user.UserName, user.Id).Scan(&user.Id)
 	if err != nil {
 		tx.Rollback()
 		return data.User{}, err

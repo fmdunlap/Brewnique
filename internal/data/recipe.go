@@ -7,7 +7,7 @@ import (
 )
 
 type Recipe struct {
-	ID           int64     `json:"id"`
+	Id           int64     `json:"id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 	Name         string    `json:"name"`
@@ -23,7 +23,8 @@ func ValidateRecipe(v *validator.Validator, recipe Recipe) {
 }
 
 type RecipeProvider interface {
-	GetRecipe(id int64) (Recipe, error)
+	GetRecipe(
+		d int64) (Recipe, error)
 	ListRecipes() ([]Recipe, error)
 	PutRecipe(recipe Recipe) (Recipe, error)
 	UpdateRecipe(recipe Recipe) (Recipe, error)
