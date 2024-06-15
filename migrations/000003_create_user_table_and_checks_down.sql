@@ -1,0 +1,6 @@
+ALTER TABLE users DROP CONSTRAINT IF EXISTS user_username_check;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS user_email_check;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS user_email_unique;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS user_username_unique;
+
+DROP TABLE IF EXISTS users;

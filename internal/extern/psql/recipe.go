@@ -1,73 +1,24 @@
-package extern
+package psql
 
 import (
 	"brewnique.fdunlap.com/internal/data"
-	"context"
-	"database/sql"
 	"github.com/lib/pq"
 	"log"
-	"time"
 )
 
-type PsqlConfig struct {
-	Dsn             string
-	MaxOpenConns    int
-	MaxIdleConns    int
-	ConnMaxLifetime time.Duration
-}
+func (p PostgresProvider) GetRecipe(id int64) (data.Recipe, error) {
+	res := p.db.QueryRow("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes WHERE id = $1", id)
 
-type PsqlRecipeProvider struct {
-	db *sql.DB
-}
-
-func NewPsqlProvider(config PsqlConfig) *PsqlRecipeProvider {
-	db, err := sql.Open("postgres", config.Dsn)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
-
-	db.SetMaxOpenConns(config.MaxOpenConns)
-	db.SetMaxIdleConns(config.MaxIdleConns)
-	db.SetConnMaxLifetime(config.ConnMaxLifetime)
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Printf("Connected to database")
-
-	return &PsqlRecipeProvider{
-		db: db,
-	}
-}
-
-func (p *PsqlRecipeProvider) Close() {
-	p.db.Close()
-}
-
-func (p PsqlRecipeProvider) GetRecipe(id int64) (data.Recipe, error) {
-	rows, err := p.db.Query("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes WHERE id = $1", id)
+	recipe := data.Recipe{}
+	err := res.Scan(&recipe)
 	if err != nil {
 		return data.Recipe{}, err
-	}
-	defer rows.Close()
-
-	var recipe data.Recipe
-	for rows.Next() {
-		err = rows.Scan(&recipe.ID, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
-		if err != nil {
-			return data.Recipe{}, err
-		}
 	}
 
 	return recipe, nil
 }
 
-func (p PsqlRecipeProvider) ListRecipes() ([]data.Recipe, error) {
+func (p PostgresProvider) ListRecipes() ([]data.Recipe, error) {
 	rows, err := p.db.Query("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes")
 	if err != nil {
 		return nil, err
@@ -87,7 +38,7 @@ func (p PsqlRecipeProvider) ListRecipes() ([]data.Recipe, error) {
 	return recipes, nil
 }
 
-func (p PsqlRecipeProvider) CreateRecipe(recipe data.Recipe) (data.Recipe, error) {
+func (p PostgresProvider) PutRecipe(recipe data.Recipe) (data.Recipe, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return data.Recipe{}, err
@@ -112,7 +63,7 @@ func (p PsqlRecipeProvider) CreateRecipe(recipe data.Recipe) (data.Recipe, error
 	return recipe, nil
 }
 
-func (p PsqlRecipeProvider) UpdateRecipe(recipe data.Recipe) (data.Recipe, error) {
+func (p PostgresProvider) UpdateRecipe(recipe data.Recipe) (data.Recipe, error) {
 	tx, err := p.db.Begin()
 
 	if err != nil {
@@ -128,7 +79,7 @@ func (p PsqlRecipeProvider) UpdateRecipe(recipe data.Recipe) (data.Recipe, error
 	return recipe, nil
 }
 
-func (p PsqlRecipeProvider) DeleteRecipe(id int64) error {
+func (p PostgresProvider) DeleteRecipe(id int64) error {
 	_, err := p.db.Exec("DELETE FROM recipes WHERE id = $1", id)
 	return err
 }

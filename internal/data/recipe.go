@@ -1,8 +1,9 @@
 package data
 
 import (
-	"brewnique.fdunlap.com/internal/validator"
 	"time"
+
+	"brewnique.fdunlap.com/internal/validator"
 )
 
 type Recipe struct {
@@ -24,7 +25,7 @@ func ValidateRecipe(v *validator.Validator, recipe Recipe) {
 type RecipeProvider interface {
 	GetRecipe(id int64) (Recipe, error)
 	ListRecipes() ([]Recipe, error)
-	CreateRecipe(recipe Recipe) (Recipe, error)
+	PutRecipe(recipe Recipe) (Recipe, error)
 	UpdateRecipe(recipe Recipe) (Recipe, error)
 	DeleteRecipe(id int64) error
 }
@@ -48,7 +49,7 @@ func (s *RecipeService) ListRecipes() ([]Recipe, error) {
 }
 
 func (s *RecipeService) CreateRecipe(recipe Recipe) (Recipe, error) {
-	return s.recipeProvider.CreateRecipe(recipe)
+	return s.recipeProvider.PutRecipe(recipe)
 }
 
 func (s *RecipeService) UpdateRecipe(recipe Recipe) (Recipe, error) {

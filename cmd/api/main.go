@@ -2,7 +2,7 @@ package main
 
 import (
 	"brewnique.fdunlap.com/internal/data"
-	"brewnique.fdunlap.com/internal/extern"
+	"brewnique.fdunlap.com/internal/extern/psql"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,7 +25,7 @@ func main() {
 	cfg := loadConfig()
 
 	logger := log.New(os.Stdout, "", log.LstdFlags)
-	dbProvider := extern.NewPsqlProvider(extern.PsqlConfig{
+	dbProvider := psql.NewPsqlProvider(psql.PsqlConfig{
 		Dsn:             cfg.database.dsn,
 		MaxOpenConns:    cfg.database.maxOpenConns,
 		MaxIdleConns:    cfg.database.maxIdleConns,
