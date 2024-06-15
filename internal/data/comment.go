@@ -22,6 +22,29 @@ type Comment struct {
 	Content   string    `json:"content"`
 }
 
+func (c *Comment) String() string {
+	return fmt.Sprintf("Comment{Id: %d, Content: %s, AuthorId: %d, RecipeId: %d, ParentId: %d}", c.Id, c.Content, c.AuthorId, c.RecipeId, c.ParentId)
+}
+
+func (c *Comment) IsTopLevel() bool {
+	return c.ParentId == 0
+}
+
+func (c *Comment) Equal(other *Comment) bool {
+	if c == nil && other == nil {
+		return true
+	}
+	if c == nil || other == nil {
+		return false
+	}
+	return c.Id == other.Id &&
+		c.Content == other.Content &&
+		c.AuthorId == other.AuthorId &&
+		c.RecipeId == other.RecipeId &&
+		c.ParentId == other.ParentId
+
+}
+
 func ValidateComment(v *validator.Validator, comment Comment) {
 	v.Check(len(comment.Content) > 0, "content", "content is required")
 	v.Check(len(comment.Content) < MaxCommentContentLength, "content", "content is too long")
@@ -46,7 +69,7 @@ func NewCommentService(commentProvider CommentProvider) *CommentService {
 	}
 }
 
-func (s *CommentService) CreateComment(content string, authorId, recipeId, parentId int64) (Comment, error) {
+func (s *CommentService) CreateComment(content string, authorId, recipeId, parentId int64) (*Comment, error) {
 	comment := Comment{
 		Content:  content,
 		AuthorId: authorId,
@@ -58,38 +81,48 @@ func (s *CommentService) CreateComment(content string, authorId, recipeId, paren
 		parentComment, err := s.commentProvider.GetComment(parentId)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return Comment{}, fmt.Errorf("parent comment %v does not exist", parentId)
+				return nil, fmt.Errorf("parent comment %v does not exist", parentId)
 			}
-			return Comment{}, err
+			return nil, err
 		}
 		if parentComment.RecipeId != recipeId {
-			return Comment{}, fmt.Errorf("parent comment is not part of recipe %v", recipeId)
+			return nil, fmt.Errorf("parent comment is not part of recipe %v", recipeId)
 		}
 	}
 
-	return s.commentProvider.PutComment(&comment)
+	if authorId == 0 {
+		return nil, fmt.Errorf("authorId is not set")
+	}
+	if recipeId == 0 {
+		return nil, fmt.Errorf("recipeId is not set")
+	}
+
+	comment, err := s.commentProvider.PutComment(&comment)
+	if err != nil {
+		return nil, err
+	}
+
+	return &comment, nil
 }
 
 func (s *CommentService) GetComment(id int64) (*Comment, error) {
 	return s.commentProvider.GetComment(id)
 }
 
-func (s *CommentService) UpdateComment(comment *Comment) error {
-	existingComment, err := s.commentProvider.GetComment(comment.Id)
+func (s *CommentService) UpdateComment(id int64, content string) (*Comment, error) {
+	comment, err := s.commentProvider.GetComment(id)
 	if err != nil {
-		return err
-	}
-	if existingComment.RecipeId != comment.RecipeId {
-		return fmt.Errorf("cannot change recipe of comment %v", comment.Id)
-	}
-	if existingComment.ParentId != comment.ParentId {
-		return fmt.Errorf("cannot change parent of comment %v", comment.Id)
-	}
-	if existingComment.AuthorId != comment.AuthorId {
-		return fmt.Errorf("cannot change author of comment %v", comment.Id)
+		return nil, err
 	}
 
-	return s.commentProvider.UpdateComment(comment)
+	comment.Content = content
+
+	err = s.commentProvider.UpdateComment(comment)
+	if err != nil {
+		return nil, err
+	}
+
+	return comment, nil
 }
 
 func (s *CommentService) DeleteComment(id int64) error {

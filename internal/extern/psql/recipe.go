@@ -38,6 +38,26 @@ func (p PostgresProvider) ListRecipes() ([]data.Recipe, error) {
 	return recipes, nil
 }
 
+func (p PostgresProvider) ListRecipesByAuthorId(userId int64) ([]data.Recipe, error) {
+	rows, err := p.db.Query("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes WHERE author_id = $1", userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var recipes []data.Recipe
+	for rows.Next() {
+		var recipe data.Recipe
+		err = rows.Scan(&recipe.Id, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
+		if err != nil {
+			return nil, err
+		}
+		recipes = append(recipes, recipe)
+	}
+
+	return recipes, nil
+}
+
 func (p PostgresProvider) PutRecipe(recipe data.Recipe) (data.Recipe, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
@@ -47,7 +67,7 @@ func (p PostgresProvider) PutRecipe(recipe data.Recipe) (data.Recipe, error) {
 	log.Printf("Creating recipe with name %s, ingredients %v, instructions %v", recipe.Name, recipe.Ingredients, recipe.Instructions)
 
 	var id int64
-	err = tx.QueryRow("INSERT INTO recipes (name, ingredients, instructions, version) VALUES ($1, $2, $3, $4) RETURNING id", recipe.Name, pq.Array(recipe.Ingredients), pq.Array(recipe.Instructions), recipe.Version).Scan(&id)
+	err = tx.QueryRow("INSERT INTO recipes (name, author_id, ingredients, instructions, version) VALUES ($1, $2, $3, $4, $5) RETURNING id", recipe.Name, recipe.AuthorId, pq.Array(recipe.Ingredients), pq.Array(recipe.Instructions), recipe.Version).Scan(&id)
 	if err != nil {
 		tx.Rollback()
 		return data.Recipe{}, err

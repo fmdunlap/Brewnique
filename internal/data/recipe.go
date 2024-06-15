@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"time"
 
 	"brewnique.fdunlap.com/internal/validator"
@@ -10,6 +11,7 @@ type Recipe struct {
 	Id           int64     `json:"id"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+	AuthorId     int64     `json:"author_id"`
 	Name         string    `json:"name"`
 	Ingredients  []string  `json:"ingredients"`
 	Instructions []string  `json:"instructions"`
@@ -29,6 +31,7 @@ type RecipeProvider interface {
 	PutRecipe(recipe Recipe) (Recipe, error)
 	UpdateRecipe(recipe Recipe) (Recipe, error)
 	DeleteRecipe(id int64) error
+	ListRecipesByAuthorId(userId int64) ([]Recipe, error)
 }
 
 type RecipeService struct {
@@ -41,16 +44,38 @@ func NewRecipeService(recipeProvider RecipeProvider) *RecipeService {
 	}
 }
 
+func (s *RecipeService) CreateRecipe(name string, authorId int64, ingredients []string, instructions []string) (Recipe, error) {
+	if name == "" {
+		return Recipe{}, fmt.Errorf("name is not set")
+	}
+	if authorId == 0 {
+		return Recipe{}, fmt.Errorf("authorId is not set")
+	}
+	if len(ingredients) == 0 {
+		return Recipe{}, fmt.Errorf("ingredients is not set")
+	}
+	if len(instructions) == 0 {
+		return Recipe{}, fmt.Errorf("instructions is not set")
+	}
+
+	return s.recipeProvider.PutRecipe(Recipe{
+		Name:         name,
+		Ingredients:  ingredients,
+		Instructions: instructions,
+		AuthorId:     authorId,
+	})
+}
+
 func (s *RecipeService) GetRecipe(id int64) (Recipe, error) {
 	return s.recipeProvider.GetRecipe(id)
 }
 
-func (s *RecipeService) ListRecipes() ([]Recipe, error) {
-	return s.recipeProvider.ListRecipes()
+func (s *RecipeService) GetUserRecipes(userId int64) ([]Recipe, error) {
+	return s.recipeProvider.ListRecipesByAuthorId(userId)
 }
 
-func (s *RecipeService) CreateRecipe(recipe Recipe) (Recipe, error) {
-	return s.recipeProvider.PutRecipe(recipe)
+func (s *RecipeService) ListRecipes() ([]Recipe, error) {
+	return s.recipeProvider.ListRecipes()
 }
 
 func (s *RecipeService) UpdateRecipe(recipe Recipe) (Recipe, error) {

@@ -2,23 +2,9 @@ package psql
 
 import (
 	"brewnique.fdunlap.com/internal/data"
-	"database/sql"
-	"errors"
 )
 
 func (p *PostgresProvider) PutComment(comment *data.Comment) (data.Comment, error) {
-	var existingID int64
-	existingComment, err := p.GetComment(comment.Id)
-	if err == nil {
-		existingID = existingComment.Id
-	} else if !errors.Is(err, sql.ErrNoRows) {
-		return data.Comment{}, err
-	}
-
-	if existingID > 0 {
-		return data.Comment{}, errors.New("comment already exists")
-	}
-
 	tx, err := p.db.Begin()
 	if err != nil {
 		return data.Comment{}, err
@@ -54,10 +40,6 @@ func (p *PostgresProvider) UpdateComment(comment *data.Comment) error {
 		return err
 	}
 	defer tx.Rollback()
-
-	if comment.Content == "" {
-		return errors.New("content cannot be empty")
-	}
 
 	tx.QueryRow("UPDATE comments SET content = $1, updated_at = NOW() WHERE id = $2", comment.Content, comment.Id)
 	return tx.Commit()
