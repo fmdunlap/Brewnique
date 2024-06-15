@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS recipe_name_author_unique_idx;

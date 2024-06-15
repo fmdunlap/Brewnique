@@ -25,13 +25,12 @@ func ValidateRecipe(v *validator.Validator, recipe Recipe) {
 }
 
 type RecipeProvider interface {
-	GetRecipe(
-		d int64) (Recipe, error)
-	ListRecipes() ([]Recipe, error)
-	PutRecipe(recipe Recipe) (Recipe, error)
-	UpdateRecipe(recipe Recipe) (Recipe, error)
+	PutRecipe(recipe *Recipe) (*Recipe, error)
+	GetRecipe(id int64) (*Recipe, error)
+	ListRecipes() ([]*Recipe, error)
+	ListRecipesByAuthorId(userId int64) ([]*Recipe, error)
+	UpdateRecipe(recipe *Recipe) (*Recipe, error)
 	DeleteRecipe(id int64) error
-	ListRecipesByAuthorId(userId int64) ([]Recipe, error)
 }
 
 type RecipeService struct {
@@ -44,21 +43,21 @@ func NewRecipeService(recipeProvider RecipeProvider) *RecipeService {
 	}
 }
 
-func (s *RecipeService) CreateRecipe(name string, authorId int64, ingredients []string, instructions []string) (Recipe, error) {
+func (s *RecipeService) CreateRecipe(name string, authorId int64, ingredients []string, instructions []string) (*Recipe, error) {
 	if name == "" {
-		return Recipe{}, fmt.Errorf("name is not set")
+		return nil, fmt.Errorf("name is not set")
 	}
 	if authorId == 0 {
-		return Recipe{}, fmt.Errorf("authorId is not set")
+		return nil, fmt.Errorf("authorId is not set")
 	}
 	if len(ingredients) == 0 {
-		return Recipe{}, fmt.Errorf("ingredients is not set")
+		return nil, fmt.Errorf("ingredients is not set")
 	}
 	if len(instructions) == 0 {
-		return Recipe{}, fmt.Errorf("instructions is not set")
+		return nil, fmt.Errorf("instructions is not set")
 	}
 
-	return s.recipeProvider.PutRecipe(Recipe{
+	return s.recipeProvider.PutRecipe(&Recipe{
 		Name:         name,
 		Ingredients:  ingredients,
 		Instructions: instructions,
@@ -66,19 +65,19 @@ func (s *RecipeService) CreateRecipe(name string, authorId int64, ingredients []
 	})
 }
 
-func (s *RecipeService) GetRecipe(id int64) (Recipe, error) {
+func (s *RecipeService) GetRecipe(id int64) (*Recipe, error) {
 	return s.recipeProvider.GetRecipe(id)
 }
 
-func (s *RecipeService) GetUserRecipes(userId int64) ([]Recipe, error) {
+func (s *RecipeService) GetUserRecipes(userId int64) ([]*Recipe, error) {
 	return s.recipeProvider.ListRecipesByAuthorId(userId)
 }
 
-func (s *RecipeService) ListRecipes() ([]Recipe, error) {
+func (s *RecipeService) ListRecipes() ([]*Recipe, error) {
 	return s.recipeProvider.ListRecipes()
 }
 
-func (s *RecipeService) UpdateRecipe(recipe Recipe) (Recipe, error) {
+func (s *RecipeService) UpdateRecipe(recipe *Recipe) (*Recipe, error) {
 	return s.recipeProvider.UpdateRecipe(recipe)
 }
 
