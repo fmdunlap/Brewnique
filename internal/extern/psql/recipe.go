@@ -25,14 +25,14 @@ func (p PostgresProvider) ListRecipes() ([]*data.Recipe, error) {
 	}
 	defer rows.Close()
 
-	var recipes []data.Recipe
+	var recipes []*data.Recipe
 	for rows.Next() {
 		var recipe data.Recipe
 		err = rows.Scan(&recipe.Id, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
 		if err != nil {
 			return nil, err
 		}
-		recipes = append(recipes, recipe)
+		recipes = append(recipes, &recipe)
 	}
 
 	return recipes, nil
