@@ -33,3 +33,4 @@ tmp
 
 # dev_db directory
 dev_db/
+.vite
