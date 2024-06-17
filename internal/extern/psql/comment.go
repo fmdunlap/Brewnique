@@ -2,7 +2,46 @@ package psql
 
 import (
 	"brewnique.fdunlap.com/internal/data"
+	"database/sql"
+	"log"
+	"time"
 )
+
+type CommentDbRow struct {
+	Id        int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	RecipeId  int64
+	AuthorId  int64
+	ParentId  sql.NullInt64
+	Content   string
+}
+
+func (c *CommentDbRow) ToComment() data.Comment {
+	return data.Comment{
+		Id:        c.Id,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+		RecipeId:  c.RecipeId,
+		AuthorId:  c.AuthorId,
+		ParentId:  c.ParentId.Int64,
+		Content:   c.Content,
+	}
+}
+
+func CommentRowFromComment(comment data.Comment) CommentDbRow {
+	parentId := sql.NullInt64{Int64: comment.ParentId, Valid: comment.ParentId != 0}
+
+	return CommentDbRow{
+		Id:        comment.Id,
+		CreatedAt: comment.CreatedAt,
+		UpdatedAt: comment.UpdatedAt,
+		RecipeId:  comment.RecipeId,
+		AuthorId:  comment.AuthorId,
+		ParentId:  parentId,
+		Content:   comment.Content,
+	}
+}
 
 func (p *PostgresProvider) PutComment(comment *data.Comment) (data.Comment, error) {
 	tx, err := p.db.Begin()
@@ -11,7 +50,25 @@ func (p *PostgresProvider) PutComment(comment *data.Comment) (data.Comment, erro
 	}
 	defer tx.Rollback()
 
-	err = tx.QueryRow("INSERT INTO comments (content, author_id, recipe_id, parent_id) VALUES ($1, $2, $3, $4) RETURNING id", comment.Content, comment.AuthorId, comment.RecipeId, comment.ParentId).Scan(&comment.Id)
+	var insertedCommentRow CommentDbRow
+	insertableComment := CommentRowFromComment(*comment)
+
+	log.Printf("inserting comment %v", insertableComment)
+
+	err = tx.QueryRow("INSERT INTO comments (content, author_id, recipe_id, parent_id) VALUES ($1, $2, $3, $4) RETURNING id, content, author_id, recipe_id, parent_id, created_at, updated_at",
+		insertableComment.Content,
+		insertableComment.AuthorId,
+		insertableComment.RecipeId,
+		insertableComment.ParentId,
+	).Scan(
+		&insertedCommentRow.Id,
+		&insertedCommentRow.Content,
+		&insertedCommentRow.AuthorId,
+		&insertedCommentRow.RecipeId,
+		&insertedCommentRow.ParentId,
+		&insertedCommentRow.CreatedAt,
+		&insertedCommentRow.UpdatedAt,
+	)
 	if err != nil {
 		return data.Comment{}, err
 	}
@@ -21,16 +78,18 @@ func (p *PostgresProvider) PutComment(comment *data.Comment) (data.Comment, erro
 		return data.Comment{}, err
 	}
 
-	return *comment, nil
+	insertedComment := insertedCommentRow.ToComment()
+	return insertedComment, nil
 }
 
 func (p *PostgresProvider) GetComment(id int64) (*data.Comment, error) {
-	comment := data.Comment{}
-	err := p.db.QueryRow("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE id = $1", id).Scan(&comment.Id, &comment.CreatedAt, &comment.UpdatedAt, &comment.RecipeId, &comment.AuthorId, &comment.ParentId, &comment.Content)
+	commentRow := CommentDbRow{}
+	err := p.db.QueryRow("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE id = $1", id).Scan(&commentRow.Id, &commentRow.CreatedAt, &commentRow.UpdatedAt, &commentRow.RecipeId, &commentRow.AuthorId, &commentRow.ParentId, &commentRow.Content)
 	if err != nil {
 		return nil, err
 	}
 
+	comment := commentRow.ToComment()
 	return &comment, nil
 }
 
@@ -46,7 +105,7 @@ func (p *PostgresProvider) UpdateComment(comment *data.Comment) error {
 }
 
 func (p *PostgresProvider) ListRecipeComments(recipeId int64) ([]data.Comment, error) {
-	comments := []data.Comment{}
+	commentRows := []CommentDbRow{}
 	rows, err := p.db.Query("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE recipe_id = $1", recipeId)
 	if err != nil {
 		return nil, err
@@ -54,18 +113,32 @@ func (p *PostgresProvider) ListRecipeComments(recipeId int64) ([]data.Comment, e
 	defer rows.Close()
 
 	for rows.Next() {
-		var comment data.Comment
-		err = rows.Scan(&comment.Id, &comment.CreatedAt, &comment.UpdatedAt, &comment.RecipeId, &comment.AuthorId, &comment.ParentId, &comment.Content)
+		var commentRow CommentDbRow
+		err = rows.Scan(
+			&commentRow.Id,
+			&commentRow.CreatedAt,
+			&commentRow.UpdatedAt,
+			&commentRow.RecipeId,
+			&commentRow.AuthorId,
+			&commentRow.ParentId,
+			&commentRow.Content,
+		)
 		if err != nil {
 			return nil, err
 		}
-		comments = append(comments, comment)
+		commentRows = append(commentRows, commentRow)
 	}
+
+	comments := make([]data.Comment, len(commentRows))
+	for i, commentRow := range commentRows {
+		comments[i] = commentRow.ToComment()
+	}
+
 	return comments, nil
 }
 
 func (p *PostgresProvider) ListUserComments(userId int64) ([]data.Comment, error) {
-	comments := []data.Comment{}
+	commentDbRows := []CommentDbRow{}
 	rows, err := p.db.Query("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE author_id = $1", userId)
 	if err != nil {
 		return nil, err
@@ -73,13 +146,27 @@ func (p *PostgresProvider) ListUserComments(userId int64) ([]data.Comment, error
 	defer rows.Close()
 
 	for rows.Next() {
-		var comment data.Comment
-		err = rows.Scan(&comment.Id, &comment.CreatedAt, &comment.UpdatedAt, &comment.RecipeId, &comment.AuthorId, &comment.ParentId, &comment.Content)
+		var commentRow CommentDbRow
+		err = rows.Scan(
+			&commentRow.Id,
+			&commentRow.CreatedAt,
+			&commentRow.UpdatedAt,
+			&commentRow.RecipeId,
+			&commentRow.AuthorId,
+			&commentRow.ParentId,
+			&commentRow.Content,
+		)
 		if err != nil {
 			return nil, err
 		}
-		comments = append(comments, comment)
+		commentDbRows = append(commentDbRows, commentRow)
 	}
+
+	comments := make([]data.Comment, len(commentDbRows))
+	for i, commentRow := range commentDbRows {
+		comments[i] = commentRow.ToComment()
+	}
+
 	return comments, nil
 }
 

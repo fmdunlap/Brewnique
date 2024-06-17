@@ -1,0 +1,20 @@
+meta {
+  name: NewComment
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/v1/comment
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "content": "I'm another cool test comment.",
+    "recipe_id": 2,
+    "author_id": 1,
+    "parent_id": 4
+  }
+}

@@ -12,7 +12,9 @@ import (
 const version = "0.0.1"
 
 type Services struct {
-	Recipes *data.RecipeService
+	Recipes  *data.RecipeService
+	Users    *data.UserService
+	Comments *data.CommentService
 }
 
 type application struct {
@@ -37,7 +39,9 @@ func main() {
 		config: cfg,
 		logger: logger,
 		Services: Services{
-			Recipes: data.NewRecipeService(dbProvider),
+			Recipes:  data.NewRecipeService(dbProvider),
+			Users:    data.NewUserService(dbProvider),
+			Comments: data.NewCommentService(dbProvider),
 		},
 	}
 

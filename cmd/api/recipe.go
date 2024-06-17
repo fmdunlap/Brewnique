@@ -12,6 +12,7 @@ import (
 func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name         string   `json:"name"`
+		AuthorId     int64    `json:"author_id"`
 		Ingredients  []string `json:"ingredients"`
 		Instructions []string `json:"instructions"`
 	}
@@ -25,6 +26,7 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 
 	recipe := data.Recipe{
 		Name:         input.Name,
+		AuthorId:     input.AuthorId,
 		Ingredients:  input.Ingredients,
 		Instructions: input.Instructions,
 		CreatedAt:    time.Now(),
@@ -40,14 +42,14 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	recipe, err = app.Services.Recipes.CreateRecipe(recipe)
+	newRecipe, err := app.Services.Recipes.CreateRecipe(recipe.Name, recipe.AuthorId, recipe.Ingredients, recipe.Instructions)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	err = app.writeJson(w, http.StatusOK, recipe, nil)
+	err = app.writeJson(w, http.StatusOK, newRecipe, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

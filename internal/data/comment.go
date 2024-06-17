@@ -130,7 +130,18 @@ func (s *CommentService) DeleteComment(id int64) error {
 }
 
 func (s *CommentService) ListRecipeComments(recipeId int64) ([]Comment, error) {
-	return s.commentProvider.ListRecipeComments(recipeId)
+	if recipeId == 0 {
+		return nil, fmt.Errorf("recipeId is not set")
+	}
+	comments, err := s.commentProvider.ListRecipeComments(recipeId)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(comments) == 0 {
+		return make([]Comment, 0), nil
+	}
+	return comments, nil
 }
 
 func (s *CommentService) ListUserComments(userId int64) ([]Comment, error) {

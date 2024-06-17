@@ -29,12 +29,39 @@ func (app *application) routes() chi.Router {
 
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/healthcheck", app.healthcheckHandler)
-		r.Post("/recipe", app.newRecipeHandler)
-		r.Get("/recipes", app.listRecipesHandler)
-		r.Get("/recipe/{id}", app.getRecipeHandler)
-		r.Delete("/recipe/{id}", app.deleteRecipeHandler)
+		app.addRecipeRoutes(r)
+		app.addUserRoutes(r)
+		app.addCommentRoutes(r)
 	})
 
 	return r
 
+}
+
+func (app *application) addUserRoutes(r chi.Router) {
+	r.Route("/user", func(r chi.Router) {
+		r.Get("/", app.listUsersHandler)
+		r.Get("/{id}", app.getUserHandler)
+		r.Get("/email/{email}", app.getUserByEmailHandler)
+		r.Get("/username/{username}", app.getUserByUsernameHandler)
+		r.Post("/", app.newUserHandler)
+		r.Delete("/{id}", app.deleteUserHandler)
+	})
+}
+
+func (app *application) addRecipeRoutes(r chi.Router) {
+	r.Route("/recipe", func(r chi.Router) {
+		r.Get("/", app.listRecipesHandler)
+		r.Get("/{id}", app.getRecipeHandler)
+		r.Post("/", app.newRecipeHandler)
+		r.Delete("/{id}", app.deleteRecipeHandler)
+	})
+}
+
+func (app *application) addCommentRoutes(r chi.Router) {
+	r.Route("/comment", func(r chi.Router) {
+		r.Get("/{id}", app.getCommentHandler)
+		r.Get("/recipe/{id}", app.listRecipeCommentsHandler)
+		r.Post("/", app.newCommentHandler)
+	})
 }

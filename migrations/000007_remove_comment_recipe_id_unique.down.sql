@@ -1,0 +1,1 @@
+ALTER TABLE comments ADD CONSTRAINT comment_recipe_id_unique UNIQUE (recipe_id);

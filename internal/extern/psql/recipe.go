@@ -19,7 +19,7 @@ func (p PostgresProvider) GetRecipe(id int64) (*data.Recipe, error) {
 }
 
 func (p PostgresProvider) ListRecipes() ([]*data.Recipe, error) {
-	rows, err := p.db.Query("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes")
+	rows, err := p.db.Query("SELECT id, author_id, created_at, updated_at, name, ingredients, instructions, version FROM recipes")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (p PostgresProvider) ListRecipes() ([]*data.Recipe, error) {
 	var recipes []*data.Recipe
 	for rows.Next() {
 		var recipe data.Recipe
-		err = rows.Scan(&recipe.Id, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
+		err = rows.Scan(&recipe.Id, &recipe.AuthorId, &recipe.CreatedAt, &recipe.UpdatedAt, &recipe.Name, (*pq.StringArray)(&recipe.Ingredients), (*pq.StringArray)(&recipe.Instructions), &recipe.Version)
 		if err != nil {
 			return nil, err
 		}

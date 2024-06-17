@@ -1,0 +1,1 @@
+ALTER TABLE comments DROP CONSTRAINT IF EXISTS comment_recipe_id_unique;

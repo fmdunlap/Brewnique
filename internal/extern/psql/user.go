@@ -8,10 +8,10 @@ import (
 )
 
 func (p *PostgresProvider) GetUser(id int64) (*data.User, error) {
-	result := p.db.QueryRow("SELECT id, email, user_name FROM users WHERE id = $1", id)
+	result := p.db.QueryRow("SELECT id, email, username, created_at, updated_at FROM users WHERE id = $1", id)
 
 	u := data.User{}
-	err := result.Scan(&u)
+	err := result.Scan(&u.Id, &u.Email, &u.Username, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -20,10 +20,10 @@ func (p *PostgresProvider) GetUser(id int64) (*data.User, error) {
 }
 
 func (p *PostgresProvider) GetUserByEmail(email string) (*data.User, error) {
-	result := p.db.QueryRow("SELECT id, email, user_name FROM users WHERE email = $1", email)
+	result := p.db.QueryRow("SELECT id, email, username, created_at, updated_at FROM users WHERE email = $1", email)
 
 	u := data.User{}
-	err := result.Scan(&u)
+	err := result.Scan(&u.Id, &u.Email, &u.Username, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -31,10 +31,10 @@ func (p *PostgresProvider) GetUserByEmail(email string) (*data.User, error) {
 }
 
 func (p *PostgresProvider) GetUserByUsername(userName string) (*data.User, error) {
-	result := p.db.QueryRow("SELECT id, email, user_name FROM users WHERE user_name = $1", userName)
+	result := p.db.QueryRow("SELECT id, email, username, created_at, updated_at FROM users WHERE username = $1", userName)
 
 	u := data.User{}
-	err := result.Scan(&u)
+	err := result.Scan(&u.Id, &u.Email, &u.Username, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (p *PostgresProvider) GetUserByUsername(userName string) (*data.User, error
 }
 
 func (p *PostgresProvider) ListUsers() ([]*data.User, error) {
-	rows, err := p.db.Query("SELECT id, email, user_name FROM users")
+	rows, err := p.db.Query("SELECT id, email, username, created_at, updated_at FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -50,12 +50,12 @@ func (p *PostgresProvider) ListUsers() ([]*data.User, error) {
 
 	users := []*data.User{}
 	for rows.Next() {
-		user := data.User{}
-		err = rows.Scan(&user)
+		u := data.User{}
+		err = rows.Scan(&u.Id, &u.Email, &u.Username, &u.CreatedAt, &u.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
-		users = append(users, &user)
+		users = append(users, &u)
 	}
 
 	return users, nil
@@ -72,9 +72,9 @@ func (p *PostgresProvider) PutUser(user *data.User) (*data.User, error) {
 
 	var insertedUser data.User
 	err = tx.QueryRow(`
-		INSERT INTO users (email, user_name)
+		INSERT INTO users (email, username)
 		VALUES ($1, $2)
-		RETURNING id, created_at, updated_at, email, user_name
+		RETURNING id, created_at, updated_at, email, username
 	`, user.Email, user.Username).Scan(
 		&insertedUser.Id,
 		&insertedUser.CreatedAt,
@@ -104,9 +104,9 @@ func (p *PostgresProvider) UpdateUser(user *data.User) (*data.User, error) {
 	var updatedUser data.User
 	err = tx.QueryRow(`
 		UPDATE users
-		SET email = $1, user_name = $2, updated_at = NOW()
+		SET email = $1, username = $2, updated_at = NOW()
 		WHERE id = $3
-		RETURNING id, created_at, updated_at, email, user_name
+		RETURNING id, created_at, updated_at, email, username
 	`, user.Email, user.Username, user.Id).Scan(
 		&updatedUser.Id,
 		&updatedUser.CreatedAt,
