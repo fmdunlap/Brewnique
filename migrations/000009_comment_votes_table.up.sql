@@ -4,7 +4,7 @@ CREATE TABLE comment_votes (
     updated_at TIMESTAMP(0) with time zone NOT NULL DEFAULT NOW(),
     user_id BIGINT NOT NULL REFERENCES users (id),
     comment_id BIGINT NOT NULL REFERENCES comments (id),
-    rating INTEGER NOT NULL
+    is_upvote BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 ALTER TABLE comment_votes ADD CONSTRAINT comment_vote_user_id_check CHECK (user_id != 0);
