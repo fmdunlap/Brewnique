@@ -10,7 +10,7 @@ import (
 )
 
 // TODO: A few things...
-// * Function to get all children comments...
+// * Function to get all comments within a comment chain
 // * Pagination for list comments
 
 type CommentAPIResponse struct {
@@ -52,7 +52,7 @@ func TransformComments(comments []data.Comment, userService *data.UserService) (
 	// Create a slice to store top-level comments
 	var topLevelComments []*CommentAPIResponse
 
-	// Memoized author during the first pass
+	// Memoize authors during the first pass
 	memoizedAuthors := make(map[int64]*data.User)
 
 	// First pass: Create CommentAPIResponse objects and populate the commentMap
@@ -78,20 +78,20 @@ func TransformComments(comments []data.Comment, userService *data.UserService) (
 		}
 		commentMap[comment.Id] = &apiComment
 
-		// If the comment has no parent, it is a top-level comment
-		if comment.ParentId == 0 {
+		if comment.IsTopLevel() {
 			topLevelComments = append(topLevelComments, &apiComment)
 		}
 	}
 
 	// Second pass: Build the nested structure by linking children to their parent
 	for _, comment := range comments {
-		if comment.ParentId != 0 {
-			parentComment, ok := commentMap[comment.ParentId]
-			if ok {
-				log.Printf("Linking %v:%v to %v:%v", comment.Id, comment.Content, parentComment.Id, parentComment.Content)
-				parentComment.Children = append(parentComment.Children, *commentMap[comment.Id])
-			}
+		if comment.IsTopLevel() {
+			continue
+		}
+		parentComment, ok := commentMap[comment.ParentId]
+		if ok {
+			log.Printf("Linking %v:%v to %v:%v", comment.Id, comment.Content, parentComment.Id, parentComment.Content)
+			parentComment.Children = append(parentComment.Children, *commentMap[comment.Id])
 		}
 	}
 

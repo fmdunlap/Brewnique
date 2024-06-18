@@ -18,6 +18,15 @@ type Recipe struct {
 	Version      int       `json:"version"`
 }
 
+type RecipeRating struct {
+	Id        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	UserId    int64     `json:"user_id"`
+	RecipeId  int64     `json:"recipe_id"`
+	Rating    int       `json:"rating"`
+}
+
 func ValidateRecipe(v *validator.Validator, recipe Recipe) {
 	v.Check(len(recipe.Name) > 0, "name", "name is required")
 	v.Check(len(recipe.Ingredients) > 0, "ingredients", "ingredients is required")
@@ -25,12 +34,15 @@ func ValidateRecipe(v *validator.Validator, recipe Recipe) {
 }
 
 type RecipeProvider interface {
-	PutRecipe(recipe *Recipe) (*Recipe, error)
+	SetUserRecipeRating(recipeId int64, ratingVal int, userId int64) (*RecipeRating, error)
+	DeleteRecipe(id int64) error
 	GetRecipe(id int64) (*Recipe, error)
+	GetRecipesByUserId(userId int64) ([]*Recipe, error)
+	GetRecipeRatings(recipeId int64) ([]*RecipeRating, error)
 	ListRecipes() ([]*Recipe, error)
 	ListRecipesByAuthorId(userId int64) ([]*Recipe, error)
+	PutRecipe(recipe *Recipe) (*Recipe, error)
 	UpdateRecipe(recipe *Recipe) (*Recipe, error)
-	DeleteRecipe(id int64) error
 }
 
 type RecipeService struct {
@@ -83,4 +95,27 @@ func (s *RecipeService) UpdateRecipe(recipe *Recipe) (*Recipe, error) {
 
 func (s *RecipeService) DeleteRecipe(id int64) error {
 	return s.recipeProvider.DeleteRecipe(id)
+}
+
+func (s *RecipeService) GetAverageRecipeRating(recipeId int64) (float32 /* rating */, error) {
+	ratings, err := s.recipeProvider.GetRecipeRatings(recipeId)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(ratings) == 0 {
+		return 0, nil
+	}
+
+	ratingSum := 0
+	for _, rating := range ratings {
+		ratingSum += rating.Rating
+	}
+
+	return float32(ratingSum) / float32(len(ratings)), nil
+}
+
+func (s *RecipeService) SetUserRecipeRating(recipeId int64, ratingVal int, userId int64) error {
+	_, err := s.recipeProvider.SetUserRecipeRating(recipeId, ratingVal, userId)
+	return err
 }
