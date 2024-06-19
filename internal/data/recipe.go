@@ -97,7 +97,7 @@ func (s *RecipeService) DeleteRecipe(id int64) error {
 	return s.recipeProvider.DeleteRecipe(id)
 }
 
-func (s *RecipeService) GetAverageRecipeRating(recipeId int64) (float32 /* rating */, error) {
+func (s *RecipeService) GetAverageRecipeRating(recipeId int64) (float64 /* rating */, error) {
 	ratings, err := s.recipeProvider.GetRecipeRatings(recipeId)
 	if err != nil {
 		return 0, err
@@ -112,7 +112,7 @@ func (s *RecipeService) GetAverageRecipeRating(recipeId int64) (float32 /* ratin
 		ratingSum += rating.Rating
 	}
 
-	return float32(ratingSum) / float32(len(ratings)), nil
+	return float64(ratingSum) / float64(len(ratings)), nil
 }
 
 func (s *RecipeService) SetUserRecipeRating(recipeId int64, ratingVal int, userId int64) error {

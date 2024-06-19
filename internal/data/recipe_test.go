@@ -346,7 +346,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 
 	type expected struct {
 		Ratings []*RecipeRating
-		Rating  float32
+		Rating  float64
 	}
 
 	testCases := []struct {
@@ -484,7 +484,7 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestRecipeProvider) int64
-		expect  float32
+		expect  float64
 	}{
 		{
 			name: "set existing recipe rating",

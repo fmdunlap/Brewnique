@@ -45,18 +45,30 @@ func (c *Comment) Equal(other *Comment) bool {
 
 }
 
+type CommentVote struct {
+	Id        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	CommentId int64     `json:"comment_id"`
+	UserId    int64     `json:"user_id"`
+	IsUpVote  bool      `json:"is_upvote"`
+}
+
 func ValidateComment(v *validator.Validator, comment Comment) {
 	v.Check(len(comment.Content) > 0, "content", "content is required")
 	v.Check(len(comment.Content) < MaxCommentContentLength, "content", "content is too long")
 }
 
 type CommentProvider interface {
-	PutComment(comment *Comment) (Comment, error)
+	AddCommentVote(commentId int64, userId int64, isUpVote bool) error
+	DeleteComment(id int64) error
+	DeleteCommentVote(commentId int64, userId int64) error
+	GetCommentVotes(commentId int64) ([]*CommentVote, error)
 	GetComment(id int64) (*Comment, error)
-	UpdateComment(comment *Comment) error
 	ListRecipeComments(recipeId int64) ([]Comment, error)
 	ListUserComments(userId int64) ([]Comment, error)
-	DeleteComment(id int64) error
+	PutComment(comment *Comment) (Comment, error)
+	UpdateComment(comment *Comment) error
 }
 
 type CommentService struct {
@@ -146,4 +158,30 @@ func (s *CommentService) ListRecipeComments(recipeId int64) ([]Comment, error) {
 
 func (s *CommentService) ListUserComments(userId int64) ([]Comment, error) {
 	return s.commentProvider.ListUserComments(userId)
+}
+
+func (s *CommentService) GetCommentScore(commentId int64) (int64, error) {
+	votes, err := s.commentProvider.GetCommentVotes(commentId)
+	if err != nil {
+		return 0, err
+	}
+
+	score := int64(0)
+	for _, vote := range votes {
+		if vote.IsUpVote {
+			score++
+		} else {
+			score--
+		}
+	}
+
+	return score, nil
+}
+
+func (s *CommentService) UpvoteComment(commentId int64, userId int64) error {
+	return s.commentProvider.AddCommentVote(commentId, userId, true)
+}
+
+func (s *CommentService) DownvoteComment(commentId int64, userId int64) error {
+	return s.commentProvider.AddCommentVote(commentId, userId, false)
 }

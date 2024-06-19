@@ -3,6 +3,7 @@ package psql
 import (
 	"brewnique.fdunlap.com/internal/data"
 	"database/sql"
+	"errors"
 	"log"
 	"time"
 )
@@ -40,6 +41,26 @@ func CommentRowFromComment(comment data.Comment) CommentDbRow {
 		AuthorId:  comment.AuthorId,
 		ParentId:  parentId,
 		Content:   comment.Content,
+	}
+}
+
+type CommentVoteDbRow struct {
+	Id        int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	CommentId int64
+	UserId    int64
+	IsUpVote  bool
+}
+
+func (c *CommentVoteDbRow) ToCommentVote() data.CommentVote {
+	return data.CommentVote{
+		Id:        c.Id,
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
+		CommentId: c.CommentId,
+		UserId:    c.UserId,
+		IsUpVote:  c.IsUpVote,
 	}
 }
 
@@ -172,5 +193,79 @@ func (p *PostgresProvider) ListUserComments(userId int64) ([]data.Comment, error
 
 func (p *PostgresProvider) DeleteComment(id int64) error {
 	_, err := p.db.Exec("DELETE FROM comments WHERE id = $1", id)
+	return err
+}
+
+func (p *PostgresProvider) GetCommentVote(commentId int64, userId int64) (*data.CommentVote, error) {
+	voteRow := CommentVoteDbRow{}
+	err := p.db.QueryRow("SELECT id, created_at, updated_at, comment_id, user_id, is_upvote FROM comment_votes WHERE comment_id = $1 AND user_id = $2", commentId, userId).Scan(
+		&voteRow.Id,
+		&voteRow.CreatedAt,
+		&voteRow.UpdatedAt,
+		&voteRow.CommentId,
+		&voteRow.UserId,
+		&voteRow.IsUpVote,
+	)
+	if err != nil {
+		return &data.CommentVote{}, err
+	}
+
+	vote := voteRow.ToCommentVote()
+
+	return &vote, nil
+}
+
+func (p *PostgresProvider) GetCommentVotes(commentId int64) ([]*data.CommentVote, error) {
+	votes := []*data.CommentVote{}
+	rows, err := p.db.Query("SELECT id, created_at, updated_at, comment_id, user_id, is_upvote FROM comment_votes WHERE comment_id = $1", commentId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var voteRow CommentVoteDbRow
+		err = rows.Scan(
+			&voteRow.Id,
+			&voteRow.CreatedAt,
+			&voteRow.UpdatedAt,
+			&voteRow.CommentId,
+			&voteRow.UserId,
+			&voteRow.IsUpVote,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		vote := voteRow.ToCommentVote()
+		votes = append(votes, &vote)
+	}
+
+	return votes, nil
+}
+
+func (p *PostgresProvider) AddCommentVote(commentId int64, userId int64, isUpVote bool) error {
+	// Check if the user already voted on this comment
+	vote, err := p.GetCommentVote(commentId, userId)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+
+	if vote != nil {
+		if vote.IsUpVote == isUpVote {
+			return nil
+		}
+		err = p.DeleteCommentVote(commentId, userId)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = p.db.Exec("INSERT INTO comment_votes (comment_id, user_id, is_upvote) VALUES ($1, $2, $3)", commentId, userId, isUpVote)
+	return err
+}
+
+func (p *PostgresProvider) DeleteCommentVote(commentId int64, userId int64) error {
+	_, err := p.db.Exec("DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2", commentId, userId)
 	return err
 }

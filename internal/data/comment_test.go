@@ -7,14 +7,16 @@ import (
 )
 
 type TestCommentProvider struct {
-	comments map[int64]*Comment
-	nextID   int64
+	comments     map[int64]*Comment
+	commentVotes map[int64]map[int64]*CommentVote // commentId -> userId -> vote
+	nextID       int64
 }
 
 func NewTestCommentProvider() *TestCommentProvider {
 	return &TestCommentProvider{
-		comments: make(map[int64]*Comment),
-		nextID:   1,
+		comments:     make(map[int64]*Comment),
+		commentVotes: make(map[int64]map[int64]*CommentVote),
+		nextID:       1,
 	}
 }
 
@@ -22,6 +24,7 @@ func (p *TestCommentProvider) PutComment(comment *Comment) (Comment, error) {
 	comment.Id = p.nextID
 	comment.CreatedAt = time.Now()
 	comment.UpdatedAt = time.Now()
+	p.commentVotes[comment.Id] = make(map[int64]*CommentVote)
 	p.comments[comment.Id] = comment
 	p.nextID++
 	return *comment, nil
@@ -82,6 +85,55 @@ func (p *TestCommentProvider) DeleteComment(id int64) error {
 	}
 	delete(p.comments, id)
 	return nil
+}
+
+func (p *TestCommentProvider) GetCommentVotes(commentId int64) ([]*CommentVote, error) {
+	if _, ok := p.commentVotes[commentId]; !ok {
+		return nil, fmt.Errorf("comment with ID %d not found", commentId)
+	}
+
+	votes := make([]*CommentVote, 0)
+	for _, commentVotes := range p.commentVotes[commentId] {
+		votes = append(votes, commentVotes)
+	}
+
+	return votes, nil
+}
+
+func (p *TestCommentProvider) AddCommentVote(commentId int64, userId int64, isUpVote bool) error {
+	if _, ok := p.commentVotes[commentId]; !ok {
+		p.commentVotes[commentId] = make(map[int64]*CommentVote)
+	}
+	p.commentVotes[commentId][userId] = &CommentVote{
+		Id:        p.nextID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		CommentId: commentId,
+		UserId:    userId,
+		IsUpVote:  isUpVote,
+	}
+	p.nextID++
+	return nil
+}
+
+func (p *TestCommentProvider) DeleteCommentVote(commentId int64, userId int64) error {
+	if _, ok := p.commentVotes[commentId]; !ok {
+		return fmt.Errorf("comment with ID %d not found", commentId)
+	}
+	delete(p.commentVotes[commentId], userId)
+	return nil
+}
+
+func (p *TestCommentProvider) GetCommentScore(commentId int64) (int64, error) {
+	score := int64(0)
+	for _, vote := range p.commentVotes[commentId] {
+		if vote.IsUpVote {
+			score++
+		} else {
+			score--
+		}
+	}
+	return score, nil
 }
 
 func (p *TestCommentProvider) TearDown() {
@@ -386,6 +438,103 @@ func TestCommentService_UpdateComment(t *testing.T) {
 			}
 			if !comment.Equal(tc.expect) {
 				t.Errorf("UpdateComment() = %v, want %v", comment, tc.expect)
+			}
+		})
+		provider.TearDown()
+	}
+}
+
+func TestCommentService_GetCommentScore(t *testing.T) {
+	type args struct {
+		commentId int64
+	}
+
+	testCases := []struct {
+		name    string
+		args    args
+		wantErr bool
+		preRun  func(t *testing.T, provider *TestCommentProvider)
+		expect  int64
+	}{
+		{
+			name: "get existing comment score",
+			args: args{
+				commentId: 1,
+			},
+			wantErr: false,
+			preRun: func(t *testing.T, provider *TestCommentProvider) {
+				provider.PutComment(&Comment{
+					Content:  "test content",
+					AuthorId: 1,
+					RecipeId: 1,
+				})
+				provider.AddCommentVote(1, 1, true)
+				provider.AddCommentVote(1, 2, false)
+				provider.AddCommentVote(1, 3, true)
+				provider.AddCommentVote(1, 4, false)
+				provider.AddCommentVote(1, 5, true)
+				provider.AddCommentVote(1, 6, true)
+			},
+			expect: 2,
+		},
+		{
+			name: "get non-existing comment score",
+			args: args{
+				commentId: 2,
+			},
+			wantErr: true,
+			expect:  0,
+		},
+		{
+			name: "get unrated comment score",
+			args: args{
+				commentId: 1,
+			},
+			wantErr: false,
+			preRun: func(t *testing.T, provider *TestCommentProvider) {
+				provider.PutComment(&Comment{
+					Content:  "test content",
+					AuthorId: 1,
+					RecipeId: 1,
+				})
+			},
+			expect: 0,
+		},
+		{
+			name: "get score with multiple downvotes",
+			args: args{
+				commentId: 1,
+			},
+			wantErr: false,
+			preRun: func(t *testing.T, provider *TestCommentProvider) {
+				provider.PutComment(&Comment{
+					Content:  "test content",
+					AuthorId: 1,
+					RecipeId: 1,
+				})
+				provider.AddCommentVote(1, 1, false)
+				provider.AddCommentVote(1, 2, false)
+				provider.AddCommentVote(1, 3, false)
+			},
+			expect: -3,
+		},
+	}
+
+	for _, tc := range testCases {
+		provider := NewTestCommentProvider()
+		service := NewCommentService(provider)
+
+		if tc.preRun != nil {
+			tc.preRun(t, provider)
+		}
+		t.Run(tc.name, func(t *testing.T) {
+			score, err := service.GetCommentScore(tc.args.commentId)
+			if (err != nil) != tc.wantErr {
+				t.Errorf("GetCommentScore() error = %v, wantErr %v", err, tc.wantErr)
+				return
+			}
+			if score != tc.expect {
+				t.Errorf("GetCommentScore() = %v, want %v", score, tc.expect)
 			}
 		})
 		provider.TearDown()
