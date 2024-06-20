@@ -3,6 +3,7 @@ package main
 import (
 	"brewnique.fdunlap.com/internal/data"
 	"brewnique.fdunlap.com/internal/extern/psql"
+	"brewnique.fdunlap.com/internal/jsonlog"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,14 +20,14 @@ type Services struct {
 
 type application struct {
 	config   applicationConfig
-	logger   *log.Logger
+	logger   *jsonlog.Logger
 	Services Services
 }
 
 func main() {
 	cfg := loadConfig()
 
-	logger := log.New(os.Stdout, "", log.LstdFlags)
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
 	dbProvider := psql.NewPsqlProvider(psql.PsqlConfig{
 		Dsn:             cfg.database.dsn,
 		MaxOpenConns:    cfg.database.maxOpenConns,
@@ -50,11 +51,12 @@ func main() {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
+		ErrorLog:     log.New(logger, "", 0),
 		IdleTimeout:  cfg.http.idleTimeout,
 		ReadTimeout:  cfg.http.readTimeout,
 		WriteTimeout: cfg.http.writeTimeout,
 	}
 
 	err := server.ListenAndServe()
-	logger.Fatal(err)
+	logger.PrintFatal(err, nil)
 }
