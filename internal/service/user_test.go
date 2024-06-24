@@ -2,9 +2,7 @@ package service
 
 import (
 	"brewnique.fdunlap.com/internal/data"
-	"brewnique.fdunlap.com/internal/validator"
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -674,19 +672,4 @@ func TestUserService_DeleteUser(t *testing.T) {
 		})
 		provider.TearDown()
 	}
-}
-
-func TestUserService_GenerateUserName(t *testing.T) {
-	NameRegex := regexp.MustCompile("^[a-zA-Z0-9]+$")
-
-	t.Run("should generate a random name", func(t *testing.T) {
-		service := NewUserService(nil)
-		name := service.GenerateUserName()
-		if len(name) == 0 {
-			t.Errorf("name should not be empty")
-		}
-		if !validator.Matches(name, NameRegex) {
-			t.Errorf("name should match regex %s", NameRegex)
-		}
-	})
 }

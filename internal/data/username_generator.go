@@ -12,7 +12,7 @@ var adjectiveList string
 //go:embed embed/noun_list.txt
 var nounList string
 
-func GenerateUserName() string {
+func GenerateUsername() string {
 	adjectives := strings.Split(adjectiveList, "\n")
 	nouns := strings.Split(nounList, "\n")
 

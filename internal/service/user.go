@@ -36,7 +36,7 @@ func (s *UserService) CreateNewUser(email string, username string) (*data.User, 
 
 	if len(username) == 0 {
 		for {
-			username = s.GenerateUserName()
+			username = data.GenerateUsername()
 			if _, err := s.userProvider.GetUserByUsername(username); err != nil {
 				break
 			}
