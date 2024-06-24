@@ -9,9 +9,17 @@ this right now so this is sufficient for tracking purposes.
 	[ ] Recipes
 	[ ] Users
 	[ ] Comments
-[ ] Filtering
+[ ] Filtering / Search
 	[ ] Recipes
-	[ ] Users (?)
+		[ ] Name
+		[ ] Author
+		[ ] Category
+		[ ] Subcategory
+		[ ] Tags
+		[ ] Attributes
+	[ ] Users (?) // Not sure if this is needed
+		[ ] Number of recipes
+		[ ] Number of comments
 [ ] Authentication
 [ ] Authorization Middleware
 	[ ] Protect Edits to owned...
@@ -25,5 +33,7 @@ this right now so this is sufficient for tracking purposes.
 		  other. The main binary, and a test executor. Better still would be if
 		  I can get this spun up in docker containers so we're executing in a
 		  prod-like environment.
+[ ] Recipe soft deletes
+[ ] Recipe versioning
 
 ## Frontend
