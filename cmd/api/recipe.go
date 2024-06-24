@@ -157,3 +157,14 @@ func (app *application) listAttributeValuesHandler(w http.ResponseWriter, r *htt
 	w.WriteHeader(http.StatusOK)
 	app.writeJson(w, http.StatusOK, attributeValues, nil)
 }
+
+func (app *application) listTagsHandler(w http.ResponseWriter, r *http.Request) {
+	tags, err := app.Services.Recipes.GetTags()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, tags, nil)
+}

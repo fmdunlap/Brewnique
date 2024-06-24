@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func (p *PostgresProvider) GetUser(id int64) (*data.User, error) {
+func (p PostgresProvider) GetUser(id int64) (*data.User, error) {
 	result := p.db.QueryRow("SELECT id, email, username, created_at, updated_at FROM users WHERE id = $1", id)
 
 	u := data.User{}
@@ -19,7 +19,7 @@ func (p *PostgresProvider) GetUser(id int64) (*data.User, error) {
 	return &u, nil
 }
 
-func (p *PostgresProvider) GetUserByEmail(email string) (*data.User, error) {
+func (p PostgresProvider) GetUserByEmail(email string) (*data.User, error) {
 	result := p.db.QueryRow("SELECT id, email, username, created_at, updated_at FROM users WHERE email = $1", email)
 
 	u := data.User{}
@@ -30,7 +30,7 @@ func (p *PostgresProvider) GetUserByEmail(email string) (*data.User, error) {
 	return &u, nil
 }
 
-func (p *PostgresProvider) GetUserByUsername(userName string) (*data.User, error) {
+func (p PostgresProvider) GetUserByUsername(userName string) (*data.User, error) {
 	result := p.db.QueryRow("SELECT id, email, username, created_at, updated_at FROM users WHERE username = $1", userName)
 
 	u := data.User{}
@@ -41,7 +41,7 @@ func (p *PostgresProvider) GetUserByUsername(userName string) (*data.User, error
 	return &u, nil
 }
 
-func (p *PostgresProvider) ListUsers() ([]*data.User, error) {
+func (p PostgresProvider) ListUsers() ([]*data.User, error) {
 	rows, err := p.db.Query("SELECT id, email, username, created_at, updated_at FROM users")
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (p *PostgresProvider) ListUsers() ([]*data.User, error) {
 	return users, nil
 }
 
-func (p *PostgresProvider) PutUser(user *data.User) (*data.User, error) {
+func (p PostgresProvider) PutUser(user *data.User) (*data.User, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (p *PostgresProvider) PutUser(user *data.User) (*data.User, error) {
 	return &insertedUser, nil
 }
 
-func (p *PostgresProvider) UpdateUser(user *data.User) (*data.User, error) {
+func (p PostgresProvider) UpdateUser(user *data.User) (*data.User, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (p *PostgresProvider) UpdateUser(user *data.User) (*data.User, error) {
 	return &updatedUser, nil
 }
 
-func (p *PostgresProvider) DeleteUser(id int64) error {
+func (p PostgresProvider) DeleteUser(id int64) error {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return err

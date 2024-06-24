@@ -36,7 +36,7 @@ func (a *AttributeValueDbRow) ToAttributeValue() data.AttributeValue {
 	}
 }
 
-func (p *PostgresProvider) GetAttribute(id int64) (*data.Attribute, error) {
+func (p PostgresProvider) GetAttribute(id int64) (*data.Attribute, error) {
 	res := p.db.QueryRow("SELECT id, name, type FROM attributes WHERE id = $1", id)
 
 	attributeRow := AttributeDbRow{}
@@ -50,7 +50,7 @@ func (p *PostgresProvider) GetAttribute(id int64) (*data.Attribute, error) {
 	return &attribute, nil
 }
 
-func (p *PostgresProvider) GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error) {
+func (p PostgresProvider) GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error) {
 	rows, err := p.db.Query("SELECT id, attribute_id, value FROM attribute_values WHERE attribute_id = $1", attributeId)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (p *PostgresProvider) GetAttributeValues(attributeId int64) ([]*data.Attrib
 	return attributeValues, nil
 }
 
-func (p *PostgresProvider) GetAttributes() ([]*data.Attribute, error) {
+func (p PostgresProvider) GetAttributes() ([]*data.Attribute, error) {
 	rows, err := p.db.Query("SELECT id, name, type FROM attributes")
 	if err != nil {
 		return nil, err

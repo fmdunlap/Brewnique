@@ -42,12 +42,32 @@ type RecipeRatingDbRow struct {
 
 func (r *RecipeRatingDbRow) ToRecipeRating() data.RecipeRating {
 	return data.RecipeRating{
-		Id:        r.Id,
-		CreatedAt: r.CreatedAt,
-		UpdatedAt: r.UpdatedAt,
-		UserId:    r.UserId,
-		RecipeId:  r.RecipeId,
-		Rating:    r.Rating,
+		Id:       r.Id,
+		UserId:   r.UserId,
+		RecipeId: r.RecipeId,
+		Rating:   r.Rating,
+	}
+}
+
+type RecipeTagDbRow struct {
+	Id       int64
+	RecipeId int64
+	TagId    int64
+}
+
+type RecipeTagDbRowWithName struct {
+	Id       int64
+	RecipeId int64
+	TagId    int64
+	Name     string
+}
+
+func (r *RecipeTagDbRowWithName) ToRecipeTag() data.RecipeTag {
+	return data.RecipeTag{
+		Id:       r.Id,
+		RecipeId: r.RecipeId,
+		TagId:    r.TagId,
+		Name:     r.Name,
 	}
 }
 
@@ -116,7 +136,7 @@ func (p PostgresProvider) ListRecipesByAuthorId(userId int64) ([]*data.Recipe, e
 	return recipes, nil
 }
 
-func (p *PostgresProvider) PutRecipe(recipe *data.Recipe) (*data.Recipe, error) {
+func (p PostgresProvider) PutRecipe(recipe *data.Recipe) (*data.Recipe, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -154,7 +174,7 @@ func (p *PostgresProvider) PutRecipe(recipe *data.Recipe) (*data.Recipe, error) 
 	return &recipeResult, nil
 }
 
-func (p *PostgresProvider) UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error) {
+func (p PostgresProvider) UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -324,4 +344,66 @@ func (p PostgresProvider) SetUserRecipeRating(recipeId int64, ratingVal int, use
 
 	rating := insertedRating.ToRecipeRating()
 	return &rating, nil
+}
+
+func (p PostgresProvider) GetRecipeTags(recipeId int64) ([]*data.RecipeTag, error) {
+	// Join the recipe_tags table with the tags table to get the tag name
+	rows, err := p.db.Query("SELECT id, recipe_id, tag_id, name FROM recipe_tags JOIN tags ON recipe_tags.tag_id = tags.id WHERE recipe_id = $1", recipeId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var recipeTags []*data.RecipeTag
+	for rows.Next() {
+		var recipeTagRow RecipeTagDbRowWithName
+		err = rows.Scan(
+			&recipeTagRow.Id,
+			&recipeTagRow.RecipeId,
+			&recipeTagRow.TagId,
+			&recipeTagRow.Name,
+		)
+		if err != nil {
+			return nil, err
+		}
+		recipeTag := recipeTagRow.ToRecipeTag()
+		recipeTags = append(recipeTags, &recipeTag)
+	}
+
+	return recipeTags, nil
+}
+
+func (p PostgresProvider) PutRecipeTags(recipeId int64, tags []*data.RecipeTag) error {
+	tx, err := p.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Clear out any existing tags for this recipe
+	_, err = tx.Exec("DELETE FROM recipe_tags WHERE recipe_id = $1", recipeId)
+	if err != nil {
+		return err
+	}
+
+	// Insert the new tags
+	for _, tag := range tags {
+		insertedRecipeTag := RecipeTagDbRow{
+			RecipeId: recipeId,
+			TagId:    tag.TagId,
+		}
+		err = tx.QueryRow("INSERT INTO recipe_tags (recipe_id, tag_id) VALUES ($1, $2) RETURNING id, recipe_id, tag_id",
+			recipeId,
+			tag.TagId,
+		).Scan(
+			&insertedRecipeTag.Id,
+			&insertedRecipeTag.RecipeId,
+			&insertedRecipeTag.TagId,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

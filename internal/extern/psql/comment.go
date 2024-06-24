@@ -64,7 +64,7 @@ func (c *CommentVoteDbRow) ToCommentVote() data.CommentVote {
 	}
 }
 
-func (p *PostgresProvider) PutComment(comment *data.Comment) (data.Comment, error) {
+func (p PostgresProvider) PutComment(comment *data.Comment) (data.Comment, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return data.Comment{}, err
@@ -103,7 +103,7 @@ func (p *PostgresProvider) PutComment(comment *data.Comment) (data.Comment, erro
 	return insertedComment, nil
 }
 
-func (p *PostgresProvider) GetComment(id int64) (*data.Comment, error) {
+func (p PostgresProvider) GetComment(id int64) (*data.Comment, error) {
 	commentRow := CommentDbRow{}
 	err := p.db.QueryRow("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE id = $1", id).Scan(&commentRow.Id, &commentRow.CreatedAt, &commentRow.UpdatedAt, &commentRow.RecipeId, &commentRow.AuthorId, &commentRow.ParentId, &commentRow.Content)
 	if err != nil {
@@ -114,7 +114,7 @@ func (p *PostgresProvider) GetComment(id int64) (*data.Comment, error) {
 	return &comment, nil
 }
 
-func (p *PostgresProvider) UpdateComment(comment *data.Comment) error {
+func (p PostgresProvider) UpdateComment(comment *data.Comment) error {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (p *PostgresProvider) UpdateComment(comment *data.Comment) error {
 	return tx.Commit()
 }
 
-func (p *PostgresProvider) ListRecipeComments(recipeId int64) ([]data.Comment, error) {
+func (p PostgresProvider) ListRecipeComments(recipeId int64) ([]data.Comment, error) {
 	commentRows := []CommentDbRow{}
 	rows, err := p.db.Query("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE recipe_id = $1", recipeId)
 	if err != nil {
@@ -158,7 +158,7 @@ func (p *PostgresProvider) ListRecipeComments(recipeId int64) ([]data.Comment, e
 	return comments, nil
 }
 
-func (p *PostgresProvider) ListUserComments(userId int64) ([]data.Comment, error) {
+func (p PostgresProvider) ListUserComments(userId int64) ([]data.Comment, error) {
 	commentDbRows := []CommentDbRow{}
 	rows, err := p.db.Query("SELECT id, created_at, updated_at, recipe_id, author_id, parent_id, content FROM comments WHERE author_id = $1", userId)
 	if err != nil {
@@ -191,12 +191,12 @@ func (p *PostgresProvider) ListUserComments(userId int64) ([]data.Comment, error
 	return comments, nil
 }
 
-func (p *PostgresProvider) DeleteComment(id int64) error {
+func (p PostgresProvider) DeleteComment(id int64) error {
 	_, err := p.db.Exec("DELETE FROM comments WHERE id = $1", id)
 	return err
 }
 
-func (p *PostgresProvider) GetCommentVote(commentId int64, userId int64) (*data.CommentVote, error) {
+func (p PostgresProvider) GetCommentVote(commentId int64, userId int64) (*data.CommentVote, error) {
 	voteRow := CommentVoteDbRow{}
 	err := p.db.QueryRow("SELECT id, created_at, updated_at, comment_id, user_id, is_upvote FROM comment_votes WHERE comment_id = $1 AND user_id = $2", commentId, userId).Scan(
 		&voteRow.Id,
@@ -215,7 +215,7 @@ func (p *PostgresProvider) GetCommentVote(commentId int64, userId int64) (*data.
 	return &vote, nil
 }
 
-func (p *PostgresProvider) GetCommentVotes(commentId int64) ([]*data.CommentVote, error) {
+func (p PostgresProvider) GetCommentVotes(commentId int64) ([]*data.CommentVote, error) {
 	votes := []*data.CommentVote{}
 	rows, err := p.db.Query("SELECT id, created_at, updated_at, comment_id, user_id, is_upvote FROM comment_votes WHERE comment_id = $1", commentId)
 	if err != nil {
@@ -244,7 +244,7 @@ func (p *PostgresProvider) GetCommentVotes(commentId int64) ([]*data.CommentVote
 	return votes, nil
 }
 
-func (p *PostgresProvider) AddCommentVote(commentId int64, userId int64, isUpVote bool) error {
+func (p PostgresProvider) AddCommentVote(commentId int64, userId int64, isUpVote bool) error {
 	// Check if the user already voted on this comment
 	vote, err := p.GetCommentVote(commentId, userId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -265,7 +265,7 @@ func (p *PostgresProvider) AddCommentVote(commentId int64, userId int64, isUpVot
 	return err
 }
 
-func (p *PostgresProvider) DeleteCommentVote(commentId int64, userId int64) error {
+func (p PostgresProvider) DeleteCommentVote(commentId int64, userId int64) error {
 	_, err := p.db.Exec("DELETE FROM comment_votes WHERE comment_id = $1 AND user_id = $2", commentId, userId)
 	return err
 }

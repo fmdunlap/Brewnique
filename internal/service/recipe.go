@@ -19,6 +19,9 @@ type RecipeProvider interface {
 	UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error)
 	GetAttributes() ([]*data.Attribute, error)
 	GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error)
+	GetTags() ([]*data.Tag, error)
+	GetRecipeTags(recipeId int64) ([]*data.RecipeTag, error)
+	PutRecipeTags(recipeId int64, tags []*data.RecipeTag) error
 }
 
 type RecipeService struct {
@@ -126,4 +129,8 @@ func (s *RecipeService) GetAttributes() ([]*data.Attribute, error) {
 
 func (s *RecipeService) GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error) {
 	return s.recipeProvider.GetAttributeValues(attributeId)
+}
+
+func (s *RecipeService) GetTags() ([]*data.Tag, error) {
+	return s.recipeProvider.GetTags()
 }

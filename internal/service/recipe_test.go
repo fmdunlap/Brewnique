@@ -420,13 +420,27 @@ type TestRecipeProvider struct {
 	subcategories   map[int64]*data.RecipeCategory
 	attributes      map[int64]*data.Attribute
 	attributeValues map[int64]*data.AttributeValue
+	tags            []*data.Tag
+	recipeTags      map[int64][]*data.RecipeTag
 	nextID          int64
 }
 
 func NewTestRecipeProvider() *TestRecipeProvider {
+	testTags := []*data.Tag{
+		{
+			Id:   1,
+			Name: "Tag1",
+		},
+		{
+			Id:   2,
+			Name: "Tag2",
+		},
+	}
+
 	return &TestRecipeProvider{
 		recipes:       make(map[int64]*data.Recipe),
 		recipeRatings: make(map[int64]map[int64]*data.RecipeRating),
+		tags:          testTags,
 		nextID:        1,
 	}
 }
@@ -532,19 +546,16 @@ func (p *TestRecipeProvider) SetUserRecipeRating(recipeId int64, ratingVal int, 
 	existingRating, ok := p.recipeRatings[recipeId][userId]
 	if !ok {
 		newRating := data.RecipeRating{
-			Id:        p.nextID,
-			RecipeId:  recipeId,
-			UserId:    userId,
-			Rating:    ratingVal,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Id:       p.nextID,
+			RecipeId: recipeId,
+			UserId:   userId,
+			Rating:   ratingVal,
 		}
 		p.recipeRatings[recipeId][userId] = &newRating
 		p.nextID++
 		return &newRating, nil
 	}
 	existingRating.Rating = ratingVal
-	existingRating.UpdatedAt = time.Now()
 	p.recipeRatings[recipeId][userId] = existingRating
 
 	return existingRating, nil
@@ -595,6 +606,34 @@ func (p *TestRecipeProvider) GetAttributeValues(attributeId int64) ([]*data.Attr
 		}
 	}
 	return attributeValues, nil
+}
+
+func (p *TestRecipeProvider) GetTags() ([]*data.Tag, error) {
+	var tags []*data.Tag
+	for _, tag := range p.tags {
+		tags = append(tags, tag)
+	}
+	return tags, nil
+}
+
+func (p *TestRecipeProvider) GetRecipeTags(recipeId int64) ([]*data.RecipeTag, error) {
+	var tags []*data.RecipeTag
+	recipeTags, ok := p.recipeTags[recipeId]
+	if !ok {
+		return tags, nil
+	}
+	for _, tag := range recipeTags {
+		tags = append(tags, tag)
+	}
+	return tags, nil
+}
+
+func (p *TestRecipeProvider) PutRecipeTags(recipeId int64, tags []*data.RecipeTag) error {
+	if _, ok := p.recipeTags[recipeId]; !ok {
+		p.recipeTags[recipeId] = make([]*data.RecipeTag, 0)
+	}
+	p.recipeTags[recipeId] = tags
+	return nil
 }
 
 func (p *TestRecipeProvider) TearDown() {

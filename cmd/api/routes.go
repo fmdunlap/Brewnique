@@ -58,7 +58,8 @@ func (app *application) addRecipeRoutes(r chi.Router) {
 		r.Get("/categories", app.listCategoriesHandler)
 		r.Get("/categories/{id}/subcategories", app.listSubcategoriesHandler)
 		r.Get("/attributes", app.listAttributesHandler)
-		r.Get("/attributes/{id}/values", app.listAttributeValuesHandler)
+		r.Get("/attributes/{id}", app.listAttributeValuesHandler)
+		r.Get("/tags", app.listTagsHandler)
 	})
 }
 

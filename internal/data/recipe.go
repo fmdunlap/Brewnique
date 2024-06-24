@@ -34,18 +34,17 @@ type RecipeCategory struct {
 }
 
 type RecipeRating struct {
-	Id        int64     `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	UserId    int64     `json:"user_id"`
-	RecipeId  int64     `json:"recipe_id"`
-	Rating    int       `json:"rating"`
+	Id       int64 `json:"id"`
+	UserId   int64 `json:"user_id"`
+	RecipeId int64 `json:"recipe_id"`
+	Rating   int   `json:"rating"`
 }
 
 type RecipeTag struct {
-	Id       int64 `json:"id"`
-	RecipeId int64 `json:"recipe_id"`
-	TagId    int64 `json:"tag_id"`
+	Id       int64  `json:"id"`
+	RecipeId int64  `json:"recipe_id"`
+	TagId    int64  `json:"tag_id"`
+	Name     string `json:"name"`
 }
 
 func ValidateRecipe(v *validator.Validator, recipe Recipe) {

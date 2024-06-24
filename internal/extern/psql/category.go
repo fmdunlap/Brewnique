@@ -16,7 +16,7 @@ func (c *CategoryDbRow) ToCategory() data.RecipeCategory {
 	}
 }
 
-func (p *PostgresProvider) GetCategory(id int64) (*data.RecipeCategory, error) {
+func (p PostgresProvider) GetCategory(id int64) (*data.RecipeCategory, error) {
 	res := p.db.QueryRow("SELECT id, name, parent_id FROM categories WHERE id = $1", id)
 
 	categoryRow := CategoryDbRow{}
@@ -30,7 +30,7 @@ func (p *PostgresProvider) GetCategory(id int64) (*data.RecipeCategory, error) {
 	return &category, nil
 }
 
-func (p *PostgresProvider) ListCategories() ([]*data.RecipeCategory, error) {
+func (p PostgresProvider) ListCategories() ([]*data.RecipeCategory, error) {
 	rows, err := p.db.Query("SELECT id, name, parent_id FROM categories WHERE parent_id IS NULL")
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (p *PostgresProvider) ListCategories() ([]*data.RecipeCategory, error) {
 	return categories, nil
 }
 
-func (p *PostgresProvider) ListSubcategories(categoryId int64) ([]*data.RecipeCategory, error) {
+func (p PostgresProvider) ListSubcategories(categoryId int64) ([]*data.RecipeCategory, error) {
 	rows, err := p.db.Query("SELECT id, name, parent_id FROM categories WHERE parent_id = $1", categoryId)
 	if err != nil {
 		return nil, err

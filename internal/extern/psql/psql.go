@@ -43,6 +43,6 @@ func NewPsqlProvider(config PsqlConfig) *PostgresProvider {
 	}
 }
 
-func (p *PostgresProvider) Close() {
+func (p PostgresProvider) Close() {
 	p.db.Close()
 }
