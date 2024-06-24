@@ -20,6 +20,15 @@ type Comment struct {
 	Content   string    `json:"content"`
 }
 
+type CommentVote struct {
+	Id        int64     `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	CommentId int64     `json:"comment_id"`
+	UserId    int64     `json:"user_id"`
+	IsUpVote  bool      `json:"is_upvote"`
+}
+
 func (c *Comment) String() string {
 	return fmt.Sprintf("Comment{Id: %d, Content: %s, AuthorId: %d, RecipeId: %d, ParentId: %d}", c.Id, c.Content, c.AuthorId, c.RecipeId, c.ParentId)
 }
