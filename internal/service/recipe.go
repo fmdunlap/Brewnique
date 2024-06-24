@@ -105,7 +105,23 @@ func (s *RecipeService) ListSubcategories(categoryId int64) ([]*data.RecipeCateg
 }
 
 func (s *RecipeService) GetAttributes() ([]*data.Attribute, error) {
-	return s.recipeProvider.GetAttributes()
+	attributes, err := s.recipeProvider.GetAttributes()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, attribute := range attributes {
+		attribute.Values = make([]data.AttributeValue, 0)
+		attributeVals, err := s.recipeProvider.GetAttributeValues(attribute.Id)
+		if err != nil {
+			return nil, err
+		}
+		for _, attributeVal := range attributeVals {
+			attribute.Values = append(attribute.Values, *attributeVal)
+		}
+	}
+
+	return attributes, nil
 }
 
 func (s *RecipeService) GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error) {

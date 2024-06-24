@@ -39,7 +39,7 @@ func (app *application) routes() chi.Router {
 }
 
 func (app *application) addUserRoutes(r chi.Router) {
-	r.Route("/user", func(r chi.Router) {
+	r.Route("/users", func(r chi.Router) {
 		r.Get("/", app.listUsersHandler)
 		r.Get("/{id}", app.getUserHandler)
 		r.Get("/email/{email}", app.getUserByEmailHandler)
@@ -50,7 +50,7 @@ func (app *application) addUserRoutes(r chi.Router) {
 }
 
 func (app *application) addRecipeRoutes(r chi.Router) {
-	r.Route("/recipe", func(r chi.Router) {
+	r.Route("/recipes", func(r chi.Router) {
 		r.Get("/", app.listRecipesHandler)
 		r.Get("/{id}", app.getRecipeHandler)
 		r.Post("/", app.newRecipeHandler)
@@ -63,7 +63,7 @@ func (app *application) addRecipeRoutes(r chi.Router) {
 }
 
 func (app *application) addCommentRoutes(r chi.Router) {
-	r.Route("/comment", func(r chi.Router) {
+	r.Route("/comments", func(r chi.Router) {
 		r.Get("/{id}", app.getCommentHandler)
 		r.Get("/recipe/{id}", app.listRecipeCommentsHandler)
 		r.Post("/", app.newCommentHandler)
