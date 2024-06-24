@@ -1,6 +1,7 @@
-package data
+package service
 
 import (
+	"brewnique.fdunlap.com/internal/data"
 	"brewnique.fdunlap.com/internal/validator"
 	"fmt"
 	"regexp"
@@ -10,18 +11,18 @@ import (
 )
 
 type TestUserProvider struct {
-	users  map[int64]*User
+	users  map[int64]*data.User
 	nextID int64
 }
 
 func NewTestUserProvider() *TestUserProvider {
 	return &TestUserProvider{
-		users:  make(map[int64]*User),
+		users:  make(map[int64]*data.User),
 		nextID: 1,
 	}
 }
 
-func (p *TestUserProvider) PutUser(user *User) (*User, error) {
+func (p *TestUserProvider) PutUser(user *data.User) (*data.User, error) {
 	// Check for DB constraints
 	for _, existingUser := range p.users {
 		if existingUser.Email == user.Email {
@@ -40,7 +41,7 @@ func (p *TestUserProvider) PutUser(user *User) (*User, error) {
 	return user, nil
 }
 
-func (p *TestUserProvider) GetUser(id int64) (*User, error) {
+func (p *TestUserProvider) GetUser(id int64) (*data.User, error) {
 	user, ok := p.users[id]
 	if !ok {
 		return nil, fmt.Errorf("user with ID %d not found", id)
@@ -48,7 +49,7 @@ func (p *TestUserProvider) GetUser(id int64) (*User, error) {
 	return user, nil
 }
 
-func (p *TestUserProvider) GetUserByEmail(email string) (*User, error) {
+func (p *TestUserProvider) GetUserByEmail(email string) (*data.User, error) {
 	for _, user := range p.users {
 		if user.Email == email {
 			return user, nil
@@ -58,7 +59,7 @@ func (p *TestUserProvider) GetUserByEmail(email string) (*User, error) {
 	return nil, fmt.Errorf("user with email %s not found", email)
 }
 
-func (p *TestUserProvider) GetUserByUsername(userName string) (*User, error) {
+func (p *TestUserProvider) GetUserByUsername(userName string) (*data.User, error) {
 	for _, user := range p.users {
 		if user.Username == userName {
 			return user, nil
@@ -68,8 +69,8 @@ func (p *TestUserProvider) GetUserByUsername(userName string) (*User, error) {
 	return nil, fmt.Errorf("user with username %s not found", userName)
 }
 
-func (p *TestUserProvider) ListUsers() ([]*User, error) {
-	var users []*User
+func (p *TestUserProvider) ListUsers() ([]*data.User, error) {
+	var users []*data.User
 	for _, user := range p.users {
 		users = append(users, user)
 	}
@@ -77,7 +78,7 @@ func (p *TestUserProvider) ListUsers() ([]*User, error) {
 	return users, nil
 }
 
-func (p *TestUserProvider) UpdateUser(user *User) (*User, error) {
+func (p *TestUserProvider) UpdateUser(user *data.User) (*data.User, error) {
 	if _, ok := p.users[user.Id]; !ok {
 		return nil, fmt.Errorf("user with ID %d not found", user.Id)
 	}
@@ -102,7 +103,7 @@ func (p *TestUserProvider) DeleteUser(id int64) error {
 
 func (p *TestUserProvider) TearDown() {
 	p.nextID = 1
-	p.users = make(map[int64]*User)
+	p.users = make(map[int64]*data.User)
 }
 
 func TestUserService_CreateNewUser(t *testing.T) {
@@ -117,7 +118,7 @@ func TestUserService_CreateNewUser(t *testing.T) {
 		generateUsername bool
 		wantErr          bool
 		preRun           func(t *testing.T, provider *TestUserProvider)
-		expect           *User
+		expect           *data.User
 	}{
 		{
 			name: "create new user",
@@ -126,7 +127,7 @@ func TestUserService_CreateNewUser(t *testing.T) {
 				username: "test",
 			},
 			wantErr: false,
-			expect: &User{
+			expect: &data.User{
 				Id:       1,
 				Email:    "test@example.com",
 				Username: "test",
@@ -141,7 +142,7 @@ func TestUserService_CreateNewUser(t *testing.T) {
 			wantErr: true,
 			expect:  nil,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "same",
 				})
@@ -156,7 +157,7 @@ func TestUserService_CreateNewUser(t *testing.T) {
 			wantErr: true,
 			expect:  nil,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "same@example.com",
 					Username: "test",
 				})
@@ -188,7 +189,7 @@ func TestUserService_CreateNewUser(t *testing.T) {
 			},
 			generateUsername: true,
 			wantErr:          false,
-			expect: &User{
+			expect: &data.User{
 				Id:       1,
 				Email:    "test@example.com",
 				Username: "",
@@ -233,7 +234,7 @@ func TestUserService_GetUser(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestUserProvider)
-		expect  *User
+		expect  *data.User
 	}{
 		{
 			name: "get existing user",
@@ -242,12 +243,12 @@ func TestUserService_GetUser(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
 			},
-			expect: &User{
+			expect: &data.User{
 				Id:       1,
 				Email:    "test@example.com",
 				Username: "test",
@@ -294,7 +295,7 @@ func TestUserService_GetUserByEmail(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestUserProvider)
-		expect  *User
+		expect  *data.User
 	}{
 		{
 			name: "get existing user",
@@ -303,12 +304,12 @@ func TestUserService_GetUserByEmail(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
 			},
-			expect: &User{
+			expect: &data.User{
 				Id:       1,
 				Email:    "test@example.com",
 				Username: "test",
@@ -355,7 +356,7 @@ func TestUserService_GetUserByUsername(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestUserProvider)
-		expect  *User
+		expect  *data.User
 	}{
 		{
 			name: "get existing user",
@@ -364,12 +365,12 @@ func TestUserService_GetUserByUsername(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
 			},
-			expect: &User{
+			expect: &data.User{
 				Id:       1,
 				Email:    "test@example.com",
 				Username: "test",
@@ -411,21 +412,21 @@ func TestUserService_ListUsers(t *testing.T) {
 		name    string
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestUserProvider)
-		expect  []*User
+		expect  []*data.User
 	}{
 		{
 			name: "list existing users",
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test2@example.com",
 					Username: "test2",
 				})
 			},
-			expect: []*User{
+			expect: []*data.User{
 				{
 					Id:       1,
 					Email:    "test@example.com",
@@ -472,7 +473,7 @@ func TestUserService_ListUsers(t *testing.T) {
 
 func TestUserService_UpdateUser(t *testing.T) {
 	type args struct {
-		user *User
+		user *data.User
 	}
 
 	testCases := []struct {
@@ -480,12 +481,12 @@ func TestUserService_UpdateUser(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestUserProvider)
-		expect  *User
+		expect  *data.User
 	}{
 		{
 			name: "update existing user",
 			args: args{
-				&User{
+				&data.User{
 					Id:       1,
 					Email:    "new@example.com",
 					Username: "new",
@@ -493,12 +494,12 @@ func TestUserService_UpdateUser(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
 			},
-			expect: &User{
+			expect: &data.User{
 				Id:       1,
 				Email:    "new@example.com",
 				Username: "new",
@@ -507,7 +508,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		{
 			name: "update non-existing user",
 			args: args{
-				&User{
+				&data.User{
 					Id:       2,
 					Email:    "new@example.com",
 					Username: "new",
@@ -519,7 +520,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		{
 			name: "update user with 0 id",
 			args: args{
-				&User{
+				&data.User{
 					Id:       0,
 					Email:    "new@example.com",
 					Username: "new",
@@ -531,7 +532,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		{
 			name: "update user with empty email",
 			args: args{
-				&User{
+				&data.User{
 					Id:       1,
 					Email:    "",
 					Username: "new",
@@ -543,7 +544,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		{
 			name: "update user with empty username",
 			args: args{
-				&User{
+				&data.User{
 					Id:       1,
 					Email:    "new@example.com",
 					Username: "",
@@ -552,7 +553,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 			wantErr: true,
 			expect:  nil,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
@@ -561,7 +562,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		{
 			name: "update user with too long username",
 			args: args{
-				&User{
+				&data.User{
 					Id:       1,
 					Email:    "new@example.com",
 					Username: strings.Repeat("toolong", 10),
@@ -570,7 +571,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 			wantErr: true,
 			expect:  nil,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
@@ -579,7 +580,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		{
 			name: "update user with invalid email",
 			args: args{
-				&User{
+				&data.User{
 					Id:       1,
 					Email:    "invalid",
 					Username: "new",
@@ -588,7 +589,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 			wantErr: true,
 			expect:  nil,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})
@@ -635,7 +636,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestUserProvider) {
-				provider.PutUser(&User{
+				provider.PutUser(&data.User{
 					Email:    "test@example.com",
 					Username: "test",
 				})

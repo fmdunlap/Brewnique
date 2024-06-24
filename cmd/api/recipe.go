@@ -103,3 +103,57 @@ func (app *application) deleteRecipeHandler(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusOK)
 	app.writeJson(w, http.StatusOK, map[string]string{"status": "ok"}, nil)
 }
+
+func (app *application) listCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+	categories, err := app.Services.Recipes.ListCategories()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, categories, nil)
+}
+
+func (app *application) listSubcategoriesHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+	}
+
+	subcategories, err := app.Services.Recipes.ListSubcategories(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, subcategories, nil)
+}
+
+func (app *application) listAttributesHandler(w http.ResponseWriter, r *http.Request) {
+	attributes, err := app.Services.Recipes.GetAttributes()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, attributes, nil)
+}
+
+func (app *application) listAttributeValuesHandler(w http.ResponseWriter, r *http.Request) {
+	id, err := app.readIdParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+	}
+
+	attributeValues, err := app.Services.Recipes.GetAttributeValues(id)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	app.writeJson(w, http.StatusOK, attributeValues, nil)
+}

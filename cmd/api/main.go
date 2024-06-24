@@ -1,9 +1,10 @@
 package main
 
 import (
-	"brewnique.fdunlap.com/internal/data"
+	"brewnique.fdunlap.com/internal/data/service"
 	"brewnique.fdunlap.com/internal/extern/psql"
 	"brewnique.fdunlap.com/internal/jsonlog"
+	service2 "brewnique.fdunlap.com/internal/service"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,9 +14,9 @@ import (
 const version = "0.0.1"
 
 type Services struct {
-	Recipes  *data.RecipeService
-	Users    *data.UserService
-	Comments *data.CommentService
+	Recipes  *service.RecipeService
+	Users    *service2.UserService
+	Comments *service2.CommentService
 }
 
 type application struct {
@@ -40,9 +41,9 @@ func main() {
 		config: cfg,
 		logger: logger,
 		Services: Services{
-			Recipes:  data.NewRecipeService(dbProvider),
-			Users:    data.NewUserService(dbProvider),
-			Comments: data.NewCommentService(dbProvider),
+			Recipes:  service.NewRecipeService(dbProvider),
+			Users:    service2.NewUserService(dbProvider),
+			Comments: service2.NewCommentService(dbProvider),
 		},
 	}
 

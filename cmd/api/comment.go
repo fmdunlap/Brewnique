@@ -2,6 +2,7 @@ package main
 
 import (
 	"brewnique.fdunlap.com/internal/data"
+	"brewnique.fdunlap.com/internal/service"
 	"database/sql"
 	"errors"
 	"log"
@@ -45,7 +46,7 @@ func (app *application) listRecipeCommentsHandler(w http.ResponseWriter, r *http
 	app.writeJson(w, http.StatusOK, comments, nil)
 }
 
-func TransformComments(comments []data.Comment, userService *data.UserService) ([]*CommentAPIResponse, error) {
+func TransformComments(comments []data.Comment, userService *service.UserService) ([]*CommentAPIResponse, error) {
 	// Create a map to store comments by their ID for efficient lookup
 	commentMap := make(map[int64]*CommentAPIResponse)
 

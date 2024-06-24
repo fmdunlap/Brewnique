@@ -1,164 +1,16 @@
-package data
+package service
 
 import (
+	"brewnique.fdunlap.com/internal/data"
 	"fmt"
 	"log"
 	"testing"
 	"time"
 )
 
-type TestRecipeProvider struct {
-	recipes       map[int64]*Recipe
-	recipeRatings map[int64]map[int64]*RecipeRating
-	nextID        int64
-}
-
-func NewTestRecipeProvider() *TestRecipeProvider {
-	return &TestRecipeProvider{
-		recipes:       make(map[int64]*Recipe),
-		recipeRatings: make(map[int64]map[int64]*RecipeRating),
-		nextID:        1,
-	}
-}
-
-func (p *TestRecipeProvider) PutRecipe(recipe *Recipe) (*Recipe, error) {
-	// Model the author_id and name uniqueness index
-	for _, existingRecipe := range p.recipes {
-		if existingRecipe.AuthorId == recipe.AuthorId && existingRecipe.Name == recipe.Name {
-			return nil, fmt.Errorf("recipe with name %s and authorId %d already exists", recipe.Name, recipe.AuthorId)
-		}
-	}
-
-	recipe.Id = p.nextID
-	recipe.CreatedAt = time.Now()
-	recipe.UpdatedAt = time.Now()
-	p.recipes[recipe.Id] = recipe
-	p.nextID++
-	return recipe, nil
-}
-
-func (p *TestRecipeProvider) GetRecipe(id int64) (*Recipe, error) {
-	recipe, ok := p.recipes[id]
-	if !ok {
-		return nil, fmt.Errorf("recipe with ID %d not found", id)
-	}
-	return recipe, nil
-}
-
-func (p *TestRecipeProvider) ListRecipes() ([]*Recipe, error) {
-	var recipes []*Recipe
-	for _, recipe := range p.recipes {
-		recipes = append(recipes, recipe)
-	}
-	return recipes, nil
-}
-
-func (p *TestRecipeProvider) ListRecipesByAuthorId(userId int64) ([]*Recipe, error) {
-	var recipes []*Recipe
-	for _, recipe := range p.recipes {
-		if recipe.AuthorId == userId {
-			recipes = append(recipes, recipe)
-		}
-	}
-	return recipes, nil
-}
-
-func (p *TestRecipeProvider) UpdateRecipe(recipe *Recipe) (*Recipe, error) {
-	existingRecipe, ok := p.recipes[recipe.Id]
-	if !ok {
-		return nil, fmt.Errorf("recipe with ID %d not found", recipe.Id)
-	}
-	if recipe.Name != "" {
-		existingRecipe.Name = recipe.Name
-	}
-	if recipe.Ingredients != nil {
-		existingRecipe.Ingredients = recipe.Ingredients
-	}
-	if recipe.Instructions != nil {
-		existingRecipe.Instructions = recipe.Instructions
-	}
-	if recipe.Version != 0 {
-		existingRecipe.Version = recipe.Version
-	}
-
-	p.recipes[recipe.Id].UpdatedAt = time.Now()
-	p.recipes[recipe.Id].Version = recipe.Version
-	p.recipes[recipe.Id].Name = recipe.Name
-	p.recipes[recipe.Id].Ingredients = recipe.Ingredients
-	p.recipes[recipe.Id].Instructions = recipe.Instructions
-
-	return existingRecipe, nil
-}
-
-func (p *TestRecipeProvider) DeleteRecipe(id int64) error {
-	if _, ok := p.recipes[id]; !ok {
-		return fmt.Errorf("recipe with ID %d not found", id)
-	}
-	delete(p.recipes, id)
-	return nil
-}
-
-func (p *TestRecipeProvider) GetRecipeRatings(recipeId int64) ([]*RecipeRating, error) {
-	log.Printf("GetRecipeRatings(%d), %v", recipeId, p.recipeRatings)
-	if _, err := p.GetRecipe(recipeId); err != nil {
-		return make([]*RecipeRating, 0), fmt.Errorf("recipe with ID %d not found", recipeId)
-	}
-
-	if _, ok := p.recipeRatings[recipeId]; !ok {
-		return make([]*RecipeRating, 0), nil
-	}
-	ratings := make([]*RecipeRating, 0)
-	for _, recipeRating := range p.recipeRatings[recipeId] {
-		ratings = append(ratings, recipeRating)
-	}
-	return ratings, nil
-}
-
-func (p *TestRecipeProvider) SetUserRecipeRating(recipeId int64, ratingVal int, userId int64) (*RecipeRating, error) {
-	if _, ok := p.recipeRatings[recipeId]; !ok {
-		p.recipeRatings[recipeId] = make(map[int64]*RecipeRating)
-	}
-
-	existingRating, ok := p.recipeRatings[recipeId][userId]
-	if !ok {
-		newRating := RecipeRating{
-			Id:        p.nextID,
-			RecipeId:  recipeId,
-			UserId:    userId,
-			Rating:    ratingVal,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
-		p.recipeRatings[recipeId][userId] = &newRating
-		p.nextID++
-		return &newRating, nil
-	}
-	existingRating.Rating = ratingVal
-	existingRating.UpdatedAt = time.Now()
-	p.recipeRatings[recipeId][userId] = existingRating
-
-	return existingRating, nil
-
-}
-
-func (p *TestRecipeProvider) GetRecipesByUserId(userId int64) ([]*Recipe, error) {
-	var recipes []*Recipe
-	for _, recipe := range p.recipes {
-		if recipe.AuthorId == userId {
-			recipes = append(recipes, recipe)
-		}
-	}
-	return recipes, nil
-}
-
-func (p *TestRecipeProvider) TearDown() {
-	p.nextID = 1
-	p.recipes = make(map[int64]*Recipe)
-}
-
 func TestRecipeService_CreateRecipe(t *testing.T) {
 	provider := NewTestRecipeProvider()
-	service := NewRecipeService(provider)
+	recipeService := NewRecipeService(provider)
 
 	type args struct {
 		name         string
@@ -172,7 +24,7 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestRecipeProvider)
-		expect  *Recipe
+		expect  *data.Recipe
 	}{
 		{
 			name: "create recipe",
@@ -183,7 +35,7 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 				instructions: []string{"first instruction", "second instruction", "third instruction"},
 			},
 			wantErr: false,
-			expect: &Recipe{
+			expect: &data.Recipe{
 				Id:       1,
 				AuthorId: 1,
 				Name:     "A recipe",
@@ -210,7 +62,7 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 			wantErr: true,
 			expect:  nil,
 			preRun: func(t *testing.T, provider *TestRecipeProvider) {
-				provider.PutRecipe(&Recipe{
+				provider.PutRecipe(&data.Recipe{
 					Name:         "A recipe",
 					AuthorId:     1,
 					Ingredients:  []string{"first ingredient", "second ingredient", "third ingredient"},
@@ -227,7 +79,7 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 				instructions: []string{"first instruction", "second instruction", "third instruction"},
 			},
 			wantErr: false,
-			expect: &Recipe{
+			expect: &data.Recipe{
 				Id:       2,
 				AuthorId: 2,
 				Name:     "A recipe",
@@ -243,7 +95,7 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 				},
 			},
 			preRun: func(t *testing.T, provider *TestRecipeProvider) {
-				provider.PutRecipe(&Recipe{
+				provider.PutRecipe(&data.Recipe{
 					Name:         "A recipe",
 					AuthorId:     1,
 					Ingredients:  []string{"first ingredient", "second ingredient", "third ingredient"},
@@ -302,7 +154,7 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 			tc.preRun(t, provider)
 		}
 		t.Run(tc.name, func(t *testing.T) {
-			recipe, err := service.CreateRecipe(tc.args.name, tc.args.authorId, tc.args.ingredients, tc.args.instructions)
+			recipe, err := recipeService.CreateRecipe(tc.args.name, tc.args.authorId, tc.args.ingredients, tc.args.instructions)
 			if tc.wantErr {
 				if (err != nil) != tc.wantErr {
 					t.Errorf("CreateRecipe() error = %v, wantErr %v", err, tc.wantErr)
@@ -345,7 +197,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 	}
 
 	type expected struct {
-		Ratings []*RecipeRating
+		Ratings []*data.RecipeRating
 		Rating  float64
 	}
 
@@ -363,7 +215,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestRecipeProvider) int64 {
-				rec, _ := provider.PutRecipe(&Recipe{
+				rec, _ := provider.PutRecipe(&data.Recipe{
 					Name:         "A recipe",
 					AuthorId:     1,
 					Ingredients:  []string{"first ingredient", "second ingredient", "third ingredient"},
@@ -375,7 +227,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 				return rec.Id
 			},
 			expect: expected{
-				Ratings: []*RecipeRating{
+				Ratings: []*data.RecipeRating{
 					{
 						Id:       2,
 						UserId:   1,
@@ -416,7 +268,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestRecipeProvider) int64 {
-				rec, _ := provider.PutRecipe(&Recipe{
+				rec, _ := provider.PutRecipe(&data.Recipe{
 					Name:         "A recipe",
 					AuthorId:     1,
 					Ingredients:  []string{"first ingredient", "second ingredient", "third ingredient"},
@@ -433,7 +285,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 
 	for _, tc := range testCases {
 		provider := NewTestRecipeProvider()
-		service := NewRecipeService(provider)
+		recipeService := NewRecipeService(provider)
 
 		recipeId := int64(0)
 
@@ -459,7 +311,7 @@ func TestRecipeService_GetRecipeRatings(t *testing.T) {
 				}
 			}
 
-			recipeRating, err := service.GetAverageRecipeRating(tc.args.recipeId)
+			recipeRating, err := recipeService.GetAverageRecipeRating(tc.args.recipeId)
 			if (err != nil) != tc.wantErr {
 				t.Errorf("GetRecipeRating() error = %v, wantErr %v", err, tc.wantErr)
 				return
@@ -495,7 +347,7 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestRecipeProvider) int64 {
-				rec, _ := provider.PutRecipe(&Recipe{
+				rec, _ := provider.PutRecipe(&data.Recipe{
 					Name:         "A recipe",
 					AuthorId:     1,
 					Ingredients:  []string{"first ingredient", "second ingredient", "third ingredient"},
@@ -514,7 +366,7 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestRecipeProvider) int64 {
-				rec, _ := provider.PutRecipe(&Recipe{
+				rec, _ := provider.PutRecipe(&data.Recipe{
 					Name:         "A recipe",
 					AuthorId:     1,
 					Ingredients:  []string{"first ingredient", "second ingredient", "third ingredient"},
@@ -533,7 +385,7 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 
 	for _, tc := range testCases {
 		provider := NewTestRecipeProvider()
-		service := NewRecipeService(provider)
+		recipeService := NewRecipeService(provider)
 
 		recipeId := int64(0)
 
@@ -541,13 +393,13 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 			recipeId = tc.preRun(t, provider)
 		}
 		t.Run(tc.name, func(t *testing.T) {
-			err := service.SetUserRecipeRating(recipeId, tc.args.ratingVal, tc.args.userId)
+			err := recipeService.SetUserRecipeRating(recipeId, tc.args.ratingVal, tc.args.userId)
 			if (err != nil) != tc.wantErr {
 				t.Errorf("SetUserRecipeRating() error = %v, wantErr %v", err, tc.wantErr)
 				return
 			}
 
-			rating, err := service.GetAverageRecipeRating(recipeId)
+			rating, err := recipeService.GetAverageRecipeRating(recipeId)
 			if (err != nil) != tc.wantErr {
 				t.Errorf("GetRecipeRatings() error = %v, wantErr %v", err, tc.wantErr)
 				return
@@ -559,4 +411,193 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 		})
 		provider.TearDown()
 	}
+}
+
+type TestRecipeProvider struct {
+	recipes         map[int64]*data.Recipe
+	recipeRatings   map[int64]map[int64]*data.RecipeRating
+	categories      map[int64]*data.RecipeCategory
+	subcategories   map[int64]*data.RecipeCategory
+	attributes      map[int64]*data.Attribute
+	attributeValues map[int64]*data.AttributeValue
+	nextID          int64
+}
+
+func NewTestRecipeProvider() *TestRecipeProvider {
+	return &TestRecipeProvider{
+		recipes:       make(map[int64]*data.Recipe),
+		recipeRatings: make(map[int64]map[int64]*data.RecipeRating),
+		nextID:        1,
+	}
+}
+
+func (p *TestRecipeProvider) PutRecipe(recipe *data.Recipe) (*data.Recipe, error) {
+	// Model the author_id and name uniqueness index
+	for _, existingRecipe := range p.recipes {
+		if existingRecipe.AuthorId == recipe.AuthorId && existingRecipe.Name == recipe.Name {
+			return nil, fmt.Errorf("recipe with name %s and authorId %d already exists", recipe.Name, recipe.AuthorId)
+		}
+	}
+
+	recipe.Id = p.nextID
+	recipe.CreatedAt = time.Now()
+	recipe.UpdatedAt = time.Now()
+	p.recipes[recipe.Id] = recipe
+	p.nextID++
+	return recipe, nil
+}
+
+func (p *TestRecipeProvider) GetRecipe(id int64) (*data.Recipe, error) {
+	recipe, ok := p.recipes[id]
+	if !ok {
+		return nil, fmt.Errorf("recipe with ID %d not found", id)
+	}
+	return recipe, nil
+}
+
+func (p *TestRecipeProvider) ListRecipes() ([]*data.Recipe, error) {
+	var recipes []*data.Recipe
+	for _, recipe := range p.recipes {
+		recipes = append(recipes, recipe)
+	}
+	return recipes, nil
+}
+
+func (p *TestRecipeProvider) ListRecipesByAuthorId(userId int64) ([]*data.Recipe, error) {
+	var recipes []*data.Recipe
+	for _, recipe := range p.recipes {
+		if recipe.AuthorId == userId {
+			recipes = append(recipes, recipe)
+		}
+	}
+	return recipes, nil
+}
+
+func (p *TestRecipeProvider) UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error) {
+	existingRecipe, ok := p.recipes[recipe.Id]
+	if !ok {
+		return nil, fmt.Errorf("recipe with ID %d not found", recipe.Id)
+	}
+	if recipe.Name != "" {
+		existingRecipe.Name = recipe.Name
+	}
+	if recipe.Ingredients != nil {
+		existingRecipe.Ingredients = recipe.Ingredients
+	}
+	if recipe.Instructions != nil {
+		existingRecipe.Instructions = recipe.Instructions
+	}
+	if recipe.Version != 0 {
+		existingRecipe.Version = recipe.Version
+	}
+
+	p.recipes[recipe.Id].UpdatedAt = time.Now()
+	p.recipes[recipe.Id].Version = recipe.Version
+	p.recipes[recipe.Id].Name = recipe.Name
+	p.recipes[recipe.Id].Ingredients = recipe.Ingredients
+	p.recipes[recipe.Id].Instructions = recipe.Instructions
+
+	return existingRecipe, nil
+}
+
+func (p *TestRecipeProvider) DeleteRecipe(id int64) error {
+	if _, ok := p.recipes[id]; !ok {
+		return fmt.Errorf("recipe with ID %d not found", id)
+	}
+	delete(p.recipes, id)
+	return nil
+}
+
+func (p *TestRecipeProvider) GetRecipeRatings(recipeId int64) ([]*data.RecipeRating, error) {
+	log.Printf("GetRecipeRatings(%d), %v", recipeId, p.recipeRatings)
+	if _, err := p.GetRecipe(recipeId); err != nil {
+		return make([]*data.RecipeRating, 0), fmt.Errorf("recipe with ID %d not found", recipeId)
+	}
+
+	if _, ok := p.recipeRatings[recipeId]; !ok {
+		return make([]*data.RecipeRating, 0), nil
+	}
+	ratings := make([]*data.RecipeRating, 0)
+	for _, recipeRating := range p.recipeRatings[recipeId] {
+		ratings = append(ratings, recipeRating)
+	}
+	return ratings, nil
+}
+
+func (p *TestRecipeProvider) SetUserRecipeRating(recipeId int64, ratingVal int, userId int64) (*data.RecipeRating, error) {
+	if _, ok := p.recipeRatings[recipeId]; !ok {
+		p.recipeRatings[recipeId] = make(map[int64]*data.RecipeRating)
+	}
+
+	existingRating, ok := p.recipeRatings[recipeId][userId]
+	if !ok {
+		newRating := data.RecipeRating{
+			Id:        p.nextID,
+			RecipeId:  recipeId,
+			UserId:    userId,
+			Rating:    ratingVal,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+		p.recipeRatings[recipeId][userId] = &newRating
+		p.nextID++
+		return &newRating, nil
+	}
+	existingRating.Rating = ratingVal
+	existingRating.UpdatedAt = time.Now()
+	p.recipeRatings[recipeId][userId] = existingRating
+
+	return existingRating, nil
+
+}
+
+func (p *TestRecipeProvider) GetRecipesByUserId(userId int64) ([]*data.Recipe, error) {
+	var recipes []*data.Recipe
+	for _, recipe := range p.recipes {
+		if recipe.AuthorId == userId {
+			recipes = append(recipes, recipe)
+		}
+	}
+	return recipes, nil
+}
+
+func (p *TestRecipeProvider) ListCategories() ([]*data.RecipeCategory, error) {
+	var categories []*data.RecipeCategory
+	for _, category := range p.categories {
+		categories = append(categories, category)
+	}
+	return categories, nil
+}
+
+func (p *TestRecipeProvider) ListSubcategories(categoryId int64) ([]*data.RecipeCategory, error) {
+	var subcategories []*data.RecipeCategory
+	for _, subcategory := range p.subcategories {
+		if *subcategory.ParentId == categoryId {
+			subcategories = append(subcategories, subcategory)
+		}
+	}
+	return subcategories, nil
+}
+
+func (p *TestRecipeProvider) GetAttributes() ([]*data.Attribute, error) {
+	var attributes []*data.Attribute
+	for _, attribute := range p.attributes {
+		attributes = append(attributes, attribute)
+	}
+	return attributes, nil
+}
+
+func (p *TestRecipeProvider) GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error) {
+	var attributeValues []*data.AttributeValue
+	for _, attributeValue := range p.attributeValues {
+		if attributeValue.Id == attributeId {
+			attributeValues = append(attributeValues, attributeValue)
+		}
+	}
+	return attributeValues, nil
+}
+
+func (p *TestRecipeProvider) TearDown() {
+	p.nextID = 1
+	p.recipes = make(map[int64]*data.Recipe)
 }

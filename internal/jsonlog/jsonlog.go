@@ -2,6 +2,7 @@ package jsonlog
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"runtime/debug"
@@ -47,7 +48,7 @@ func New(out io.Writer, minLevel Level) *Logger {
 }
 
 func (l *Logger) Write(p []byte) (n int, err error) {
-	return l.print(LevelError, string(n), nil)
+	return l.print(LevelError, fmt.Sprintf("%s", p), nil)
 }
 
 func (l *Logger) print(level Level, message string, properties map[string]string) (int, error) {

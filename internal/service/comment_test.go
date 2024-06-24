@@ -1,36 +1,37 @@
-package data
+package service
 
 import (
+	"brewnique.fdunlap.com/internal/data"
 	"fmt"
 	"testing"
 	"time"
 )
 
 type TestCommentProvider struct {
-	comments     map[int64]*Comment
-	commentVotes map[int64]map[int64]*CommentVote // commentId -> userId -> vote
+	comments     map[int64]*data.Comment
+	commentVotes map[int64]map[int64]*data.CommentVote // commentId -> userId -> vote
 	nextID       int64
 }
 
 func NewTestCommentProvider() *TestCommentProvider {
 	return &TestCommentProvider{
-		comments:     make(map[int64]*Comment),
-		commentVotes: make(map[int64]map[int64]*CommentVote),
+		comments:     make(map[int64]*data.Comment),
+		commentVotes: make(map[int64]map[int64]*data.CommentVote),
 		nextID:       1,
 	}
 }
 
-func (p *TestCommentProvider) PutComment(comment *Comment) (Comment, error) {
+func (p *TestCommentProvider) PutComment(comment *data.Comment) (data.Comment, error) {
 	comment.Id = p.nextID
 	comment.CreatedAt = time.Now()
 	comment.UpdatedAt = time.Now()
-	p.commentVotes[comment.Id] = make(map[int64]*CommentVote)
+	p.commentVotes[comment.Id] = make(map[int64]*data.CommentVote)
 	p.comments[comment.Id] = comment
 	p.nextID++
 	return *comment, nil
 }
 
-func (p *TestCommentProvider) GetComment(id int64) (*Comment, error) {
+func (p *TestCommentProvider) GetComment(id int64) (*data.Comment, error) {
 	comment, ok := p.comments[id]
 	if !ok {
 		return nil, fmt.Errorf("comment with ID %d not found", id)
@@ -38,7 +39,7 @@ func (p *TestCommentProvider) GetComment(id int64) (*Comment, error) {
 	return comment, nil
 }
 
-func (p *TestCommentProvider) UpdateComment(comment *Comment) error {
+func (p *TestCommentProvider) UpdateComment(comment *data.Comment) error {
 	existingComment, ok := p.comments[comment.Id]
 	if !ok {
 		return fmt.Errorf("comment with ID %d not found", comment.Id)
@@ -59,8 +60,8 @@ func (p *TestCommentProvider) UpdateComment(comment *Comment) error {
 	return nil
 }
 
-func (p *TestCommentProvider) ListRecipeComments(recipeId int64) ([]Comment, error) {
-	var recipeComments []Comment
+func (p *TestCommentProvider) ListRecipeComments(recipeId int64) ([]data.Comment, error) {
+	var recipeComments []data.Comment
 	for _, comment := range p.comments {
 		if comment.RecipeId == recipeId {
 			recipeComments = append(recipeComments, *comment)
@@ -69,8 +70,8 @@ func (p *TestCommentProvider) ListRecipeComments(recipeId int64) ([]Comment, err
 	return recipeComments, nil
 }
 
-func (p *TestCommentProvider) ListUserComments(userId int64) ([]Comment, error) {
-	var userComments []Comment
+func (p *TestCommentProvider) ListUserComments(userId int64) ([]data.Comment, error) {
+	var userComments []data.Comment
 	for _, comment := range p.comments {
 		if comment.AuthorId == userId {
 			userComments = append(userComments, *comment)
@@ -87,12 +88,12 @@ func (p *TestCommentProvider) DeleteComment(id int64) error {
 	return nil
 }
 
-func (p *TestCommentProvider) GetCommentVotes(commentId int64) ([]*CommentVote, error) {
+func (p *TestCommentProvider) GetCommentVotes(commentId int64) ([]*data.CommentVote, error) {
 	if _, ok := p.commentVotes[commentId]; !ok {
 		return nil, fmt.Errorf("comment with ID %d not found", commentId)
 	}
 
-	votes := make([]*CommentVote, 0)
+	votes := make([]*data.CommentVote, 0)
 	for _, commentVotes := range p.commentVotes[commentId] {
 		votes = append(votes, commentVotes)
 	}
@@ -102,9 +103,9 @@ func (p *TestCommentProvider) GetCommentVotes(commentId int64) ([]*CommentVote, 
 
 func (p *TestCommentProvider) AddCommentVote(commentId int64, userId int64, isUpVote bool) error {
 	if _, ok := p.commentVotes[commentId]; !ok {
-		p.commentVotes[commentId] = make(map[int64]*CommentVote)
+		p.commentVotes[commentId] = make(map[int64]*data.CommentVote)
 	}
-	p.commentVotes[commentId][userId] = &CommentVote{
+	p.commentVotes[commentId][userId] = &data.CommentVote{
 		Id:        p.nextID,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -138,7 +139,7 @@ func (p *TestCommentProvider) GetCommentScore(commentId int64) (int64, error) {
 
 func (p *TestCommentProvider) TearDown() {
 	p.nextID = 1
-	p.comments = make(map[int64]*Comment)
+	p.comments = make(map[int64]*data.Comment)
 }
 
 func TestCommentService_CreateComment(t *testing.T) {
@@ -157,7 +158,7 @@ func TestCommentService_CreateComment(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestCommentProvider)
-		expect  *Comment
+		expect  *data.Comment
 	}{
 		{
 			name: "create top-level",
@@ -167,7 +168,7 @@ func TestCommentService_CreateComment(t *testing.T) {
 				recipeId: 1,
 			},
 			wantErr: false,
-			expect: &Comment{
+			expect: &data.Comment{
 				Id:       1,
 				Content:  "test content",
 				AuthorId: 1,
@@ -184,13 +185,13 @@ func TestCommentService_CreateComment(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 				})
 			},
-			expect: &Comment{
+			expect: &data.Comment{
 				Id:       2,
 				Content:  "test content",
 				AuthorId: 1,
@@ -208,19 +209,19 @@ func TestCommentService_CreateComment(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 				})
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 					ParentId: 1,
 				})
 			},
-			expect: &Comment{
+			expect: &data.Comment{
 				Id:       3,
 				Content:  "test content",
 				AuthorId: 1,
@@ -238,25 +239,25 @@ func TestCommentService_CreateComment(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 				})
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 					ParentId: 1,
 				})
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 					ParentId: 1,
 				})
 			},
-			expect: &Comment{
+			expect: &data.Comment{
 				Id:       4,
 				Content:  "test content",
 				AuthorId: 1,
@@ -328,7 +329,7 @@ func TestCommentService_GetComment(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestCommentProvider)
-		expect  *Comment
+		expect  *data.Comment
 	}{
 		{
 			name: "get existing comment",
@@ -337,13 +338,13 @@ func TestCommentService_GetComment(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 				})
 			},
-			expect: &Comment{
+			expect: &data.Comment{
 				Id:       1,
 				Content:  "test content",
 				AuthorId: 1,
@@ -392,7 +393,7 @@ func TestCommentService_UpdateComment(t *testing.T) {
 		args    args
 		wantErr bool
 		preRun  func(t *testing.T, provider *TestCommentProvider)
-		expect  *Comment
+		expect  *data.Comment
 	}{
 		{
 			name: "update existing comment",
@@ -402,13 +403,13 @@ func TestCommentService_UpdateComment(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
 				})
 			},
-			expect: &Comment{
+			expect: &data.Comment{
 				Id:       1,
 				Content:  "new content",
 				AuthorId: 1,
@@ -463,7 +464,7 @@ func TestCommentService_GetCommentScore(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
@@ -492,7 +493,7 @@ func TestCommentService_GetCommentScore(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
@@ -507,7 +508,7 @@ func TestCommentService_GetCommentScore(t *testing.T) {
 			},
 			wantErr: false,
 			preRun: func(t *testing.T, provider *TestCommentProvider) {
-				provider.PutComment(&Comment{
+				provider.PutComment(&data.Comment{
 					Content:  "test content",
 					AuthorId: 1,
 					RecipeId: 1,
