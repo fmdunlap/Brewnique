@@ -1,9 +1,21 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import viteReact from '@vitejs/plugin-react'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+      TanStackRouterVite({
+          routesDirectory: './frontend/src/routes',
+          generatedRouteTree: './frontend/src/routeTree.gen.ts',
+          enableRouteGeneration: true,
+      }),
+      viteReact()
+  ],
+  server: {
+        watch: {
+            usePolling: true
+        }
+    },
   root: "./frontend",
   publicDir: "./frontend/public"
 });
