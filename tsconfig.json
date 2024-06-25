@@ -18,7 +18,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    // Resolution
+    "baseUrl": "./frontend/src",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": ["./frontend/src"],
   "references": [{ "path": "./tsconfig.node.json" }]

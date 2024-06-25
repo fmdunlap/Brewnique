@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import viteReact from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import path from "path"
 
 export default defineConfig({
   plugins: [
@@ -16,6 +17,11 @@ export default defineConfig({
             usePolling: true
         }
     },
+  resolve: {
+      alias: {
+          '@': path.resolve(__dirname, './frontend/src'),
+      }
+  },
   root: "./frontend",
   publicDir: "./frontend/public"
 });
