@@ -1,13 +1,14 @@
 package main
 
 import (
-	"brewnique.fdunlap.com/internal/data"
-	"brewnique.fdunlap.com/internal/service"
 	"database/sql"
 	"errors"
 	"log"
 	"net/http"
 	"time"
+
+	"brewnique.fdunlap.com/internal/data"
+	"brewnique.fdunlap.com/internal/service"
 )
 
 // TODO: A few things...

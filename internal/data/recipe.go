@@ -11,6 +11,7 @@ type Recipe struct {
 	CreatedAt    time.Time          `json:"created_at"`
 	UpdatedAt    time.Time          `json:"updated_at"`
 	AuthorId     int64              `json:"author_id"`
+	Author       User               `json:"author"`
 	Name         string             `json:"name"`
 	Ingredients  []string           `json:"ingredients"`
 	Instructions []string           `json:"instructions"`

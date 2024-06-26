@@ -1,8 +1,9 @@
 package service
 
 import (
-	"brewnique.fdunlap.com/internal/data"
 	"fmt"
+
+	"brewnique.fdunlap.com/internal/data"
 )
 
 type RecipeProvider interface {
@@ -66,6 +67,10 @@ func (s *RecipeService) GetUserRecipes(userId int64) ([]*data.Recipe, error) {
 
 func (s *RecipeService) ListRecipes() ([]*data.Recipe, error) {
 	return s.recipeProvider.ListRecipes()
+}
+
+func (s *RecipeService) ListRecipesByAuthorId(userId int64) ([]*data.Recipe, error) {
+	return s.recipeProvider.ListRecipesByAuthorId(userId)
 }
 
 func (s *RecipeService) UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error) {

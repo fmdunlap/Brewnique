@@ -1,21 +1,26 @@
 package psql
 
 import (
-	"brewnique.fdunlap.com/internal/data"
-	"github.com/lib/pq"
+	"database/sql"
+	"encoding/json"
 	"log"
 	"time"
+
+	"brewnique.fdunlap.com/internal/data"
+	"github.com/lib/pq"
 )
 
 type RecipeDbRow struct {
-	Id           int64
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	AuthorId     int64
-	Name         string
-	Ingredients  pq.StringArray
-	Instructions pq.StringArray
-	Version      int
+	Id            int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	AuthorId      int64
+	Name          string
+	Ingredients   pq.StringArray
+	Instructions  pq.StringArray
+	CategoryId    int64
+	SubcategoryId int64
+	Version       int
 }
 
 func (r *RecipeDbRow) ToRecipe() data.Recipe {
@@ -71,69 +76,202 @@ func (r *RecipeTagDbRowWithName) ToRecipeTag() data.RecipeTag {
 	}
 }
 
-func (p PostgresProvider) GetRecipe(id int64) (*data.Recipe, error) {
-	res := p.db.QueryRow("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes WHERE id = $1", id)
+const recipeQuery = `
+SELECT
+	recipes.id,
+	recipes.created_at,
+	recipes.updated_at,
+	recipes.name,
+	recipes.ingredients,
+	recipes.instructions,
+	recipes.version,
+	recipes.author_id,
+	recipes.category_id,
+	recipes.subcategory_id,
+	c.name AS category_name,
+	sc.name AS subcategory_name,
+	(
+		SELECT json_build_object(
+			'id', u.id,
+			'username', u.username,
+			'email', u.email,
+			'created_at', u.created_at,
+			'updated_at', u.updated_at
+		)
+		FROM users AS u
+		WHERE u.id = recipes.author_id
+	) AS author,
+	(
+		SELECT json_agg(json_build_object(
+			'type', a.type,
+			'name', a.name,
+			'value', av.value
+		))
+		FROM recipe_attributes AS ra
+		INNER JOIN attributes AS a ON a.id = ra.attribute_value_id
+		INNER JOIN attribute_values AS av ON av.id = ra.attribute_value_id
+		WHERE ra.recipe_id = recipes.id
+	) AS attribute_values,
+	(
+		SELECT
+			json_agg(json_build_object(
+				'id', rt.id,
+				'recipe_id', recipes.id,
+				'tag_id', t.id,
+				'name', t.name
+			))
+		FROM recipe_tags AS rt
+		INNER JOIN tags AS t ON t.id = rt.tag_id
+		WHERE rt.recipe_id = recipes.id
+	) AS tags
+FROM recipes
+LEFT JOIN categories AS c ON c.id = recipes.category_id
+LEFT JOIN categories AS sc ON sc.id = recipes.subcategory_id
+`
 
-	recipeRow := RecipeDbRow{}
-	err := res.Scan(&recipeRow)
-	if err != nil {
-		return nil, err
+func convertRecipeFieldsToRecipe(recipeRow RecipeDbRow, categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON sql.NullString) (*data.Recipe, error) {
+	recipeAttributes := make([]*data.RecipeAttribute, 0)
+	if attributeValuesJSON.Valid {
+		err := json.Unmarshal([]byte(attributeValuesJSON.String), &recipeAttributes)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	recipe := recipeRow.ToRecipe()
+	recipeTags := make([]data.RecipeTag, 0)
+	if tagsJSON.Valid {
+		err := json.Unmarshal([]byte(tagsJSON.String), &recipeTags)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	author := data.User{}
+	if userValueJSON.Valid {
+		err := json.Unmarshal([]byte(userValueJSON.String), &author)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	recipe := data.Recipe{
+		Id:           recipeRow.Id,
+		CreatedAt:    recipeRow.CreatedAt,
+		UpdatedAt:    recipeRow.UpdatedAt,
+		AuthorId:     recipeRow.AuthorId,
+		Author:       author,
+		Name:         recipeRow.Name,
+		Ingredients:  recipeRow.Ingredients,
+		Instructions: recipeRow.Instructions,
+		Category: data.RecipeCategory{
+			Id:       recipeRow.CategoryId,
+			Name:     categoryName.String,
+			ParentId: nil,
+		},
+		Subcategory: data.RecipeCategory{
+			Id:       recipeRow.SubcategoryId,
+			Name:     subcategoryName.String,
+			ParentId: &recipeRow.CategoryId,
+		},
+		Version:    recipeRow.Version,
+		Attributes: recipeAttributes,
+		Tags:       recipeTags,
+	}
 
 	return &recipe, nil
 }
 
-func (p PostgresProvider) ListRecipes() ([]*data.Recipe, error) {
-	rows, err := p.db.Query("SELECT id, author_id, created_at, updated_at, name, ingredients, instructions, version FROM recipes")
+func convertRecipeQueryRowResult(row *sql.Row) (*data.Recipe, error) {
+	recipeRow := RecipeDbRow{}
+	var categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON sql.NullString
+	err := row.Scan(
+		&recipeRow.Id,
+		&recipeRow.CreatedAt,
+		&recipeRow.UpdatedAt,
+		&recipeRow.Name,
+		(*pq.StringArray)(&recipeRow.Ingredients),
+		(*pq.StringArray)(&recipeRow.Instructions),
+		&recipeRow.Version,
+		&recipeRow.AuthorId,
+		&recipeRow.CategoryId,
+		&recipeRow.SubcategoryId,
+		&categoryName,
+		&subcategoryName,
+		&userValueJSON,
+		&attributeValuesJSON,
+		&tagsJSON,
+	)
+
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var recipes []*data.Recipe
+	return convertRecipeFieldsToRecipe(recipeRow, categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON)
+}
+
+func converRecipeQueryResult(rows *sql.Rows) ([]*data.Recipe, error) {
+	recipes := make([]*data.Recipe, 0)
 	for rows.Next() {
-		var recipeRow RecipeDbRow
-		err = rows.Scan(&recipeRow.Id, &recipeRow.AuthorId, &recipeRow.CreatedAt, &recipeRow.UpdatedAt, &recipeRow.Name, (*pq.StringArray)(&recipeRow.Ingredients), (*pq.StringArray)(&recipeRow.Instructions), &recipeRow.Version)
+		recipeRow := RecipeDbRow{}
+		var categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON sql.NullString
+		err := rows.Scan(
+			&recipeRow.Id,
+			&recipeRow.CreatedAt,
+			&recipeRow.UpdatedAt,
+			&recipeRow.Name,
+			(*pq.StringArray)(&recipeRow.Ingredients),
+			(*pq.StringArray)(&recipeRow.Instructions),
+			&recipeRow.Version,
+			&recipeRow.AuthorId,
+			&recipeRow.CategoryId,
+			&recipeRow.SubcategoryId,
+			&categoryName,
+			&subcategoryName,
+			&userValueJSON,
+			&attributeValuesJSON,
+			&tagsJSON,
+		)
+
 		if err != nil {
 			return nil, err
 		}
-		recipe := recipeRow.ToRecipe()
-		recipes = append(recipes, &recipe)
+
+		recipe, err := convertRecipeFieldsToRecipe(recipeRow, categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON)
+		if err != nil {
+			return nil, err
+		}
+
+		recipes = append(recipes, recipe)
 	}
 
 	return recipes, nil
 }
 
-func (p PostgresProvider) ListRecipesByAuthorId(userId int64) ([]*data.Recipe, error) {
-	rows, err := p.db.Query("SELECT id, created_at, updated_at, name, ingredients, instructions, version FROM recipes WHERE author_id = $1", userId)
+func (p PostgresProvider) GetRecipe(id int64) (*data.Recipe, error) {
+	// Includes a subquery to get the recipe's attributes
+	res := p.db.QueryRow(recipeQuery+"WHERE recipes.id = $1", id)
+	return convertRecipeQueryRowResult(res)
+}
+
+func (p PostgresProvider) ListRecipes() ([]*data.Recipe, error) {
+	// Select all recipes using a join to get author info, category, subcategory, attriubtes, and tags
+	rows, err := p.db.Query(recipeQuery)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var recipes []*data.Recipe
-	for rows.Next() {
-		var recipeRow RecipeDbRow
-		err = rows.Scan(
-			&recipeRow.Id,
-			&recipeRow.CreatedAt,
-			&recipeRow.UpdatedAt,
-			&recipeRow.Name,
-			&recipeRow.Ingredients,
-			&recipeRow.Instructions,
-			&recipeRow.Version,
-		)
-		if err != nil {
-			return nil, err
-		}
+	return converRecipeQueryResult(rows)
+}
 
-		recipe := recipeRow.ToRecipe()
-		recipes = append(recipes, &recipe)
+func (p PostgresProvider) ListRecipesByAuthorId(userId int64) ([]*data.Recipe, error) {
+	rows, err := p.db.Query(recipeQuery+"WHERE recipes.author_id = $1", userId)
+	if err != nil {
+		return nil, err
 	}
+	defer rows.Close()
 
-	return recipes, nil
+	return converRecipeQueryResult(rows)
 }
 
 func (p PostgresProvider) PutRecipe(recipe *data.Recipe) (*data.Recipe, error) {

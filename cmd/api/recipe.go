@@ -1,12 +1,15 @@
 package main
 
 import (
-	"brewnique.fdunlap.com/internal/data"
-	"brewnique.fdunlap.com/internal/validator"
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
+
+	"brewnique.fdunlap.com/internal/data"
+	"brewnique.fdunlap.com/internal/validator"
 )
 
 func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +59,28 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *application) listRecipesHandler(w http.ResponseWriter, r *http.Request) {
+	userId := r.URL.Query().Get("user_id")
+
+	fmt.Println(userId)
+
+	if userId != "" {
+		userIdInt, err := strconv.ParseInt(userId, 10, 64)
+		if err != nil {
+			app.badRequestResponse(w, r)
+			return
+		}
+
+		recipes, err := app.Services.Recipes.ListRecipesByAuthorId(userIdInt)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		app.writeJson(w, http.StatusOK, recipes, nil)
+		return
+	}
+
 	recipes, err := app.Services.Recipes.ListRecipes()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

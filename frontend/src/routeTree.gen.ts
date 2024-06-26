@@ -13,14 +13,22 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as DevLayoutImport } from './routes/dev/_layout'
+import { Route as DevLayoutIndexImport } from './routes/dev/_layout.index'
 
 // Create Virtual Routes
 
+const DevImport = createFileRoute('/dev')()
 const AnotherLazyImport = createFileRoute('/another')()
 const AboutLazyImport = createFileRoute('/about')()
 const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
+
+const DevRoute = DevImport.update({
+  path: '/dev',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AnotherLazyRoute = AnotherLazyImport.update({
   path: '/another',
@@ -36,6 +44,16 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const DevLayoutRoute = DevLayoutImport.update({
+  id: '/_layout',
+  getParentRoute: () => DevRoute,
+} as any)
+
+const DevLayoutIndexRoute = DevLayoutIndexImport.update({
+  path: '/',
+  getParentRoute: () => DevLayoutRoute,
+} as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -62,6 +80,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnotherLazyImport
       parentRoute: typeof rootRoute
     }
+    '/dev': {
+      id: '/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof DevImport
+      parentRoute: typeof rootRoute
+    }
+    '/dev/_layout': {
+      id: '/dev/_layout'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof DevLayoutImport
+      parentRoute: typeof DevRoute
+    }
+    '/dev/_layout/': {
+      id: '/dev/_layout/'
+      path: '/'
+      fullPath: '/dev/'
+      preLoaderRoute: typeof DevLayoutIndexImport
+      parentRoute: typeof DevLayoutImport
+    }
   }
 }
 
@@ -71,6 +110,9 @@ export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   AboutLazyRoute,
   AnotherLazyRoute,
+  DevRoute: DevRoute.addChildren({
+    DevLayoutRoute: DevLayoutRoute.addChildren({ DevLayoutIndexRoute }),
+  }),
 })
 
 /* prettier-ignore-end */
@@ -83,7 +125,8 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/about",
-        "/another"
+        "/another",
+        "/dev"
       ]
     },
     "/": {
@@ -94,6 +137,23 @@ export const routeTree = rootRoute.addChildren({
     },
     "/another": {
       "filePath": "another.lazy.tsx"
+    },
+    "/dev": {
+      "filePath": "dev",
+      "children": [
+        "/dev/_layout"
+      ]
+    },
+    "/dev/_layout": {
+      "filePath": "dev/_layout.tsx",
+      "parent": "/dev",
+      "children": [
+        "/dev/_layout/"
+      ]
+    },
+    "/dev/_layout/": {
+      "filePath": "dev/_layout.index.tsx",
+      "parent": "/dev/_layout"
     }
   }
 }

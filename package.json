@@ -13,6 +13,7 @@
   "dependencies": {
     "@radix-ui/react-navigation-menu": "^1.2.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-router": "^1.40.0",
     "@tanstack/router-cli": "^1.37.0",
     "class-variance-authority": "^0.7.0",

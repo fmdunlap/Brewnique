@@ -1,0 +1,1 @@
+ALTER TABLE recipe_attributes RENAME COLUMN attribute_id TO attribute_value_id;

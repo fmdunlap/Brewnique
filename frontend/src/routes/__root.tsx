@@ -14,6 +14,8 @@ export const Route = createRootRoute({
                 <Link to="/another" className="[&.active]:font-bold">
                     Another
                 </Link>
+                {process.env.NODE_ENV === 'development' && <Link to="/dev" className="[&.active]:font-bold">
+                Dev</Link>}
             </div>
             <hr />
             <Outlet />
