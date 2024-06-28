@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"brewnique.fdunlap.com/internal/extern/psql"
 	"brewnique.fdunlap.com/internal/jsonlog"
@@ -29,9 +30,6 @@ func main() {
 	cfg := loadConfig()
 
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, "main")
-
-	logger.PrintInfo("Loaded configuration", cfg.toLogMap())
-
 	logger.PrintInfo("Creating DB provider", cfg.database.toLogMap())
 	dbProvider := psql.NewPsqlProvider(psql.PsqlConfig{
 		Dsn:             cfg.database.dsn,
@@ -42,6 +40,7 @@ func main() {
 	logger.PrintInfo("Created DB provider", nil)
 	defer dbProvider.Close()
 
+	logger.PrintInfo("Loaded configuration", cfg.toLogMap())
 	app := &application{
 		config: cfg,
 		logger: logger,
@@ -51,8 +50,10 @@ func main() {
 			Comments: service.NewCommentService(dbProvider),
 		},
 	}
-
-	log.Printf("Starting %s API server on port %d", app.config.env, app.config.port)
+	logger.PrintInfo("Starting API server", &map[string]string{
+		"port": strconv.Itoa(app.config.port),
+		"env":  app.config.env,
+	})
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
@@ -63,6 +64,7 @@ func main() {
 		WriteTimeout: cfg.http.writeTimeout,
 	}
 
+	log.Printf("Starting %s API server on port %d", app.config.env, app.config.port)
 	err := server.ListenAndServe()
 	logger.PrintFatal(err, nil)
 }

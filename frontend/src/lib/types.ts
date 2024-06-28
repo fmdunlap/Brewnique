@@ -14,10 +14,10 @@ export type NewUser = {
 export type Recipe = {
     id: number,
     name: string,
-    author_id: number,
+    author_id?: number,
     author: User,
-    created_at: string,
-    updated_at: string
+    created_at?: Date,
+    updated_at?: Date,
     ingredients: string[],
     instructions: string[]
     category: RecipeCategory,
