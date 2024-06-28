@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/spf13/viper"
-	"log"
+	"fmt"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type applicationConfig struct {
@@ -14,11 +16,31 @@ type applicationConfig struct {
 	database databaseConfig
 }
 
+func (c *applicationConfig) toLogMap() *map[string]string {
+	return &map[string]string{
+		"port": strconv.Itoa(c.port),
+		"env":  c.env,
+	}
+}
+
 type httpConfig struct {
 	idleTimeout  time.Duration
 	readTimeout  time.Duration
 	writeTimeout time.Duration
 	maxBodySize  int64
+}
+
+func (h *httpConfig) String() string {
+	return fmt.Sprintf("idleTimeout: %s, readTimeout: %s, writeTimeout: %s, maxBodySize: %d", h.idleTimeout, h.readTimeout, h.writeTimeout, h.maxBodySize)
+}
+
+func (h *httpConfig) toLogMap() *map[string]string {
+	return &map[string]string{
+		"idle_timeout":  h.idleTimeout.String(),
+		"read_timeout":  h.readTimeout.String(),
+		"write_timeout": h.writeTimeout.String(),
+		"max_body_size": fmt.Sprintf("%d", h.maxBodySize),
+	}
 }
 
 type databaseConfig struct {
@@ -27,6 +49,20 @@ type databaseConfig struct {
 	maxOpenConns    int
 	maxIdleConns    int
 	connMaxLifetime time.Duration
+}
+
+func (d *databaseConfig) toLogMap() *map[string]string {
+	return &map[string]string{
+		"driver":         d.driver,
+		"dsn":            d.dsn,
+		"max_open_conns": strconv.Itoa(d.maxOpenConns),
+		"max_idle_conns": strconv.Itoa(d.maxIdleConns),
+		"conn_max_life":  d.connMaxLifetime.String(),
+	}
+}
+
+func (d *databaseConfig) String() string {
+	return fmt.Sprintf("driver: %s, dsn: %s, maxOpenConns: %d, maxIdleConns: %d, connMaxLifetime: %s", d.driver, d.dsn, d.maxOpenConns, d.maxIdleConns, d.connMaxLifetime)
 }
 
 func loadConfig() applicationConfig {
@@ -49,7 +85,6 @@ func loadConfig() applicationConfig {
 	viper.SetDefault("database.conn_max_lifetime", time.Minute*15)
 
 	viper.AutomaticEnv()
-	log.Printf("DSN: %s", viper.GetString("database.dsn"))
 
 	return applicationConfig{
 		port: viper.GetInt("port"),

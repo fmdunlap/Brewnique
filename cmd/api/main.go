@@ -1,13 +1,14 @@
 package main
 
 import (
-	"brewnique.fdunlap.com/internal/extern/psql"
-	"brewnique.fdunlap.com/internal/jsonlog"
-	"brewnique.fdunlap.com/internal/service"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"brewnique.fdunlap.com/internal/extern/psql"
+	"brewnique.fdunlap.com/internal/jsonlog"
+	"brewnique.fdunlap.com/internal/service"
 )
 
 const version = "0.0.1"
@@ -27,13 +28,18 @@ type application struct {
 func main() {
 	cfg := loadConfig()
 
-	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, "main")
+
+	logger.PrintInfo("Loaded configuration", cfg.toLogMap())
+
+	logger.PrintInfo("Creating DB provider", cfg.database.toLogMap())
 	dbProvider := psql.NewPsqlProvider(psql.PsqlConfig{
 		Dsn:             cfg.database.dsn,
 		MaxOpenConns:    cfg.database.maxOpenConns,
 		MaxIdleConns:    cfg.database.maxIdleConns,
 		ConnMaxLifetime: cfg.database.connMaxLifetime,
 	})
+	logger.PrintInfo("Created DB provider", nil)
 	defer dbProvider.Close()
 
 	app := &application{

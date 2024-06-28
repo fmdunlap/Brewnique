@@ -1,6 +1,6 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/dev/_layout')({
+export const Route = createFileRoute('/dev/_dev_layout')({
   component: LayoutComponent,
 })
 

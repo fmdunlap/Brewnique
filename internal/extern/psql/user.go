@@ -1,10 +1,11 @@
 package psql
 
 import (
-	"brewnique.fdunlap.com/internal/data"
 	"database/sql"
 	"errors"
 	"log"
+
+	"brewnique.fdunlap.com/internal/data"
 )
 
 func (p PostgresProvider) GetUser(id int64) (*data.User, error) {
@@ -135,11 +136,12 @@ func (p PostgresProvider) DeleteUser(id int64) error {
 		return err
 	}
 
-	err = tx.QueryRow("DELETE FROM users WHERE id = $1", id).Scan(&id)
+	_ = tx.QueryRow("DELETE FROM users WHERE id = $1", id)
+
+	err = tx.Commit()
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
 
-	return tx.Commit()
+	return nil
 }

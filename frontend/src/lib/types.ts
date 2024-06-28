@@ -6,6 +6,11 @@ export type User = {
     updated_at: string
 }
 
+export type NewUser = {
+    username: string,
+    email: string
+}
+
 export type Recipe = {
     id: number,
     name: string,

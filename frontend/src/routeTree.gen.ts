@@ -13,8 +13,8 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as DevLayoutImport } from './routes/dev/_layout'
-import { Route as DevLayoutIndexImport } from './routes/dev/_layout.index'
+import { Route as DevDevlayoutImport } from './routes/dev/_dev_layout'
+import { Route as DevDevlayoutIndexImport } from './routes/dev/_dev_layout.index'
 
 // Create Virtual Routes
 
@@ -45,14 +45,14 @@ const IndexLazyRoute = IndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const DevLayoutRoute = DevLayoutImport.update({
-  id: '/_layout',
+const DevDevlayoutRoute = DevDevlayoutImport.update({
+  id: '/_dev_layout',
   getParentRoute: () => DevRoute,
 } as any)
 
-const DevLayoutIndexRoute = DevLayoutIndexImport.update({
+const DevDevlayoutIndexRoute = DevDevlayoutIndexImport.update({
   path: '/',
-  getParentRoute: () => DevLayoutRoute,
+  getParentRoute: () => DevDevlayoutRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -87,19 +87,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevImport
       parentRoute: typeof rootRoute
     }
-    '/dev/_layout': {
-      id: '/dev/_layout'
+    '/dev/_dev_layout': {
+      id: '/dev/_dev_layout'
       path: '/dev'
       fullPath: '/dev'
-      preLoaderRoute: typeof DevLayoutImport
+      preLoaderRoute: typeof DevDevlayoutImport
       parentRoute: typeof DevRoute
     }
-    '/dev/_layout/': {
-      id: '/dev/_layout/'
+    '/dev/_dev_layout/': {
+      id: '/dev/_dev_layout/'
       path: '/'
       fullPath: '/dev/'
-      preLoaderRoute: typeof DevLayoutIndexImport
-      parentRoute: typeof DevLayoutImport
+      preLoaderRoute: typeof DevDevlayoutIndexImport
+      parentRoute: typeof DevDevlayoutImport
     }
   }
 }
@@ -111,7 +111,9 @@ export const routeTree = rootRoute.addChildren({
   AboutLazyRoute,
   AnotherLazyRoute,
   DevRoute: DevRoute.addChildren({
-    DevLayoutRoute: DevLayoutRoute.addChildren({ DevLayoutIndexRoute }),
+    DevDevlayoutRoute: DevDevlayoutRoute.addChildren({
+      DevDevlayoutIndexRoute,
+    }),
   }),
 })
 
@@ -141,19 +143,19 @@ export const routeTree = rootRoute.addChildren({
     "/dev": {
       "filePath": "dev",
       "children": [
-        "/dev/_layout"
+        "/dev/_dev_layout"
       ]
     },
-    "/dev/_layout": {
-      "filePath": "dev/_layout.tsx",
+    "/dev/_dev_layout": {
+      "filePath": "dev/_dev_layout.tsx",
       "parent": "/dev",
       "children": [
-        "/dev/_layout/"
+        "/dev/_dev_layout/"
       ]
     },
-    "/dev/_layout/": {
-      "filePath": "dev/_layout.index.tsx",
-      "parent": "/dev/_layout"
+    "/dev/_dev_layout/": {
+      "filePath": "dev/_dev_layout.index.tsx",
+      "parent": "/dev/_dev_layout"
     }
   }
 }

@@ -2,7 +2,6 @@ package jsonlog
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"runtime/debug"
@@ -38,31 +37,35 @@ type Logger struct {
 	out      io.Writer
 	minLevel Level
 	mu       sync.Mutex
+	source   string
 }
 
-func New(out io.Writer, minLevel Level) *Logger {
+func New(out io.Writer, minLevel Level, source string) *Logger {
 	return &Logger{
 		out:      out,
 		minLevel: minLevel,
+		source:   source,
 	}
 }
 
 func (l *Logger) Write(p []byte) (n int, err error) {
-	return l.print(LevelError, fmt.Sprintf("%s", p), nil)
+	return l.print(LevelError, string(p), nil)
 }
 
-func (l *Logger) print(level Level, message string, properties map[string]string) (int, error) {
+func (l *Logger) print(level Level, message string, properties *map[string]string) (int, error) {
 	if level < l.minLevel {
 		return 0, nil
 	}
 
 	aux := struct {
-		Level      string            `json:"level"`
-		Time       string            `json:"time"`
-		Message    string            `json:"message"`
-		Properties map[string]string `json:"properties,omitempty"`
-		Trace      string            `json:"trace,omitempty"`
+		Source     string             `json:"source"`
+		Level      string             `json:"level"`
+		Time       string             `json:"time"`
+		Message    string             `json:"message"`
+		Properties *map[string]string `json:"properties,omitempty"`
+		Trace      string             `json:"trace,omitempty"`
 	}{
+		Source:     l.source,
 		Level:      level.String(),
 		Time:       time.Now().Format(time.RFC3339),
 		Message:    message,
@@ -85,15 +88,15 @@ func (l *Logger) print(level Level, message string, properties map[string]string
 	return l.out.Write(append(line, '\n'))
 }
 
-func (l *Logger) PrintInfo(message string, properties map[string]string) {
+func (l *Logger) PrintInfo(message string, properties *map[string]string) {
 	l.print(LevelInfo, message, properties)
 }
 
-func (l *Logger) PrintError(err error, properties map[string]string) {
+func (l *Logger) PrintError(err error, properties *map[string]string) {
 	l.print(LevelError, err.Error(), properties)
 }
 
-func (l *Logger) PrintFatal(err error, properties map[string]string) {
+func (l *Logger) PrintFatal(err error, properties *map[string]string) {
 	l.print(LevelFatal, err.Error(), properties)
 	os.Exit(1)
 }

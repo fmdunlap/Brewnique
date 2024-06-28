@@ -3,8 +3,10 @@ package psql
 import (
 	"context"
 	"database/sql"
-	"log"
+	"os"
 	"time"
+
+	"brewnique.fdunlap.com/internal/jsonlog"
 )
 
 type PsqlConfig struct {
@@ -19,10 +21,13 @@ type PostgresProvider struct {
 }
 
 func NewPsqlProvider(config PsqlConfig) *PostgresProvider {
+	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo, "psql")
+	logger.PrintInfo("Opening DB connection", nil)
 	db, err := sql.Open("postgres", config.Dsn)
 	if err != nil {
 		panic(err)
 	}
+	logger.PrintInfo("DB connection opened", nil)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
@@ -36,7 +41,7 @@ func NewPsqlProvider(config PsqlConfig) *PostgresProvider {
 		panic(err)
 	}
 
-	log.Printf("Connected to database")
+	logger.PrintInfo("Successfully connected to database", nil)
 
 	return &PostgresProvider{
 		db: db,
