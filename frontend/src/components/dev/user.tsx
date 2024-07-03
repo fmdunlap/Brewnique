@@ -1,9 +1,4 @@
-import { getUsers } from "@/lib/api/user"
-import { deleteUserById } from "@/lib/api/user"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { DevDataPanel } from "./devDataPanel"
-import { Separator } from "@/components/ui/separator.tsx"
-import { Card } from "@/components/ui/card.tsx"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx"
 import { Button } from "@/components/ui/button.tsx"
 import { Label } from "@/components/ui/label"
@@ -12,38 +7,7 @@ import { useForm } from "@tanstack/react-form"
 import { NewUser, User } from "@/lib/types"
 import { createUser } from "@/lib/api/user"
 
-
-export function UserCard() {
-    const queryClient = useQueryClient()
-
-    const users = useQuery({
-        queryKey: ['users'], queryFn: getUsers
-    })
-
-    const deleteUser = useMutation({
-        mutationFn: (userId: number) => {
-            return deleteUserById(userId)
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ['users']
-            })
-        }
-    })
-
-    return (
-        <DevDataPanel title="Users">
-            <UserDataTable users={users.data} deleteUser={deleteUser.mutate} />
-            <Separator />
-            <p className="text-xl">New User</p>
-            <Card className="w-2/5 mx-auto p-4">
-                <NewUserForm />
-            </Card>
-        </DevDataPanel>
-    )
-}
-
-function UserDataTable({ users, deleteUser }: { users?: User[], deleteUser: (userId: number) => void }) {
+export function DevUserDataTable({ users, deleteUser }: { users?: User[], deleteUser: (userId: number) => void }) {
     return <Table>
         <TableCaption>Data about users, not including passwords of course</TableCaption>
         <TableHeader>
@@ -71,7 +35,7 @@ function UserDataTable({ users, deleteUser }: { users?: User[], deleteUser: (use
     </Table>
 }
 
-function NewUserForm() {
+export function DevNewUserForm() {
     const queryClient = useQueryClient()
 
     const submitUser = useMutation({

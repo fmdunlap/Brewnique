@@ -15,6 +15,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as DevDevlayoutImport } from './routes/dev/_dev_layout'
 import { Route as DevDevlayoutIndexImport } from './routes/dev/_dev_layout.index'
+import { Route as DevDevlayoutUsersImport } from './routes/dev/_dev_layout.users'
+import { Route as DevDevlayoutRecipesImport } from './routes/dev/_dev_layout.recipes'
 
 // Create Virtual Routes
 
@@ -52,6 +54,16 @@ const DevDevlayoutRoute = DevDevlayoutImport.update({
 
 const DevDevlayoutIndexRoute = DevDevlayoutIndexImport.update({
   path: '/',
+  getParentRoute: () => DevDevlayoutRoute,
+} as any)
+
+const DevDevlayoutUsersRoute = DevDevlayoutUsersImport.update({
+  path: '/users',
+  getParentRoute: () => DevDevlayoutRoute,
+} as any)
+
+const DevDevlayoutRecipesRoute = DevDevlayoutRecipesImport.update({
+  path: '/recipes',
   getParentRoute: () => DevDevlayoutRoute,
 } as any)
 
@@ -94,6 +106,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevDevlayoutImport
       parentRoute: typeof DevRoute
     }
+    '/dev/_dev_layout/recipes': {
+      id: '/dev/_dev_layout/recipes'
+      path: '/recipes'
+      fullPath: '/dev/recipes'
+      preLoaderRoute: typeof DevDevlayoutRecipesImport
+      parentRoute: typeof DevDevlayoutImport
+    }
+    '/dev/_dev_layout/users': {
+      id: '/dev/_dev_layout/users'
+      path: '/users'
+      fullPath: '/dev/users'
+      preLoaderRoute: typeof DevDevlayoutUsersImport
+      parentRoute: typeof DevDevlayoutImport
+    }
     '/dev/_dev_layout/': {
       id: '/dev/_dev_layout/'
       path: '/'
@@ -112,6 +138,8 @@ export const routeTree = rootRoute.addChildren({
   AnotherLazyRoute,
   DevRoute: DevRoute.addChildren({
     DevDevlayoutRoute: DevDevlayoutRoute.addChildren({
+      DevDevlayoutRecipesRoute,
+      DevDevlayoutUsersRoute,
       DevDevlayoutIndexRoute,
     }),
   }),
@@ -150,8 +178,18 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "dev/_dev_layout.tsx",
       "parent": "/dev",
       "children": [
+        "/dev/_dev_layout/recipes",
+        "/dev/_dev_layout/users",
         "/dev/_dev_layout/"
       ]
+    },
+    "/dev/_dev_layout/recipes": {
+      "filePath": "dev/_dev_layout.recipes.tsx",
+      "parent": "/dev/_dev_layout"
+    },
+    "/dev/_dev_layout/users": {
+      "filePath": "dev/_dev_layout.users.tsx",
+      "parent": "/dev/_dev_layout"
     },
     "/dev/_dev_layout/": {
       "filePath": "dev/_dev_layout.index.tsx",

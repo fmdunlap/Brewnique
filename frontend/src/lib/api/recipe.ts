@@ -1,6 +1,6 @@
 import { BACKEND_URL } from "./api";
 
-import { Recipe } from "../types";
+import { NewRecipe, Recipe } from "../types";
 
 
 export async function getRecipes() {
@@ -11,7 +11,7 @@ export async function getRecipes() {
     return response.json() as Promise<Recipe[]>
 }
 
-export async function createRecipe(recipe: Recipe) {
+export async function createRecipe(recipe: NewRecipe) {
     const response = await fetch(BACKEND_URL + '/v1/recipes', {
         method: 'POST',
         headers: {

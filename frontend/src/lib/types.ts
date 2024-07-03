@@ -26,6 +26,17 @@ export type Recipe = {
     tags: RecipeTag[]
 }
 
+export type NewRecipe = {
+    name: string,
+    author_id: number,
+    ingredients: string[],
+    instructions: string[],
+    category_id: number,
+    subcategory_id: number,
+    attributes: number[],
+    tags: number[]
+}
+
 export type RecipeCategory = {
     id: number,
     name: string,

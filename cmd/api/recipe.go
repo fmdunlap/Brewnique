@@ -14,10 +14,14 @@ import (
 
 func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Name         string   `json:"name"`
-		AuthorId     int64    `json:"author_id"`
-		Ingredients  []string `json:"ingredients"`
-		Instructions []string `json:"instructions"`
+		Name          string   `json:"name"`
+		AuthorId      int64    `json:"author_id"`
+		Ingredients   []string `json:"ingredients"`
+		Instructions  []string `json:"instructions"`
+		CategoryId    int64    `json:"category"`
+		SubcategoryId int64    `json:"subcategory"`
+		Attributes    []int64  `json:"attributes"`
+		Tags          []int64  `json:"tags"`
 	}
 
 	err := app.readJson(w, r, &input)

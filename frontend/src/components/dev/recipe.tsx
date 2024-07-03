@@ -1,47 +1,47 @@
-import { createRecipe, getRecipes } from "@/lib/api/recipe"
-import { DevDataPanel } from "./devDataPanel"
-import { Recipe, RecipeCategory } from "@/lib/types"
+import { NewRecipe, Recipe, RecipeCategory } from "@/lib/types"
 import { Button } from "@/components/ui/button.tsx"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { DatabaseIcon } from "lucide-react"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useForm } from "@tanstack/react-form"
-import { DEFAULT_CATEGORY_ID, getCategories, getSubcategories } from "@/lib/api/category"
-import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "../ui/data-table"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createRecipe } from "@/lib/api/recipe"
+import { useForm } from "@tanstack/react-form"
+import { User } from "@/lib/types";
+import { Label } from "@radix-ui/react-label"
+import { Input } from "../ui/input"
+import { Card, CardContent } from "../ui/card"
 
-export function RecipeCard({ setCommentRecipeId }: { setCommentRecipeId: (recipeId: number) => void }) {
-    const recipes = useQuery({
-        queryKey: ['recipes'], queryFn: getRecipes
-    })
-
-    const {
-        data: categories
-    } = useQuery({
-        queryKey: ['recipeCategories'],
-        queryFn: async () => {
-            const categories: RecipeCategory[] = []
-
-            const parentCategories = await getCategories()
-            for (const category of parentCategories) {
-                const subcategories = await getSubcategories(category.id)
-                categories.push(category)
-                for (const sc of subcategories) {
-                    categories.push(sc)
-                }
-            }
-
-            return categories
-        }
-    })
-
+export function RecipeDataAccordion({ recipes, onShowRecipeComments, categories }: { recipes?: Recipe[], onShowRecipeComments: (recipeId: number) => void, categories?: RecipeCategory[] }) {
     return (
-        <DevDataPanel title="Recipes">
-            <RecipeDataTable recipes={recipes.data} onShowRecipeComments={setCommentRecipeId} />
-            {categories && categories?.length > 0 && <RecipeCategoryTable categories={categories} />}
-        </DevDataPanel>
+        <Accordion type="multiple" className="w-11/12 mx-auto">
+            <AccordionItem value="recipe-data-table">
+                <AccordionTrigger>Recipes</AccordionTrigger>
+                <AccordionContent>
+                    <RecipeDataTable recipes={recipes} onShowRecipeComments={onShowRecipeComments} />
+                </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="recipe-category-table">
+                <AccordionTrigger>Recipe Categories</AccordionTrigger>
+                <AccordionContent className="w-4/5 mx-auto">
+                    {categories != undefined &&
+                        <DataTable columns={CategoryColumns} data={categories} />
+                    }
+                </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="new-recipe">
+                <AccordionTrigger>New Recipe</AccordionTrigger>
+                <AccordionContent>
+                    <Card>
+                        <CardContent className="p-6">
+                            <NewRecipeForm />
+                        </CardContent>
+                    </Card>
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
     )
 }
 
@@ -107,15 +107,6 @@ const CategoryColumns: ColumnDef<RecipeCategory>[] = [
     }
 ]
 
-function RecipeCategoryTable({ categories }: { categories: RecipeCategory[] }) {
-    return (
-        <div>
-            <p className="text-xl">Categories</p>
-            <DataTable columns={CategoryColumns} data={categories} />
-        </div>
-    )
-}
-
 function RecipeDataTable({ recipes, onShowRecipeComments }: { recipes?: Recipe[], onShowRecipeComments: (recipeId: number) => void }) {
     return (
         <Table>
@@ -150,3 +141,65 @@ function RecipeDataTable({ recipes, onShowRecipeComments }: { recipes?: Recipe[]
     )
 }
 
+function NewRecipeForm() {
+    const queryClient = useQueryClient()
+
+    const submitRecipe = useMutation({
+        mutationFn: (newRecipe: NewRecipe) => {
+            return createRecipe(newRecipe)
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: ['recipes']
+            })
+        }
+    })
+
+    const recipeForm = useForm({
+        defaultValues: {
+            name: '',
+            author_id: 0,
+            ingredients: [],
+            instructions: [],
+            category_id: 0,
+            subcategory_id: 0,
+            attributes: [],
+            tags: []
+        },
+        onSubmit: async (values) => {
+            submitRecipe.mutate(values.value)
+        }
+    })
+
+    return (
+        <form onSubmit={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            recipeForm.handleSubmit()
+        }}>
+            <div className="flex flex-col gap-2">
+                <recipeForm.Field name="name" children={(field) => {
+                    return (
+                        <>
+                            <Label htmlFor={field.name}>Name</Label>
+                            <Input
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) => { field.handleChange(e.target.value) }}
+                            />
+                        </>
+                    )
+                }} />
+                <recipeForm.Field name="author_id" children={(field) => {
+                    return (
+                        <>
+                            <Label htmlFor={field.name}>Author</Label>
+                        </>
+                    )
+                }} />
+            </div>
+        </form>
+    )
+}
