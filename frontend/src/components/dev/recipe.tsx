@@ -6,13 +6,16 @@ import { DatabaseIcon } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "../ui/data-table"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createRecipe } from "@/lib/api/recipe"
 import { useForm } from "@tanstack/react-form"
 import { User } from "@/lib/types";
 import { Label } from "@radix-ui/react-label"
 import { Input } from "../ui/input"
 import { Card, CardContent } from "../ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { getUsers } from "@/lib/api/user"
+import { getCategories, getSubcategories } from "@/lib/api/category"
 
 export function RecipeDataAccordion({ recipes, onShowRecipeComments, categories }: { recipes?: Recipe[], onShowRecipeComments: (recipeId: number) => void, categories?: RecipeCategory[] }) {
     return (
@@ -145,8 +148,10 @@ function NewRecipeForm() {
     const queryClient = useQueryClient()
 
     const submitRecipe = useMutation({
-        mutationFn: (newRecipe: NewRecipe) => {
-            return createRecipe(newRecipe)
+        mutationFn: async (newRecipe: NewRecipe) => {
+            // Fake resolve chain to mock server response
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            console.log(newRecipe)
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -158,16 +163,41 @@ function NewRecipeForm() {
     const recipeForm = useForm({
         defaultValues: {
             name: '',
-            author_id: 0,
-            ingredients: [],
-            instructions: [],
-            category_id: 0,
-            subcategory_id: 0,
-            attributes: [],
-            tags: []
+            author_id: 1,
+            ingredients: [""],
+            instructions: [""],
+            category_id: 1,
+            subcategory_id: '7', // Points at "American Ale"
+            attributes: [0],
+            tags: [0]
         },
         onSubmit: async (values) => {
-            submitRecipe.mutate(values.value)
+            await submitRecipe.mutateAsync({
+                name: values.value.name,
+                author_id: values.value.author_id,
+                ingredients: values.value.ingredients,
+                instructions: values.value.instructions,
+                category_id: values.value.category_id,
+                subcategory_id: parseInt(values.value.subcategory_id),
+                attributes: values.value.attributes,
+                tags: values.value.tags
+            })
+        }
+    })
+
+    const userOptions = useQuery({
+        queryKey: ['users'], queryFn: getUsers
+    })
+    const categoryOptions = useQuery({
+        queryKey: ['recipeCategories'], queryFn: () => {
+            return getCategories()
+        }
+    })
+    const subcategoryOptions = useQuery({
+        queryKey: ['subcategories', recipeForm.state.values.category_id],
+        queryFn: async () => {
+            const subcategories = await getSubcategories(recipeForm.state.values.category_id)
+            return subcategories
         }
     })
 
@@ -196,9 +226,102 @@ function NewRecipeForm() {
                     return (
                         <>
                             <Label htmlFor={field.name}>Author</Label>
+                            <Select onValueChange={(v) => field.handleChange(parseInt(v))} defaultValue={field.state.value.toString()}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a verified email to display" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {userOptions.data?.map(user => (
+                                        <SelectItem key={user.id} value={user.id.toString()}>{user.username} - {user.email}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                         </>
                     )
                 }} />
+                <recipeForm.Field name="ingredients" mode="array">
+                    {(field) => {
+                        return (
+                        <div className="mx-auto flex flex-col gap-2 w-5/6">
+                            {field.state.value.map((_, i) => {
+                            return (
+                                <recipeForm.Field key={i} name={`ingredients[${i}]`}>
+                                {(subField) => {
+                                    return (
+                                    <div className="flex flex-row gap-2">
+                                        <Input
+                                            value={subField.state.value}
+                                            onChange={(e) =>
+                                            subField.handleChange(e.target.value)
+                                            }
+                                        />
+                                    </div>
+                                    )
+                                }}
+                                </recipeForm.Field>
+                            )
+                            })}
+                            <Button
+                            onClick={() => field.pushValue("")}
+                            type="button"
+                            >
+                            Add Ingredient
+                            </Button>
+                        </div>
+                        )
+                    }}
+                    </recipeForm.Field>
+                <recipeForm.Field name="category_id" children={(field) => {
+                    return (
+                        <>
+                            <Label htmlFor={field.name}>Category</Label>
+                            <Select
+                                onValueChange={(v) => {
+                                    field.handleChange(parseInt(v))
+                                    queryClient.invalidateQueries({
+                                        queryKey: ['subcategories']
+                                    })
+                            }}
+                            defaultValue={field.state.value.toString()}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a category to display" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {categoryOptions.data?.map(category => (
+                                        <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </>
+                    )
+                }} />
+                <recipeForm.Field name="subcategory_id" children={(field) => {
+                    return (
+                        <>
+                            <Label htmlFor={field.name}>Subcategory</Label>
+                            <Select onValueChange={(v) => {
+                                field.handleChange(v);
+                            }} defaultValue={field.state.value}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a subcategory to display" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {subcategoryOptions.data?.map(category => (
+                                        <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </>
+                    )
+                }} />
+                <recipeForm.Subscribe
+                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                    children={([canSubmit, isSubmitting]) => (
+                        <Button type="submit" disabled={!canSubmit}>
+                            {isSubmitting ? '...' : 'Submit'}
+                        </Button>
+                    )}
+                />
             </div>
         </form>
     )
