@@ -130,7 +130,7 @@ LEFT JOIN categories AS sc ON sc.id = recipes.subcategory_id
 `
 
 func convertRecipeFieldsToRecipe(recipeRow RecipeDbRow, categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON sql.NullString) (*data.Recipe, error) {
-	recipeAttributes := make([]*data.RecipeAttribute, 0)
+	recipeAttributes := make([]data.RecipeAttribute, 0)
 	if attributeValuesJSON.Valid {
 		err := json.Unmarshal([]byte(attributeValuesJSON.String), &recipeAttributes)
 		if err != nil {
@@ -145,6 +145,13 @@ func convertRecipeFieldsToRecipe(recipeRow RecipeDbRow, categoryName, subcategor
 			return nil, err
 		}
 	}
+	tags := make([]data.Tag, 0)
+	for _, tag := range recipeTags {
+		tags = append(tags, data.Tag{
+			Id:   tag.Id,
+			Name: tag.Name,
+		})
+	}
 
 	author := data.User{}
 	if userValueJSON.Valid {
@@ -155,27 +162,21 @@ func convertRecipeFieldsToRecipe(recipeRow RecipeDbRow, categoryName, subcategor
 	}
 
 	recipe := data.Recipe{
-		Id:           recipeRow.Id,
-		CreatedAt:    recipeRow.CreatedAt,
-		UpdatedAt:    recipeRow.UpdatedAt,
-		AuthorId:     recipeRow.AuthorId,
-		Author:       author,
-		Name:         recipeRow.Name,
-		Ingredients:  recipeRow.Ingredients,
-		Instructions: recipeRow.Instructions,
-		Category: data.RecipeCategory{
-			Id:       recipeRow.CategoryId,
-			Name:     categoryName.String,
-			ParentId: nil,
-		},
-		Subcategory: data.RecipeCategory{
-			Id:       recipeRow.SubcategoryId,
-			Name:     subcategoryName.String,
-			ParentId: &recipeRow.CategoryId,
-		},
-		Version:    recipeRow.Version,
-		Attributes: recipeAttributes,
-		Tags:       recipeTags,
+		Id:            recipeRow.Id,
+		CreatedAt:     recipeRow.CreatedAt,
+		UpdatedAt:     recipeRow.UpdatedAt,
+		AuthorId:      recipeRow.AuthorId,
+		Author:        author,
+		Name:          recipeRow.Name,
+		Ingredients:   recipeRow.Ingredients,
+		Instructions:  recipeRow.Instructions,
+		Category:      categoryName.String,
+		CategoryId:    recipeRow.CategoryId,
+		Subcategory:   subcategoryName.String,
+		SubcategoryId: recipeRow.SubcategoryId,
+		Version:       recipeRow.Version,
+		Attributes:    recipeAttributes,
+		Tags:          tags,
 	}
 
 	return &recipe, nil

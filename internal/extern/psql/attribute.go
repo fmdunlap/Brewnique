@@ -20,8 +20,8 @@ type RecipeAttributeDbRow struct {
 	AttributeId int64
 }
 
-func (a *AttributeDbRow) ToAttribute() data.Attribute {
-	return data.Attribute{
+func (a *AttributeDbRow) ToAttribute() data.AttributeDefinition {
+	return data.AttributeDefinition{
 		Id:     a.Id,
 		Name:   a.Name,
 		Type:   a.Type,
@@ -36,7 +36,7 @@ func (a *AttributeValueDbRow) ToAttributeValue() data.AttributeValue {
 	}
 }
 
-func (p PostgresProvider) GetAttribute(id int64) (*data.Attribute, error) {
+func (p PostgresProvider) GetAttribute(id int64) (*data.AttributeDefinition, error) {
 	res := p.db.QueryRow("SELECT id, name, type FROM attributes WHERE id = $1", id)
 
 	attributeRow := AttributeDbRow{}
@@ -71,14 +71,14 @@ func (p PostgresProvider) GetAttributeValues(attributeId int64) ([]*data.Attribu
 	return attributeValues, nil
 }
 
-func (p PostgresProvider) GetAttributes() ([]*data.Attribute, error) {
+func (p PostgresProvider) GetAttributes() ([]*data.AttributeDefinition, error) {
 	rows, err := p.db.Query("SELECT id, name, type FROM attributes")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var attributes []*data.Attribute
+	var attributes []*data.AttributeDefinition
 	for rows.Next() {
 		var attributeRow AttributeDbRow
 		err = rows.Scan(&attributeRow.Id, &attributeRow.Name, &attributeRow.Type)

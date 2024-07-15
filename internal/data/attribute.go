@@ -1,6 +1,6 @@
 package data
 
-type Attribute struct {
+type AttributeDefinition struct {
 	Id     int64
 	Name   string
 	Type   string

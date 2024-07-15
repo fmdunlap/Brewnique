@@ -18,7 +18,7 @@ type RecipeProvider interface {
 	ListRecipesByAuthorId(userId int64) ([]*data.Recipe, error)
 	PutRecipe(recipe *data.Recipe) (*data.Recipe, error)
 	UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error)
-	GetAttributes() ([]*data.Attribute, error)
+	GetAttributes() ([]*data.AttributeDefinition, error)
 	GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error)
 	GetTags() ([]*data.Tag, error)
 	GetRecipeTags(recipeId int64) ([]*data.RecipeTag, error)
@@ -112,7 +112,7 @@ func (s *RecipeService) ListSubcategories(categoryId int64) ([]*data.RecipeCateg
 	return s.recipeProvider.ListSubcategories(categoryId)
 }
 
-func (s *RecipeService) GetAttributes() ([]*data.Attribute, error) {
+func (s *RecipeService) GetAttributes() ([]*data.AttributeDefinition, error) {
 	attributes, err := s.recipeProvider.GetAttributes()
 	if err != nil {
 		return nil, err

@@ -418,7 +418,7 @@ type TestRecipeProvider struct {
 	recipeRatings   map[int64]map[int64]*data.RecipeRating
 	categories      map[int64]*data.RecipeCategory
 	subcategories   map[int64]*data.RecipeCategory
-	attributes      map[int64]*data.Attribute
+	attributes      map[int64]*data.AttributeDefinition
 	attributeValues map[int64]*data.AttributeValue
 	tags            []*data.Tag
 	recipeTags      map[int64][]*data.RecipeTag
@@ -590,8 +590,8 @@ func (p *TestRecipeProvider) ListSubcategories(categoryId int64) ([]*data.Recipe
 	return subcategories, nil
 }
 
-func (p *TestRecipeProvider) GetAttributes() ([]*data.Attribute, error) {
-	var attributes []*data.Attribute
+func (p *TestRecipeProvider) GetAttributes() ([]*data.AttributeDefinition, error) {
+	var attributes []*data.AttributeDefinition
 	for _, attribute := range p.attributes {
 		attributes = append(attributes, attribute)
 	}

@@ -7,19 +7,21 @@ import (
 )
 
 type Recipe struct {
-	Id           int64              `json:"id"`
-	CreatedAt    time.Time          `json:"created_at"`
-	UpdatedAt    time.Time          `json:"updated_at"`
-	AuthorId     int64              `json:"author_id"`
-	Author       User               `json:"author"`
-	Name         string             `json:"name"`
-	Ingredients  []string           `json:"ingredients"`
-	Instructions []string           `json:"instructions"`
-	Category     RecipeCategory     `json:"category"`
-	Subcategory  RecipeCategory     `json:"subcategory"`
-	Attributes   []*RecipeAttribute `json:"attributes"`
-	Tags         []RecipeTag        `json:"tags"`
-	Version      int                `json:"version"`
+	Id            int64             `json:"id"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+	AuthorId      int64             `json:"author_id"`
+	Author        User              `json:"author"`
+	Name          string            `json:"name"`
+	Ingredients   []string          `json:"ingredients"`
+	Instructions  []string          `json:"instructions"`
+	Category      string            `json:"category"`
+	CategoryId    int64             `json:"category_id"`
+	Subcategory   string            `json:"subcategory"`
+	SubcategoryId int64             `json:"subcategory_id"`
+	Attributes    []RecipeAttribute `json:"attributes"`
+	Tags          []Tag             `json:"tags"`
+	Version       int               `json:"version"`
 }
 
 type RecipeAttribute struct {
