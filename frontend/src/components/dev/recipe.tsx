@@ -2,20 +2,22 @@ import { NewRecipe, Recipe, RecipeCategory } from "@/lib/types"
 import { Button } from "@/components/ui/button.tsx"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-import { DatabaseIcon } from "lucide-react"
+import { DatabaseIcon, PlusIcon, TrashIcon } from "lucide-react"
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "../ui/data-table"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createRecipe } from "@/lib/api/recipe"
 import { useForm } from "@tanstack/react-form"
-import { User } from "@/lib/types";
 import { Label } from "@radix-ui/react-label"
 import { Input } from "../ui/input"
 import { Card, CardContent } from "../ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { getUsers } from "@/lib/api/user"
 import { getCategories, getSubcategories } from "@/lib/api/category"
+import { getTags } from "@/lib/api/tags"
+import MultipleSelector from "../ui/multi-select"
+import { getAttributes } from "@/lib/api/attributes"
+import { createRecipe } from "@/lib/api/recipe"
 
 export function RecipeDataAccordion({ recipes, onShowRecipeComments, categories }: { recipes?: Recipe[], onShowRecipeComments: (recipeId: number) => void, categories?: RecipeCategory[] }) {
     return (
@@ -150,8 +152,7 @@ function NewRecipeForm() {
     const submitRecipe = useMutation({
         mutationFn: async (newRecipe: NewRecipe) => {
             // Fake resolve chain to mock server response
-            await new Promise(resolve => setTimeout(resolve, 1000))
-            console.log(newRecipe)
+            await createRecipe(newRecipe)
         },
         onSuccess: () => {
             queryClient.invalidateQueries({
@@ -160,17 +161,28 @@ function NewRecipeForm() {
         }
     })
 
+    type RecipeFormValues = {
+        name: string,
+        author_id: number,
+        ingredients: string[],
+        instructions: string[],
+        category_id: number,
+        subcategory_id: string,
+        attribute_ids: number[],
+        tag_ids: number[]
+    }
+
     const recipeForm = useForm({
         defaultValues: {
             name: '',
             author_id: 1,
-            ingredients: [""],
-            instructions: [""],
+            ingredients: [],
+            instructions: [],
             category_id: 1,
             subcategory_id: '7', // Points at "American Ale"
-            attributes: [0],
-            tags: [0]
-        },
+            attribute_ids: [],
+            tag_ids: []
+        } as RecipeFormValues,
         onSubmit: async (values) => {
             await submitRecipe.mutateAsync({
                 name: values.value.name,
@@ -179,8 +191,8 @@ function NewRecipeForm() {
                 instructions: values.value.instructions,
                 category_id: values.value.category_id,
                 subcategory_id: parseInt(values.value.subcategory_id),
-                attributes: values.value.attributes,
-                tags: values.value.tags
+                attribute_ids: values.value.attribute_ids,
+                tag_ids: values.value.tag_ids
             })
         }
     })
@@ -199,6 +211,12 @@ function NewRecipeForm() {
             const subcategories = await getSubcategories(recipeForm.state.values.category_id)
             return subcategories
         }
+    })
+    const tagOptions = useQuery({
+        queryKey: ['tags'], queryFn: getTags
+    })
+    const attributes = useQuery({
+        queryKey: ['attributes'], queryFn: getAttributes
     })
 
     return (
@@ -239,38 +257,140 @@ function NewRecipeForm() {
                         </>
                     )
                 }} />
+                <Label className="my-auto" htmlFor="ingredients">Ingredients</Label>
                 <recipeForm.Field name="ingredients" mode="array">
                     {(field) => {
                         return (
-                        <div className="mx-auto flex flex-col gap-2 w-5/6">
-                            {field.state.value.map((_, i) => {
-                            return (
-                                <recipeForm.Field key={i} name={`ingredients[${i}]`}>
-                                {(subField) => {
+                            <div className="py-2 flex flex-col gap-2">
+                                {field.state.value.map((_, i) => {
                                     return (
-                                    <div className="flex flex-row gap-2">
-                                        <Input
-                                            value={subField.state.value}
-                                            onChange={(e) =>
-                                            subField.handleChange(e.target.value)
-                                            }
-                                        />
-                                    </div>
+                                        <recipeForm.Field key={i} name={`ingredients[${i}]`}>
+                                            {(subField) => {
+                                                return (
+                                                    <div className="flex flex-row gap-2">
+                                                        <Label className="my-auto" htmlFor={subField.name}>{i}.</Label>
+                                                        <Input
+                                                            value={subField.state.value}
+                                                            onChange={(e) =>
+                                                                subField.handleChange(e.target.value)
+                                                            }
+                                                        />
+                                                        <Button onClick={() => field.removeValue(i)} variant={"destructive"} type="button">
+                                                            <TrashIcon className="h-6 w-6" />
+                                                        </Button>
+                                                    </div>
+                                                )
+                                            }}
+                                        </recipeForm.Field>
                                     )
-                                }}
-                                </recipeForm.Field>
-                            )
-                            })}
-                            <Button
-                            onClick={() => field.pushValue("")}
-                            type="button"
-                            >
-                            Add Ingredient
-                            </Button>
-                        </div>
+                                })}
+                                <Button
+                                    className="mr-auto"
+                                    onClick={() => field.pushValue("")}
+                                    type="button"
+                                >
+                                    <div className="flex flex-row gap-2">
+                                        <Label className="my-auto" htmlFor="ingredients">Add Ingredient</Label>
+                                        <PlusIcon className="h-6 w-6" />
+                                    </div>
+                                </Button>
+                            </div>
                         )
                     }}
-                    </recipeForm.Field>
+                </recipeForm.Field>
+                <Label className="my-auto" htmlFor="instructions">Instructions</Label>
+                <recipeForm.Field name="instructions" mode="array">
+                    {(field) => {
+                        return (
+                            <div className="py-2 flex flex-col gap-2">
+                                {field.state.value.map((_, i) => {
+                                    return (
+                                        <recipeForm.Field key={i} name={`instructions[${i}]`}>
+                                            {(subField) => {
+                                                return (
+                                                    <div className="flex flex-row gap-2">
+                                                        <Label className="my-auto" htmlFor={subField.name}>{i}.</Label>
+                                                        <Input
+                                                            value={subField.state.value}
+                                                            onChange={(e) =>
+                                                                subField.handleChange(e.target.value)
+                                                            }
+                                                        />
+                                                        <Button onClick={() => field.removeValue(i)} variant={"destructive"} type="button">
+                                                            <TrashIcon className="h-6 w-6" />
+                                                        </Button>
+                                                    </div>
+                                                )
+                                            }}
+                                        </recipeForm.Field>
+                                    )
+                                })}
+                                <Button
+                                    className="mr-auto"
+                                    onClick={() => field.pushValue("")}
+                                    type="button"
+                                >
+                                    <div className="flex flex-row gap-2">
+                                        <Label className="my-auto" htmlFor="instructions">Add Instruction</Label>
+                                        <PlusIcon className="h-6 w-6" />
+                                    </div>
+                                </Button>
+                            </div>
+                        )
+                    }}
+                </recipeForm.Field>
+                <Label className="my-auto" htmlFor="tag_ids">Tags</Label>
+                {tagOptions.data && <MultipleSelector
+                    defaultOptions={tagOptions.data?.map(tag => ({
+                        value: tag.id.toString(),
+                        label: tag.name
+                    }))}
+                    className="w-full"
+                    placeholder="Select Tags"
+                    emptyIndicator={
+                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                            no results found.
+                        </p>
+                    }
+                />}
+                <Label className="my-auto" htmlFor="attribute_ids">Attributes</Label>
+                <recipeForm.Field name="attribute_ids" mode="array" children={(field) => {
+                    return (
+                        <div className="mx-auto grid grid-cols-3 gap-4 w-full">
+                            {attributes.data && attributes.data.map(attribute => (
+                                <div key={attribute.id}>
+                                    <Label className="my-auto" htmlFor={attribute.name}>{attribute.name}</Label>
+                                    <div className="flex flex-row gap-2">
+                                        <Select
+                                            onValueChange={(v) => {
+                                                const thisAttrValues = attribute.values.map(value => value.id)
+                                                for (const existingValue of field.state.value) {
+                                                    if (thisAttrValues.includes(existingValue)) {
+                                                        field.removeValue(field.state.value.indexOf(existingValue))
+                                                    }
+                                                }
+                                                if (v !== '0') {
+                                                    field.pushValue(parseInt(v))
+                                                }
+                                            }}
+                                            defaultValue={field.state.value.toString()}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {attribute.values.map(value => (
+                                                    <SelectItem key={value.id} value={value.id.toString()}>{value.value}</SelectItem>
+                                                ))}
+                                                <SelectItem className="h-7" value="0">{" "}</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )
+                }} />
                 <recipeForm.Field name="category_id" children={(field) => {
                     return (
                         <>
@@ -281,8 +401,8 @@ function NewRecipeForm() {
                                     queryClient.invalidateQueries({
                                         queryKey: ['subcategories']
                                     })
-                            }}
-                            defaultValue={field.state.value.toString()}>
+                                }}
+                                defaultValue={field.state.value.toString()}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select a category to display" />
                                 </SelectTrigger>

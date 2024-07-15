@@ -33,8 +33,8 @@ export type NewRecipe = {
     instructions: string[],
     category_id: number,
     subcategory_id: number,
-    attributes: number[],
-    tags: number[]
+    attribute_ids: number[],
+    tag_ids: number[]
 }
 
 export type RecipeCategory = {
@@ -47,6 +47,18 @@ export type RecipeAttribute = {
     id: number,
     name: string,
     type: string,
+    value: string
+}
+
+export type RecipeAttributeOptions = {
+    id: number,
+    name: string,
+    type: string,
+    values: RecipeAttributeOptionValue[]
+}
+
+export type RecipeAttributeOptionValue = {
+    id: number,
     value: string
 }
 
