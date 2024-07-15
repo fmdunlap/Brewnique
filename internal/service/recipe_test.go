@@ -154,7 +154,12 @@ func TestRecipeService_CreateRecipe(t *testing.T) {
 			tc.preRun(t, provider)
 		}
 		t.Run(tc.name, func(t *testing.T) {
-			recipe, err := recipeService.CreateRecipe(tc.args.name, tc.args.authorId, tc.args.ingredients, tc.args.instructions)
+			recipe, err := recipeService.CreateRecipe(CreateRecipeParams{
+				Name:         tc.args.name,
+				AuthorId:     tc.args.authorId,
+				Ingredients:  tc.args.ingredients,
+				Instructions: tc.args.instructions,
+			})
 			if tc.wantErr {
 				if (err != nil) != tc.wantErr {
 					t.Errorf("CreateRecipe() error = %v, wantErr %v", err, tc.wantErr)
@@ -590,7 +595,7 @@ func (p *TestRecipeProvider) ListSubcategories(categoryId int64) ([]*data.Recipe
 	return subcategories, nil
 }
 
-func (p *TestRecipeProvider) GetAttributes() ([]*data.AttributeDefinition, error) {
+func (p *TestRecipeProvider) ListAttributeDefinitions() ([]*data.AttributeDefinition, error) {
 	var attributes []*data.AttributeDefinition
 	for _, attribute := range p.attributes {
 		attributes = append(attributes, attribute)
@@ -608,7 +613,7 @@ func (p *TestRecipeProvider) GetAttributeValues(attributeId int64) ([]*data.Attr
 	return attributeValues, nil
 }
 
-func (p *TestRecipeProvider) GetTags() ([]*data.Tag, error) {
+func (p *TestRecipeProvider) ListTags() ([]*data.Tag, error) {
 	var tags []*data.Tag
 	for _, tag := range p.tags {
 		tags = append(tags, tag)

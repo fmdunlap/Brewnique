@@ -14,7 +14,7 @@ func (t *TagDbRow) ToTag() data.Tag {
 	}
 }
 
-func (p PostgresProvider) GetTags() ([]*data.Tag, error) {
+func (p PostgresProvider) ListTags() ([]*data.Tag, error) {
 	rows, err := p.db.Query("SELECT id, name FROM tags")
 	if err != nil {
 		return nil, err

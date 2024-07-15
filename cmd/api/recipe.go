@@ -2,6 +2,7 @@ package main
 
 import (
 	"brewnique.fdunlap.com/internal/data"
+	"brewnique.fdunlap.com/internal/service"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -10,14 +11,14 @@ import (
 )
 
 type CreateRecipeInput struct {
-	Name          string   `json:"name"`
-	AuthorId      int64    `json:"author_id"`
-	Ingredients   []string `json:"ingredients"`
-	Instructions  []string `json:"instructions"`
-	CategoryId    int64    `json:"category"`
-	SubcategoryId int64    `json:"subcategory"`
-	Attributes    []int64  `json:"attributes"`
-	Tags          []int64  `json:"tags"`
+	Name              string   `json:"name"`
+	AuthorId          int64    `json:"author_id"`
+	Ingredients       []string `json:"ingredients"`
+	Instructions      []string `json:"instructions"`
+	CategoryId        int64    `json:"category"`
+	SubcategoryId     int64    `json:"subcategory"`
+	AttributeValueIds []int64  `json:"attributes"`
+	TagIds            []int64  `json:"tags"`
 }
 
 func (input *CreateRecipeInput) Validate() (map[string]string, error) {
@@ -62,7 +63,16 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	newRecipe, err := app.Services.Recipes.CreateRecipe(input.Name, input.AuthorId, input.Ingredients, input.Instructions)
+	newRecipe, err := app.Services.Recipes.CreateRecipe(service.CreateRecipeParams{
+		Name:          input.Name,
+		AuthorId:      input.AuthorId,
+		Ingredients:   input.Ingredients,
+		Instructions:  input.Instructions,
+		CategoryId:    input.CategoryId,
+		SubcategoryId: input.SubcategoryId,
+		AttributeIds:  input.AttributeValueIds,
+		TagIds:        input.TagIds,
+	})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -71,7 +71,7 @@ func (p PostgresProvider) GetAttributeValues(attributeId int64) ([]*data.Attribu
 	return attributeValues, nil
 }
 
-func (p PostgresProvider) GetAttributes() ([]*data.AttributeDefinition, error) {
+func (p PostgresProvider) ListAttributeDefinitions() ([]*data.AttributeDefinition, error) {
 	rows, err := p.db.Query("SELECT id, name, type FROM attributes")
 	if err != nil {
 		return nil, err

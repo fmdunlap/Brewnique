@@ -1,9 +1,8 @@
 package service
 
 import (
-	"fmt"
-
 	"brewnique.fdunlap.com/internal/data"
+	"fmt"
 )
 
 type RecipeProvider interface {
@@ -18,9 +17,9 @@ type RecipeProvider interface {
 	ListRecipesByAuthorId(userId int64) ([]*data.Recipe, error)
 	PutRecipe(recipe *data.Recipe) (*data.Recipe, error)
 	UpdateRecipe(recipe *data.Recipe) (*data.Recipe, error)
-	GetAttributes() ([]*data.AttributeDefinition, error)
+	ListAttributeDefinitions() ([]*data.AttributeDefinition, error)
 	GetAttributeValues(attributeId int64) ([]*data.AttributeValue, error)
-	GetTags() ([]*data.Tag, error)
+	ListTags() ([]*data.Tag, error)
 	GetRecipeTags(recipeId int64) ([]*data.RecipeTag, error)
 	PutRecipeTags(recipeId int64, tags []*data.RecipeTag) error
 }
@@ -35,25 +34,100 @@ func NewRecipeService(recipeProvider RecipeProvider) *RecipeService {
 	}
 }
 
-func (s *RecipeService) CreateRecipe(name string, authorId int64, ingredients []string, instructions []string) (*data.Recipe, error) {
-	if name == "" {
-		return nil, fmt.Errorf("name is not set")
+type CreateRecipeParams struct {
+	Name          string   `json:"name"`
+	AuthorId      int64    `json:"author_id"`
+	Ingredients   []string `json:"ingredients"`
+	Instructions  []string `json:"instructions"`
+	CategoryId    int64    `json:"category"`
+	SubcategoryId int64    `json:"subcategory"`
+	AttributeIds  []int64  `json:"attributes"`
+	TagIds        []int64  `json:"tags"`
+}
+
+func (p *CreateRecipeParams) Validate() error {
+	if p.Name == "" {
+		return fmt.Errorf("name is not set")
 	}
-	if authorId == 0 {
-		return nil, fmt.Errorf("authorId is not set")
+	if p.AuthorId == 0 {
+		return fmt.Errorf("authorId is not set")
 	}
-	if len(ingredients) == 0 {
-		return nil, fmt.Errorf("ingredients is not set")
+	if len(p.Ingredients) == 0 {
+		return fmt.Errorf("ingredients is not set")
 	}
-	if len(instructions) == 0 {
-		return nil, fmt.Errorf("instructions is not set")
+	if len(p.Instructions) == 0 {
+		return fmt.Errorf("instructions is not set")
+	}
+
+	return nil
+}
+
+func (s *RecipeService) getAttributesFromValueIds(attributeIds []int64) ([]data.AttributeDTO, error) {
+	attributes := make([]data.AttributeDTO, 0)
+	attributeDefinitions, err := s.recipeProvider.ListAttributeDefinitions()
+	if err != nil {
+		return nil, err
+	}
+	for _, attributeDefinition := range attributeDefinitions {
+		for _, attributeValue := range attributeIds {
+			if attributeDefinition.Id == attributeValue {
+				attributes = append(attributes, data.AttributeDTO{
+					Name:  attributeDefinition.Name,
+					Type:  attributeDefinition.Type,
+					Value: attributeDefinition.Values[attributeValue].Value,
+				})
+			}
+		}
+	}
+
+	return attributes, nil
+}
+
+func (s *RecipeService) getTagsFromTagIds(tagIds []int64) ([]data.Tag, error) {
+	tagDefinitions, err := s.recipeProvider.ListTags()
+	if err != nil {
+		return nil, err
+	}
+	tagMap := make(map[int64]*data.Tag)
+	for _, tagDefinition := range tagDefinitions {
+		tagMap[tagDefinition.Id] = tagDefinition
+	}
+	tags := make([]data.Tag, 0)
+	for _, tagId := range tagIds {
+		tag, ok := tagMap[tagId]
+		if !ok {
+			return nil, fmt.Errorf("tag with id %d not found", tagId)
+		}
+		tags = append(tags, *tag)
+	}
+
+	return tags, nil
+}
+
+func (s *RecipeService) CreateRecipe(params CreateRecipeParams) (*data.Recipe, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
+
+	attributes, err := s.getAttributesFromValueIds(params.AttributeIds)
+	if err != nil {
+		return nil, err
+	}
+
+	tags, err := s.getTagsFromTagIds(params.TagIds)
+	if err != nil {
+		return nil, err
 	}
 
 	return s.recipeProvider.PutRecipe(&data.Recipe{
-		Name:         name,
-		Ingredients:  ingredients,
-		Instructions: instructions,
-		AuthorId:     authorId,
+		AuthorId:      params.AuthorId,
+		Name:          params.Name,
+		Ingredients:   params.Ingredients,
+		Instructions:  params.Instructions,
+		CategoryId:    params.CategoryId,
+		SubcategoryId: params.SubcategoryId,
+		Attributes:    attributes,
+		Tags:          tags,
 	})
 }
 
@@ -113,7 +187,7 @@ func (s *RecipeService) ListSubcategories(categoryId int64) ([]*data.RecipeCateg
 }
 
 func (s *RecipeService) GetAttributes() ([]*data.AttributeDefinition, error) {
-	attributes, err := s.recipeProvider.GetAttributes()
+	attributes, err := s.recipeProvider.ListAttributeDefinitions()
 	if err != nil {
 		return nil, err
 	}
@@ -137,5 +211,5 @@ func (s *RecipeService) GetAttributeValues(attributeId int64) ([]*data.Attribute
 }
 
 func (s *RecipeService) GetTags() ([]*data.Tag, error) {
-	return s.recipeProvider.GetTags()
+	return s.recipeProvider.ListTags()
 }
