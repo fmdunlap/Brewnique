@@ -1,28 +1,53 @@
 package main
 
 import (
+	"brewnique.fdunlap.com/internal/data"
 	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
-
-	"brewnique.fdunlap.com/internal/data"
-	"brewnique.fdunlap.com/internal/validator"
 )
 
-func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Name          string   `json:"name"`
-		AuthorId      int64    `json:"author_id"`
-		Ingredients   []string `json:"ingredients"`
-		Instructions  []string `json:"instructions"`
-		CategoryId    int64    `json:"category"`
-		SubcategoryId int64    `json:"subcategory"`
-		Attributes    []int64  `json:"attributes"`
-		Tags          []int64  `json:"tags"`
+type CreateRecipeInput struct {
+	Name          string   `json:"name"`
+	AuthorId      int64    `json:"author_id"`
+	Ingredients   []string `json:"ingredients"`
+	Instructions  []string `json:"instructions"`
+	CategoryId    int64    `json:"category"`
+	SubcategoryId int64    `json:"subcategory"`
+	Attributes    []int64  `json:"attributes"`
+	Tags          []int64  `json:"tags"`
+}
+
+func (input *CreateRecipeInput) Validate() (map[string]string, error) {
+	fieldErrors := make(map[string]string)
+
+	if len(input.Name) == 0 {
+		fieldErrors["name"] = "name is required"
 	}
+	if input.AuthorId == 0 {
+		fieldErrors["author_id"] = "authorId is required"
+	}
+	if len(input.Ingredients) == 0 {
+		fieldErrors["ingredients"] = "ingredients is required"
+	}
+	if len(input.Instructions) == 0 {
+		fieldErrors["instructions"] = "instructions is required"
+	}
+	if input.CategoryId == 0 {
+		fieldErrors["category_id"] = "categoryId is required"
+	}
+
+	if len(fieldErrors) > 0 {
+		return fieldErrors, errors.New("validation failed")
+	}
+
+	return nil, nil
+}
+
+func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request) {
+	var input CreateRecipeInput
 
 	err := app.readJson(w, r, &input)
 	if err != nil {
@@ -31,32 +56,39 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	recipe := data.Recipe{
-		Name:         input.Name,
-		AuthorId:     input.AuthorId,
-		Ingredients:  input.Ingredients,
-		Instructions: input.Instructions,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-		Version:      1,
-	}
-
-	v := validator.New()
-	data.ValidateRecipe(v, recipe)
-
-	if !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+	fieldErrors, err := input.Validate()
+	if err != nil {
+		app.failedValidationResponse(w, r, fieldErrors)
 		return
 	}
 
-	newRecipe, err := app.Services.Recipes.CreateRecipe(recipe.Name, recipe.AuthorId, recipe.Ingredients, recipe.Instructions)
+	newRecipe, err := app.Services.Recipes.CreateRecipe(input.Name, input.AuthorId, input.Ingredients, input.Instructions)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
+	responseTags := make([]string, 0)
+	for _, tag := range newRecipe.Tags {
+		responseTags = append(responseTags, tag.Name)
+	}
+
+	response := data.RecipeAPIResponse{
+		Id:           newRecipe.Id,
+		Name:         newRecipe.Name,
+		Author:       newRecipe.Author,
+		Ingredients:  newRecipe.Ingredients,
+		Instructions: newRecipe.Instructions,
+		Category:     newRecipe.Category,
+		Subcategory:  newRecipe.Subcategory,
+		Attributes:   newRecipe.Attributes,
+		Tags:         responseTags,
+		CreatedAt:    newRecipe.CreatedAt,
+		UpdatedAt:    newRecipe.UpdatedAt,
+	}
+
 	w.WriteHeader(http.StatusOK)
-	err = app.writeJson(w, http.StatusOK, newRecipe, nil)
+	err = app.writeJson(w, http.StatusOK, response, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

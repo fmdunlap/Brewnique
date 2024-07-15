@@ -130,7 +130,7 @@ LEFT JOIN categories AS sc ON sc.id = recipes.subcategory_id
 `
 
 func convertRecipeFieldsToRecipe(recipeRow RecipeDbRow, categoryName, subcategoryName, userValueJSON, attributeValuesJSON, tagsJSON sql.NullString) (*data.Recipe, error) {
-	recipeAttributes := make([]data.RecipeAttribute, 0)
+	recipeAttributes := make([]data.AttributeDTO, 0)
 	if attributeValuesJSON.Valid {
 		err := json.Unmarshal([]byte(attributeValuesJSON.String), &recipeAttributes)
 		if err != nil {

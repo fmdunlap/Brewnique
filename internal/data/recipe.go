@@ -7,24 +7,38 @@ import (
 )
 
 type Recipe struct {
-	Id            int64             `json:"id"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
-	AuthorId      int64             `json:"author_id"`
-	Author        User              `json:"author"`
-	Name          string            `json:"name"`
-	Ingredients   []string          `json:"ingredients"`
-	Instructions  []string          `json:"instructions"`
-	Category      string            `json:"category"`
-	CategoryId    int64             `json:"category_id"`
-	Subcategory   string            `json:"subcategory"`
-	SubcategoryId int64             `json:"subcategory_id"`
-	Attributes    []RecipeAttribute `json:"attributes"`
-	Tags          []Tag             `json:"tags"`
-	Version       int               `json:"version"`
+	Id            int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	AuthorId      int64
+	Author        User
+	Name          string
+	Ingredients   []string
+	Instructions  []string
+	Category      string
+	CategoryId    int64
+	Subcategory   string
+	SubcategoryId int64
+	Attributes    []AttributeDTO
+	Tags          []Tag
+	Version       int
 }
 
-type RecipeAttribute struct {
+type RecipeAPIResponse struct {
+	Id           int64          `json:"id"`
+	Name         string         `json:"name"`
+	Author       User           `json:"author"`
+	Ingredients  []string       `json:"ingredients"`
+	Instructions []string       `json:"instructions"`
+	Category     string         `json:"category"`
+	Subcategory  string         `json:"subcategory"`
+	Attributes   []AttributeDTO `json:"attributes"`
+	Tags         []string       `json:"tags"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+}
+
+type AttributeDTO struct {
 	Name  string `json:"name"`
 	Type  string `json:"type"`
 	Value string `json:"value"`
