@@ -86,6 +86,14 @@ func (p PostgresProvider) ListAttributeDefinitions() ([]*data.AttributeDefinitio
 			return nil, err
 		}
 		attribute := attributeRow.ToAttribute()
+		attrVals, err := p.GetAttributeValues(attribute.Id)
+		if err != nil {
+			return nil, err
+		}
+		attribute.Values = make([]data.AttributeValue, 0)
+		for _, attrVal := range attrVals {
+			attribute.Values = append(attribute.Values, *attrVal)
+		}
 		attributes = append(attributes, &attribute)
 	}
 

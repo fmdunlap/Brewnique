@@ -1,23 +1,23 @@
-import { NewRecipe, Recipe, RecipeCategory } from "@/lib/types"
-import { Button } from "@/components/ui/button.tsx"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table.tsx"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-import { DatabaseIcon, PlusIcon, TrashIcon } from "lucide-react"
-import { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "../ui/data-table"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useForm } from "@tanstack/react-form"
-import { Label } from "@radix-ui/react-label"
-import { Input } from "../ui/input"
-import { Card, CardContent } from "../ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { getUsers } from "@/lib/api/user"
-import { getCategories, getSubcategories } from "@/lib/api/category"
-import { getTags } from "@/lib/api/tags"
+import {NewRecipe, Recipe, RecipeCategory} from "@/lib/types"
+import {Button} from "@/components/ui/button.tsx"
+import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table.tsx"
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card"
+import {DatabaseIcon, PlusIcon, TrashIcon} from "lucide-react"
+import {ColumnDef} from "@tanstack/react-table"
+import {DataTable} from "../ui/data-table"
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "../ui/accordion"
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query"
+import {useForm} from "@tanstack/react-form"
+import {Label} from "@radix-ui/react-label"
+import {Input} from "../ui/input"
+import {Card, CardContent} from "../ui/card"
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../ui/select"
+import {getUsers} from "@/lib/api/user"
+import {getCategories, getSubcategories} from "@/lib/api/category"
+import {getTags} from "@/lib/api/tags"
 import MultipleSelector from "../ui/multi-select"
-import { getAttributes } from "@/lib/api/attributes"
-import { createRecipe } from "@/lib/api/recipe"
+import {getAttributes} from "@/lib/api/attributes"
+import {createRecipe} from "@/lib/api/recipe"
 
 export function RecipeDataAccordion({ recipes, onShowRecipeComments, categories }: { recipes?: Recipe[], onShowRecipeComments: (recipeId: number) => void, categories?: RecipeCategory[] }) {
     return (
@@ -70,11 +70,11 @@ function RecipeView({ recipe }: { recipe: Recipe }) {
         <div className="flex flex-col gap-1">
             <p className="text-md">{recipe.name}</p>
             <div className="flex flex-col gap-1 text-sm">
-                <p>Author: {recipe.author.username} - <a href={`mailto:${recipe.author.email}`}>{recipe.author.email}</a> - {recipe.author_id ?? "NO_ID"}</p>
+                <p>Author: {recipe.author.username} - <a href={`mailto:${recipe.author.email}`}>{recipe.author.email}</a> - {recipe.author.id ?? "NO_ID"}</p>
                 <p>Ingredients: {recipe.ingredients.join(', ')}</p>
                 <p>Instructions: {recipe.instructions.join(', ')}</p>
-                <p>Category: {recipe.category.name}</p>
-                <p>Subcategory: {recipe.subcategory.name}</p>
+                <p>Category: {recipe.category}</p>
+                <p>Subcategory: {recipe.subcategory}</p>
                 <p>Attributes: </p>
                 <ul className="pl-4 list-disc list-inside">
                     {recipe.attributes.map(attribute => (
@@ -83,8 +83,8 @@ function RecipeView({ recipe }: { recipe: Recipe }) {
                 </ul>
                 <p>Tags: </p>
                 <ul className="pl-4 list-disc list-inside">
-                    {recipe.tags.map(tag => (
-                        <li key={tag.id}>{tag.name}</li>
+                    {recipe.tags.map((tag, i) => (
+                        <li key={"tag-" + i}>{tag}</li>
                     ))}
                 </ul>
             </div>
@@ -129,8 +129,8 @@ function RecipeDataTable({ recipes, onShowRecipeComments }: { recipes?: Recipe[]
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {recipes && recipes.map(recipe => (
-                    <TableRow key={recipe.id}>
+                {recipes && recipes.map(recipe => {
+                    return (<TableRow key={recipe.id}>
                         <TableCell><RecipeDetailHoverCard recipe={recipe} /></TableCell>
                         <TableCell>{recipe.id}</TableCell>
                         <TableCell>{recipe.name}</TableCell>
@@ -139,8 +139,8 @@ function RecipeDataTable({ recipes, onShowRecipeComments }: { recipes?: Recipe[]
                         <TableCell>{recipe.updated_at != null ? recipe.updated_at.toString() : ""}</TableCell>
                         <TableCell><Button variant={'outline'} size={'sm'} onClick={() => onShowRecipeComments(recipe.id)}>Comments</Button></TableCell>
                         <TableCell><Button variant={'destructive'} size={'sm'} onClick={() => onShowRecipeComments(recipe.id)}>Delete</Button></TableCell>
-                    </TableRow>
-                ))}
+                    </TableRow>)
+                })}
             </TableBody>
         </Table>
     )
@@ -154,8 +154,8 @@ function NewRecipeForm() {
             // Fake resolve chain to mock server response
             await createRecipe(newRecipe)
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({
+        onSuccess: async  () => {
+            await queryClient.invalidateQueries({
                 queryKey: ['recipes']
             })
         }
@@ -208,8 +208,7 @@ function NewRecipeForm() {
     const subcategoryOptions = useQuery({
         queryKey: ['subcategories', recipeForm.state.values.category_id],
         queryFn: async () => {
-            const subcategories = await getSubcategories(recipeForm.state.values.category_id)
-            return subcategories
+            return await getSubcategories(recipeForm.state.values.category_id)
         }
     })
     const tagOptions = useQuery({
@@ -339,20 +338,28 @@ function NewRecipeForm() {
                         )
                     }}
                 </recipeForm.Field>
-                <Label className="my-auto" htmlFor="tag_ids">Tags</Label>
-                {tagOptions.data && <MultipleSelector
-                    defaultOptions={tagOptions.data?.map(tag => ({
-                        value: tag.id.toString(),
-                        label: tag.name
-                    }))}
-                    className="w-full"
-                    placeholder="Select Tags"
-                    emptyIndicator={
-                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                            no results found.
-                        </p>
-                    }
-                />}
+                <recipeForm.Field name={"tag_ids"} mode="array" children={(field) => (
+                    <>
+                        <Label className="my-auto" htmlFor="tag_ids">Tags</Label>
+                        {tagOptions.data && <MultipleSelector
+                            defaultOptions={tagOptions.data?.map(tag => ({
+                                value: tag.id.toString(),
+                                label: tag.name
+                            }))}
+                            className="w-full"
+                            placeholder="Select Tags"
+                            emptyIndicator={
+                                <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                                    no results found.
+                                </p>
+                            }
+                            onChange={(options) => {
+                                field.setValue(options.map(option => parseInt(option.value)))
+                            }}
+                        />}
+                    </>
+                    )}
+                />
                 <Label className="my-auto" htmlFor="attribute_ids">Attributes</Label>
                 <recipeForm.Field name="attribute_ids" mode="array" children={(field) => {
                     return (

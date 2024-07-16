@@ -15,10 +15,10 @@ type CreateRecipeInput struct {
 	AuthorId          int64    `json:"author_id"`
 	Ingredients       []string `json:"ingredients"`
 	Instructions      []string `json:"instructions"`
-	CategoryId        int64    `json:"category"`
-	SubcategoryId     int64    `json:"subcategory"`
-	AttributeValueIds []int64  `json:"attributes"`
-	TagIds            []int64  `json:"tags"`
+	CategoryId        int64    `json:"category_id"`
+	SubcategoryId     int64    `json:"subcategory_id"`
+	AttributeValueIds []int64  `json:"attribute_ids"`
+	TagIds            []int64  `json:"tag_ids"`
 }
 
 func (input *CreateRecipeInput) Validate() (map[string]string, error) {
@@ -78,27 +78,8 @@ func (app *application) newRecipeHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	responseTags := make([]string, 0)
-	for _, tag := range newRecipe.Tags {
-		responseTags = append(responseTags, tag.Name)
-	}
-
-	response := data.RecipeAPIResponse{
-		Id:           newRecipe.Id,
-		Name:         newRecipe.Name,
-		Author:       newRecipe.Author,
-		Ingredients:  newRecipe.Ingredients,
-		Instructions: newRecipe.Instructions,
-		Category:     newRecipe.Category,
-		Subcategory:  newRecipe.Subcategory,
-		Attributes:   newRecipe.Attributes,
-		Tags:         responseTags,
-		CreatedAt:    newRecipe.CreatedAt,
-		UpdatedAt:    newRecipe.UpdatedAt,
-	}
-
 	w.WriteHeader(http.StatusOK)
-	err = app.writeJson(w, http.StatusOK, response, nil)
+	err = app.writeConvertibleToJson(w, http.StatusOK, newRecipe, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -133,8 +114,13 @@ func (app *application) listRecipesHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	recipesResponse := make([]data.RecipeAPIResponse, 0)
+	for _, recipe := range recipes {
+		recipesResponse = append(recipesResponse, recipe.ToRecipeAPIResponse())
+	}
+
 	w.WriteHeader(http.StatusOK)
-	app.writeJson(w, http.StatusOK, recipes, nil)
+	app.writeJson(w, http.StatusOK, recipesResponse, nil)
 }
 
 func (app *application) getRecipeHandler(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +140,7 @@ func (app *application) getRecipeHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	w.WriteHeader(http.StatusOK)
-	err = app.writeJson(w, http.StatusOK, recipe, nil)
+	err = app.writeConvertibleToJson(w, http.StatusOK, recipe, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
@@ -203,7 +189,7 @@ func (app *application) listSubcategoriesHandler(w http.ResponseWriter, r *http.
 }
 
 func (app *application) listAttributesHandler(w http.ResponseWriter, r *http.Request) {
-	attributes, err := app.Services.Recipes.GetAttributes()
+	attributes, err := app.Services.Recipes.GetAttributeDefinitions()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

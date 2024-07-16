@@ -14,16 +14,15 @@ export type NewUser = {
 export type Recipe = {
     id: number,
     name: string,
-    author_id?: number,
     author: User,
     created_at?: Date,
     updated_at?: Date,
     ingredients: string[],
     instructions: string[]
-    category: RecipeCategory,
-    subcategory: RecipeCategory,
+    category: string,
+    subcategory: string,
     attributes: RecipeAttribute[],
-    tags: RecipeTag[]
+    tags: string[]
 }
 
 export type NewRecipe = {
@@ -44,7 +43,6 @@ export type RecipeCategory = {
 }
 
 export type RecipeAttribute = {
-    id: number,
     name: string,
     type: string,
     value: string

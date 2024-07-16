@@ -421,8 +421,8 @@ func TestRecipeService_SetUserRecipeRating(t *testing.T) {
 type TestRecipeProvider struct {
 	recipes         map[int64]*data.Recipe
 	recipeRatings   map[int64]map[int64]*data.RecipeRating
-	categories      map[int64]*data.RecipeCategory
-	subcategories   map[int64]*data.RecipeCategory
+	categories      map[int64]*data.Category
+	subcategories   map[int64]*data.Category
 	attributes      map[int64]*data.AttributeDefinition
 	attributeValues map[int64]*data.AttributeValue
 	tags            []*data.Tag
@@ -577,16 +577,16 @@ func (p *TestRecipeProvider) GetRecipesByUserId(userId int64) ([]*data.Recipe, e
 	return recipes, nil
 }
 
-func (p *TestRecipeProvider) ListCategories() ([]*data.RecipeCategory, error) {
-	var categories []*data.RecipeCategory
+func (p *TestRecipeProvider) ListCategories() ([]*data.Category, error) {
+	var categories []*data.Category
 	for _, category := range p.categories {
 		categories = append(categories, category)
 	}
 	return categories, nil
 }
 
-func (p *TestRecipeProvider) ListSubcategories(categoryId int64) ([]*data.RecipeCategory, error) {
-	var subcategories []*data.RecipeCategory
+func (p *TestRecipeProvider) ListSubcategories(categoryId int64) ([]*data.Category, error) {
+	var subcategories []*data.Category
 	for _, subcategory := range p.subcategories {
 		if *subcategory.ParentId == categoryId {
 			subcategories = append(subcategories, subcategory)
@@ -621,23 +621,35 @@ func (p *TestRecipeProvider) ListTags() ([]*data.Tag, error) {
 	return tags, nil
 }
 
-func (p *TestRecipeProvider) GetRecipeTags(recipeId int64) ([]*data.RecipeTag, error) {
-	var tags []*data.RecipeTag
+func (p *TestRecipeProvider) GetRecipeTags(recipeId int64) ([]*data.Tag, error) {
+	var tags []*data.Tag
 	recipeTags, ok := p.recipeTags[recipeId]
 	if !ok {
 		return tags, nil
 	}
 	for _, tag := range recipeTags {
-		tags = append(tags, tag)
+		tags = append(tags, &data.Tag{
+			Id:   tag.Id,
+			Name: tag.Name,
+		})
 	}
 	return tags, nil
 }
 
-func (p *TestRecipeProvider) PutRecipeTags(recipeId int64, tags []*data.RecipeTag) error {
+func (p *TestRecipeProvider) PutRecipeTags(recipeId int64, tags []*data.Tag) error {
 	if _, ok := p.recipeTags[recipeId]; !ok {
 		p.recipeTags[recipeId] = make([]*data.RecipeTag, 0)
 	}
-	p.recipeTags[recipeId] = tags
+	recipeTags := make([]*data.RecipeTag, 0)
+	for _, tag := range tags {
+		recipeTags = append(recipeTags, &data.RecipeTag{
+			Id:       p.nextID,
+			RecipeId: recipeId,
+			TagId:    tag.Id,
+		})
+		p.nextID++
+	}
+	p.recipeTags[recipeId] = recipeTags
 	return nil
 }
 

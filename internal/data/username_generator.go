@@ -2,6 +2,8 @@ package data
 
 import (
 	_ "embed"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"math/rand"
 	"strings"
 )
@@ -16,8 +18,8 @@ func GenerateUsername() string {
 	adjectives := strings.Split(adjectiveList, "\n")
 	nouns := strings.Split(nounList, "\n")
 
-	randomAdjective := adjectives[rand.Intn(len(adjectives))]
-	randomNoun := nouns[rand.Intn(len(nouns))]
+	randomAdjective := cases.Title(language.English).String(adjectives[rand.Intn(len(adjectives))])
+	randomNoun := cases.Title(language.English).String(nouns[rand.Intn(len(nouns))])
 
-	return strings.Title(randomAdjective) + strings.Title(randomNoun)
+	return randomAdjective + randomNoun
 }

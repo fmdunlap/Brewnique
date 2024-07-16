@@ -1,8 +1,7 @@
-
-import { DevDataPanel } from "./devDataPanel"
-import { Comment } from "@/lib/types"
-import { useQuery } from "@tanstack/react-query"
-import { getComments } from "@/lib/api/comment"
+import {DevDataPanel} from "./devDataPanel"
+import {Comment} from "@/lib/types"
+import {useQuery} from "@tanstack/react-query"
+import {getComments} from "@/lib/api/comment"
 
 export function CommentCard({ commentRecipeId }: { commentRecipeId: number | null }) {
     const comments = useQuery({
@@ -10,8 +9,7 @@ export function CommentCard({ commentRecipeId }: { commentRecipeId: number | nul
             if (commentRecipeId === null) {
                 return []
             }
-            const comments = await getComments(commentRecipeId)
-            return comments
+            return await getComments(commentRecipeId)
         }
     })
 

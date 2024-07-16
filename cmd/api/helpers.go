@@ -1,6 +1,7 @@
 package main
 
 import (
+	"brewnique.fdunlap.com/internal/data"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -67,6 +68,25 @@ func (app *application) readJson(w http.ResponseWriter, r *http.Request, data an
 
 func (app *application) writeJson(w http.ResponseWriter, status int, data any, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	js = append(js, '\n')
+
+	for key, value := range headers {
+		w.Header().Set(key, value[0])
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(js)
+
+	return nil
+}
+
+func (app *application) writeConvertibleToJson(w http.ResponseWriter, status int, data data.ApiConvertible, headers http.Header) error {
+	js, err := data.MarshalApiResponse()
 	if err != nil {
 		return err
 	}

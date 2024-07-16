@@ -1,6 +1,7 @@
 package data
 
 import (
+	"encoding/json"
 	"time"
 
 	"brewnique.fdunlap.com/internal/validator"
@@ -24,6 +25,34 @@ type Recipe struct {
 	Version       int
 }
 
+func (r *Recipe) MarshalApiResponse() ([]byte, error) {
+	return json.Marshal(r.ToRecipeAPIResponse())
+}
+
+func (r *Recipe) ToRecipeAPIResponse() RecipeAPIResponse {
+	tagStrings := make([]string, 0)
+	for _, tag := range r.Tags {
+		tagStrings = append(tagStrings, tag.Name)
+	}
+	return RecipeAPIResponse{
+		Id:   r.Id,
+		Name: r.Name,
+		Author: User{
+			Id:       r.AuthorId,
+			Username: r.Author.Username,
+			Email:    r.Author.Email,
+		},
+		Ingredients:  r.Ingredients,
+		Instructions: r.Instructions,
+		Category:     r.Category,
+		Subcategory:  r.Subcategory,
+		Attributes:   r.Attributes,
+		Tags:         tagStrings,
+		CreatedAt:    r.CreatedAt,
+		UpdatedAt:    r.UpdatedAt,
+	}
+}
+
 type RecipeAPIResponse struct {
 	Id           int64          `json:"id"`
 	Name         string         `json:"name"`
@@ -44,7 +73,7 @@ type AttributeDTO struct {
 	Value string `json:"value"`
 }
 
-type RecipeCategory struct {
+type Category struct {
 	Id       int64  `json:"id"`
 	Name     string `json:"name"`
 	ParentId *int64 `json:"parent_id"`
